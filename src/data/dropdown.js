@@ -62,3 +62,18 @@ export const optionsIndustry = [
   { label: "Industry 2", value: "industry-02" },
   { label: "Industry 3", value: "industry-03" },
 ];
+
+export const optionsStage = [
+  { label: "Lead in/Profile", value: "leadin-profile" },
+  { label: "Pre-Design", value: "predesign" },
+  { label: "Take off", value: "takeoff" },
+  { label: "Design", value: "design" },
+  { label: "Deployment", value: "deployment" },
+  { label: "LiveBuilt", value: "livebuilt" },
+];
+
+export const optionsClients = [
+  { label: "Client 1", value: "client-01" },
+  { label: "Client 2", value: "client-02" },
+  { label: "Client 3", value: "client-03" },
+];
