@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "@fontsource/inter";
+
+body {
+  @apply font-sans text-default bg-white;
+}
+
+.table {
+  @apply min-w-full text-sm;
+}
+.table thead tr {
+  @apply bg-white text-left border-b border-b-neutral-500;
+}
+.table thead tr th {
+  @apply text-secondary font-normal px-4 pb-4 pt-3;
+}
+.table tbody tr {
+  @apply bg-white text-left border-b border-b-neutral-500;
+}
+.table tbody tr td {
+  @apply px-4 py-5;
+}
+
+.PhoneInputInput {
+  @apply focus:border-primary-300 focus:outline-none focus:ring-0 active:outline-none active:ring-0;
+}
+.phone-input-custom .PhoneInputCountry {
+  display: none !important;
+}
