@@ -11,8 +11,6 @@ export function generateBreadcrumb(pathname, getLabelById) {
   segments.forEach((segment, index) => {
     currentPath += `/${segment}`;
 
-    console.log(segments[index - 1]);
-
     const isLast = index === segments.length - 1;
     const isId = /^\d+$/.test(segment);
     const isUUID =
@@ -21,13 +19,10 @@ export function generateBreadcrumb(pathname, getLabelById) {
       );
     const isPreviousProjects = parents.includes(segments[index - 1]);
 
-    console.log(isLast, "isLast");
-    console.log(isId, "isId");
-    console.log(isPreviousProjects, "isPreviousProjects");
-
     let label = segment;
 
     if (isLast && (isId || isUUID) && isPreviousProjects && getLabelById) {
+      console.log("segment", segment);
       const dataLabel = getLabelById(segment);
       label = dataLabel || `ID ${segment}`;
     } else {

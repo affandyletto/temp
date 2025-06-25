@@ -1,14 +1,12 @@
-// src/components/Modal/ModalSubmitClient.js
+// src/components/Modal/ModalAddClientProject.jsx
 
 import { X } from "lucide-react";
-import { optionsStage, optionsClients } from "@/data/dropdown";
 import Input from "@/components/Form/Input";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
-import Modal from "./Modal";
 import ButtonSecondary from "@/components/Button/ButtonSecondary";
-import Select from "@/components/Form/Select";
+import Modal from "./Modal";
 
-const ModalSubmitProject = ({ data, isOpen, onClose, onSubmit }) => {
+const ModalAddClientProject = ({ data, isOpen, onClose, onSubmit }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} sizeModal={`w-[936px]`}>
       <div>
@@ -33,43 +31,29 @@ const ModalSubmitProject = ({ data, isOpen, onClose, onSubmit }) => {
           className="px-6 pb-6 pt-4 space-y-4"
         >
           <Input
-            id={"name"}
+            id={"project_name"}
             label={"Name"}
-            value={data?.name}
             placeholder="Input name"
+            value={data?.name}
             required={true}
           />
           <Input
-            id={"number"}
+            id={"project_number"}
             label={"Number"}
-            value={data?.number}
+            type="number"
+            value={data?.number || 0}
             placeholder="Input number"
             required={true}
-            type="number"
           />
-
-          <Select
-            id="select_stage"
-            label="Stage"
-            placeholder="Select Stage"
-            options={optionsStage}
-            onChange={(e) => console.log(e)}
-          />
-
-          <Select
-            id="select_client"
-            label="Client Organization"
-            placeholder="Select Client Organization"
-            options={optionsClients}
-            onChange={(e) => console.log(e)}
-          />
-          <div className="flex justify-end gap-2">
-            <ButtonSecondary
-              type={"button"}
-              label={"Cancel"}
-              onClick={onClose}
-            />
-            <ButtonPrimary type={"submit"} label={data ? "Save" : "Submit"} />
+          <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <ButtonSecondary
+                type={"button"}
+                label={"Cancel"}
+                onClick={onClose}
+              />
+              <ButtonPrimary type={"submit"} label={data ? "Save" : "Submit"} />
+            </div>
           </div>
         </form>
       </div>
@@ -77,4 +61,4 @@ const ModalSubmitProject = ({ data, isOpen, onClose, onSubmit }) => {
   );
 };
 
-export default ModalSubmitProject;
+export default ModalAddClientProject;

@@ -1,32 +1,37 @@
-// src/apps/Client/AppClients.jsx
+// src/apps/Clients/Projects.jsx
 
-import { useState, useMemo } from "react";
-import { mockProjects } from "@/data/projects";
 import { Plus, Search } from "lucide-react";
-import TableProjectList from "@/components/Table/TableProjectList";
+import { mockClients } from "@/data/clients";
+import { mockProjects } from "@/data/projects";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import Pagination from "@/components/Pagination";
 import SelectRowsPerPage from "@/components/SelectRowsPerPage";
-import ButtonPrimary from "@/components/Button/ButtonPrimary";
-import ModalSubmitProject from "@/components/Modal/ModalSubmitProject";
-import Toggle from "@/components/Toggle/Toggle";
-import ToggleView from "@/components/Toggle/ToggleView";
-import GridProjectList from "@/components/Grid/GridProjectList";
+import TableClientProjects from "@/components/Table/TableClientProjects";
+import ModalAddClientProject from "@/components/Modal/ModalAddClientProject";
 
-const ProjectList = () => {
+const Projects = () => {
+  const [dataClient, setDataClient] = useState(null);
+
+  const { id } = useParams();
+
+  useEffect(() => {
+    setDataClient(mockClients.find((item) => item.id === id));
+  }, [id]);
+
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [isEnabledView, setIsEnabledView] = useState(true);
-
   const filtered = useMemo(() => {
     return mockProjects.filter(
       (c) =>
-        c.name.toLowerCase().includes(search.toLowerCase()) &&
-        c.isArchive === isEnabled
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.number.toLowerCase().includes(search.toLowerCase()) ||
+        c.stage.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search, isEnabled]);
+  }, [search]);
 
   const totalPages = Math.ceil(filtered.length / rowsPerPage);
   const paginated = useMemo(() => {
@@ -37,15 +42,15 @@ const ProjectList = () => {
   // Handle Add
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const handleAddProject = () => {
+  const handleAddClient = () => {
     setIsAddOpen(false);
   };
 
   return (
     <>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">Project List</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">Detail {dataClient?.name}</h2>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 w-[300px] border border-neutral-400 rounded-lg p-3">
               <Search className="size-5 text-secondary" />
@@ -62,25 +67,13 @@ const ProjectList = () => {
             </div>
             <ButtonPrimary
               icon={Plus}
-              label={"Add Project"}
+              label={"New Project"}
               onClick={() => setIsAddOpen(true)}
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <Toggle
-            label={`${isEnabled ? "Archived" : "Active"}`}
-            value={isEnabled}
-            onChange={setIsEnabled}
-          />
-        </div>
-
-        {isEnabledView ? (
-          <TableProjectList items={paginated} />
-        ) : (
-          <GridProjectList items={paginated} />
-        )}
+        <TableClientProjects items={paginated} />
 
         <div className="flex justify-between items-center p-4">
           <SelectRowsPerPage
@@ -98,13 +91,13 @@ const ProjectList = () => {
         </div>
       </div>
 
-      <ModalSubmitProject
+      <ModalAddClientProject
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
-        onSubmit={handleAddProject}
+        onSubmit={handleAddClient}
       />
     </>
   );
 };
 
-export default ProjectList;
+export default Projects;

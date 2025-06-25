@@ -77,3 +77,15 @@ export const optionsClients = [
   { label: "Client 2", value: "client-02" },
   { label: "Client 3", value: "client-03" },
 ];
+
+export const optionsUserTypes = [
+  { label: "Client", value: "client" },
+  { label: "Consultant", value: "consultant" },
+  { label: "Associate", value: "associate" },
+  { label: "Employee", value: "employee" },
+];
+
+export const optionsUserApps = [
+  { label: "OneSurvey", value: "onesurvey" },
+  { label: "OneSnap", value: "onesnap" },
+];
