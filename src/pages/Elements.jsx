@@ -2,6 +2,7 @@
 
 import Topbar from "@/components/Navigation/Topbar";
 import Nav from "@/components/Navigation/Nav";
+import ElementManager from "@/apps/Elements/ElementManager";
 
 const breadcrumbItems = [
   { label: "Home", path: null },
@@ -13,10 +14,9 @@ const Elements = () => {
     <>
       <Topbar title={"Elements"} />
       <Nav breadcrumbItems={breadcrumbItems} />
-      <div
-        className="px-6 py-8"
-        style={{ minHeight: "calc(100vh - 158px)" }}
-      ></div>
+      <div className="px-6 py-8" style={{ minHeight: "calc(100vh - 158px)" }}>
+        <ElementManager />
+      </div>
     </>
   );
 };

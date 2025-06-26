@@ -89,3 +89,9 @@ export const optionsUserApps = [
   { label: "OneSurvey", value: "onesurvey" },
   { label: "OneSnap", value: "onesnap" },
 ];
+
+export const optionsElemetCategories = [
+  { label: "Super Category 1", value: "super-category-1" },
+  { label: "Super Category 2", value: "super-category-2" },
+  { label: "Super Category 3", value: "super-category-3" },
+];

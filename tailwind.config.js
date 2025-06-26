@@ -50,6 +50,9 @@ module.exports = {
         },
         secondary: "#767A83",
         light: "#DCE1EB",
+        gray: {
+          300: "#D9D9D9",
+        },
       },
       animation: {
         tooltipIn: "fadeInScale 0.2s ease-out forwards",

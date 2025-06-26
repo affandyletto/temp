@@ -9,8 +9,6 @@ import SelectRowsPerPage from "@/components/SelectRowsPerPage";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import ModalSubmitProject from "@/components/Modal/ModalSubmitProject";
 import Toggle from "@/components/Toggle/Toggle";
-import ToggleView from "@/components/Toggle/ToggleView";
-import GridProjectList from "@/components/Grid/GridProjectList";
 
 const ProjectList = () => {
   const [search, setSearch] = useState("");
@@ -18,7 +16,6 @@ const ProjectList = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isEnabled, setIsEnabled] = useState(false);
-  const [isEnabledView, setIsEnabledView] = useState(true);
 
   const filtered = useMemo(() => {
     return mockProjects.filter(
@@ -76,11 +73,7 @@ const ProjectList = () => {
           />
         </div>
 
-        {isEnabledView ? (
-          <TableProjectList items={paginated} />
-        ) : (
-          <GridProjectList items={paginated} />
-        )}
+        <TableProjectList items={paginated} />
 
         <div className="flex justify-between items-center p-4">
           <SelectRowsPerPage

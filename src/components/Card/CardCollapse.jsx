@@ -8,7 +8,7 @@ const CardCollapse = ({ title = "More Info", children }) => {
 
   return (
     <div className="bg-white border border-neutral-400 rounded-lg shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between bg-neutral-200 border-b border-neutral-400 p-3">
+      <div className="flex items-center justify-between bg-neutral-200 p-3">
         <p className="text-base font-semibold">{title}</p>
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -24,7 +24,9 @@ const CardCollapse = ({ title = "More Info", children }) => {
 
       <div
         className={`transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-[500px] " : "max-h-0 overflow-hidden "
+          isOpen
+            ? "max-h-[500px] border-t border-neutral-400 "
+            : "max-h-0 overflow-hidden "
         }`}
       >
         {children}
