@@ -6,7 +6,7 @@ import {
   CircleDollarSign,
   Pencil,
   Plus,
-  Trash,
+  Trash2,
   Upload,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
@@ -14,6 +14,8 @@ import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import ModalConfirm from "../Modal/ModalConfirm";
 import ModalEditCategory from "../Modal/ModalEditCategory";
 import ModalMassUpload from "../Modal/ModalMassUpload";
+import ModalAddElement from "../Modal/ModalAddElement";
+import ModalAccessories from "../Modal/ModalAccessories";
 
 const CardCollapseElement = ({ title = "More Info", items, children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,8 +25,14 @@ const CardCollapseElement = ({ title = "More Info", items, children }) => {
     setElement(items);
   }, [items]);
 
+  // Handle Accessories
+  const [isAccessories, setIsAccessories] = useState(false);
+
   // Handle Mass Upload
   const [isMassUpload, setIsMassUpload] = useState(false);
+
+  // Handle Add
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
   // Handle Edit
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -73,7 +81,7 @@ const CardCollapseElement = ({ title = "More Info", items, children }) => {
                 id: uuidv4(),
                 name: "Accessories",
                 icon: CircleDollarSign,
-                onClick: () => {},
+                onClick: () => setIsAccessories(true),
               },
               {
                 id: uuidv4(),
@@ -85,7 +93,7 @@ const CardCollapseElement = ({ title = "More Info", items, children }) => {
                 id: uuidv4(),
                 name: "Add Element",
                 icon: Plus,
-                onClick: () => {},
+                onClick: () => setIsAddOpen(true),
               },
               {
                 id: uuidv4(),
@@ -96,7 +104,7 @@ const CardCollapseElement = ({ title = "More Info", items, children }) => {
               {
                 id: uuidv4(),
                 name: "Delete",
-                icon: Trash,
+                icon: Trash2,
                 isRed: true,
                 onClick: () => handleDelete(element.id),
               },
@@ -128,6 +136,13 @@ const CardCollapseElement = ({ title = "More Info", items, children }) => {
         onClose={() => setIsEditOpen(false)}
         data={element}
       />
+
+      <ModalAccessories
+        isOpen={isAccessories}
+        onClose={() => setIsAccessories(false)}
+      />
+
+      <ModalAddElement isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
 
       <ModalMassUpload
         isOpen={isMassUpload}

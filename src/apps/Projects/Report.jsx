@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { ArrowUpDown, Trash } from "lucide-react";
+import { ArrowUpDown, Trash2 } from "lucide-react";
 import { reportItems } from "@/data/floorplan";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import ButtonDownload from "@/components/Button/ButtonDownload";
@@ -83,7 +83,7 @@ const Report = () => {
                       {
                         id: uuidv4(),
                         name: "Delete",
-                        icon: Trash,
+                        icon: Trash2,
                         isRed: true,
                         onClick: () => handleDelete(id),
                       },

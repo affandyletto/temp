@@ -2,18 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Copy, Pencil, Plus, Trash } from "lucide-react";
+import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
 import CardCollapseElement from "../Card/CardCollapseElement";
 import ButtonSecondary from "../Button/ButtonSecondary";
 import DropdownMenu from "../Dropdown/DropdownMenu";
 import ModalConfirm from "../Modal/ModalConfirm";
+import ModalAddElement from "../Modal/ModalAddElement";
+import ModalResponse from "../Modal/ModalResponse";
 
 const GridUniversalElements = ({ items }) => {
   const [elements, setElements] = useState([]);
+  const [selectElement, setSelectElement] = useState(null);
 
   useEffect(() => {
     setElements(items);
   }, [items]);
+
+  // Handle Add
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  // Handle Edit
+  const handleEditElement = (value) => {
+    setSelectElement(value);
+    setIsAddOpen(true);
+  };
+
+  // Handle Duplicate
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+
+  const handleDuplicate = () => {
+    setIsSuccessOpen(true);
+  };
 
   // Handle Delete
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -57,18 +76,18 @@ const GridUniversalElements = ({ items }) => {
                             id: uuidv4(),
                             name: "Edit",
                             icon: Pencil,
-                            onClick: () => {},
+                            onClick: () => handleEditElement(item),
                           },
                           {
                             id: uuidv4(),
                             name: "Duplicate",
                             icon: Copy,
-                            onClick: () => {},
+                            onClick: handleDuplicate,
                           },
                           {
                             id: uuidv4(),
                             name: "Delete",
-                            icon: Trash,
+                            icon: Trash2,
                             isRed: true,
                             onClick: () => handleDelete(item.id),
                           },
@@ -91,6 +110,7 @@ const GridUniversalElements = ({ items }) => {
                     icon={Plus}
                     type={"button"}
                     label={"Add Element"}
+                    onClick={setIsAddOpen}
                   />
                 </div>
               </div>
@@ -116,6 +136,18 @@ const GridUniversalElements = ({ items }) => {
         onConfirm={confirmDelete}
         title={`Do you want to delete this Element?`}
         message="This element will be permanently deleted. You will not be able to recover it."
+      />
+
+      <ModalAddElement
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        data={selectElement}
+      />
+      <ModalResponse
+        isOpen={isSuccessOpen}
+        onClose={() => setIsSuccessOpen(false)}
+        isSuccess
+        message="Element successfully duplicated"
       />
     </>
   );

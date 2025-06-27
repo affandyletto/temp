@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import UserTypeBadge from "@/components/Badge/UserTypeBadge";
@@ -88,7 +88,7 @@ const TableUserList = ({ items }) => {
                     {
                       id: uuidv4(),
                       name: "Delete",
-                      icon: Trash,
+                      icon: Trash2,
                       isRed: true,
                       onClick: () => handleDelete(user.id),
                     },

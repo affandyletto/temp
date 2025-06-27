@@ -8,7 +8,7 @@ import {
   Copy,
   FolderSync,
   Pencil,
-  Trash,
+  Trash2,
 } from "lucide-react";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 
@@ -64,7 +64,7 @@ const CardFloorPlan = ({
               {
                 id: 5,
                 name: "Delete",
-                icon: Trash,
+                icon: Trash2,
                 isRed: true,
                 onClick: () => {
                   onDelete?.();
@@ -112,7 +112,7 @@ const CardFloorPlan = ({
               {
                 id: 5,
                 name: "Delete",
-                icon: Trash,
+                icon: Trash2,
                 isRed: true,
                 onClick: () => {
                   onDelete?.();

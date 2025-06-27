@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { ArrowUpDown, Pencil, Trash } from "lucide-react";
+import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
 import { renderIcon } from "@/utils/icon";
 import ModalRename from "@/components/Modal/ModalRename";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
@@ -87,7 +87,7 @@ const TableAttachment = ({ items }) => {
                     {
                       id: uuidv4(),
                       name: "Delete",
-                      icon: Trash,
+                      icon: Trash2,
                       isRed: true,
                       onClick: () => handleDelete(id, name),
                     },

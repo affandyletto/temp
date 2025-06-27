@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Eye, Trash } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 import { useGoToDetailPage } from "@/utils/navigation";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
@@ -69,7 +69,7 @@ const TableClients = ({ items }) => {
                     {
                       id: uuidv4(),
                       name: "Delete",
-                      icon: Trash,
+                      icon: Trash2,
                       isRed: true,
                       onClick: () => handleDelete(id),
                     },

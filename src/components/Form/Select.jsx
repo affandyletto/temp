@@ -4,11 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
 const Select = ({
-  label,
+  label = "",
   options = [],
   value,
   onChange = () => {},
   placeholder = "Select an option",
+  readOnly = false,
   required = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,16 +30,22 @@ const Select = ({
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-semibold">
-        {label}
-        {required && <span className="text-danger-200">*</span>}
-      </label>
+      {label && (
+        <label className="text-sm font-semibold">
+          {label}
+          {required && <span className="text-danger-200">*</span>}
+        </label>
+      )}
 
       <div className="relative" ref={ref}>
         <button
           type="button"
-          onClick={() => setIsOpen((prev) => !prev)}
-          className="w-full text-left bg-white border border-neutral-400 text-sm rounded-lg p-4 flex justify-between items-center"
+          onClick={() => !readOnly && setIsOpen((prev) => !prev)}
+          className={`w-full text-left border border-neutral-400 text-sm rounded-lg p-4 flex justify-between items-center ${
+            readOnly
+              ? "bg-neutral-200 text-secondary"
+              : "bg-white focus:border-primary-300 "
+          }`}
         >
           <span className={selectedOption ? "" : "text-secondary"}>
             {selectedOption?.label || placeholder}
@@ -50,7 +57,7 @@ const Select = ({
           />
         </button>
 
-        {isOpen && (
+        {isOpen && !readOnly && (
           <ul className="absolute z-50 mt-1 w-full bg-white border border-neutral-400 rounded-lg shadow-md max-h-60 overflow-y-auto p-2">
             {options.map((option) => (
               <li

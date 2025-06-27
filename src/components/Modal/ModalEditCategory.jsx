@@ -7,7 +7,7 @@ import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import DragFile from "@/components/Form/DragFile";
 import ButtonSecondary from "@/components/Button/ButtonSecondary";
 import Select from "../Form/Select";
-import { optionsElemetCategories } from "@/data/dropdown";
+import { optionsElemetSuperCategories } from "@/data/dropdown";
 import { useEffect, useState } from "react";
 
 const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
@@ -71,7 +71,7 @@ const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
             id="select_supercategory"
             label="Select Super Category"
             placeholder="Select super category"
-            options={optionsElemetCategories}
+            options={optionsElemetSuperCategories}
             value={categoryName}
             onChange={handleSelect}
             required

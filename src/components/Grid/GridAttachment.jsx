@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { renderIcon } from "@/utils/icon";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import ModalRename from "@/components/Modal/ModalRename";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
@@ -73,7 +73,7 @@ const GridAttachment = ({ items }) => {
                   {
                     id: uuidv4(),
                     name: "Delete",
-                    icon: Trash,
+                    icon: Trash2,
                     isRed: true,
                     onClick: () => handleDelete(id),
                   },

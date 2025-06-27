@@ -53,7 +53,7 @@ const Modal = ({
     <div
       className={`
         fixed inset-0 z-50 flex items-center justify-center bg-black/40
-        transition-opacity duration-300 ease-out
+        transition-opacity duration-300 ease-out !m-0
         ${animateOut ? "opacity-0" : animateIn ? "opacity-100" : "opacity-0"}
       `}
     >

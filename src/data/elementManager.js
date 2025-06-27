@@ -1,6 +1,7 @@
 // src/data/elemetManager.js
 
 import { v4 as uuidv4 } from "uuid";
+import { faker } from "@faker-js/faker";
 
 const getRandomTotalItems = () => {
   const choices = [0, 8, 9];
@@ -25,5 +26,23 @@ export const mocksUniversalElements = Array.from({ length: 5 }).map((_, i) => {
     name,
     totalItems,
     listItems,
+  };
+});
+
+export const mocksElements = Array.from({ length: 5 }).map((_, i) => {
+  return {
+    id: uuidv4(),
+    name: `Element ${i + 1}`,
+    total: faker.number.int({ min: 0, max: 20 }),
+    selected: i === 0,
+  };
+});
+
+export const mocksAccessories = Array.from({ length: 15 }).map((_, i) => {
+  return {
+    id: uuidv4(),
+    name: `Accesory ${i + 1}`,
+    price: faker.number.int({ min: 10, max: 80 }),
+    selected: false,
   };
 });

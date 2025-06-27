@@ -91,7 +91,25 @@ export const optionsUserApps = [
 ];
 
 export const optionsElemetCategories = [
+  { label: "Category 1", value: "category-1" },
+  { label: "Category 2", value: "category-2" },
+  { label: "Category 3", value: "category-3" },
+];
+
+export const optionsElemetSuperCategories = [
   { label: "Super Category 1", value: "super-category-1" },
   { label: "Super Category 2", value: "super-category-2" },
   { label: "Super Category 3", value: "super-category-3" },
+];
+
+export const optionsElemetClassifications = [
+  { label: "Classification 1", value: "classification-1" },
+  { label: "Classification 2", value: "classification-2" },
+  { label: "Classification 3", value: "classification-3" },
+];
+
+export const optionsElemetInformation = [
+  { label: "Short Text", value: "short-text" },
+  { label: "Medium Text", value: "medium-text" },
+  { label: "Long Text", value: "long-text" },
 ];
