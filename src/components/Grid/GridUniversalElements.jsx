@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
-import CardCollapseElement from "../Card/CardCollapseElement";
-import ButtonSecondary from "../Button/ButtonSecondary";
-import DropdownMenu from "../Dropdown/DropdownMenu";
-import ModalConfirm from "../Modal/ModalConfirm";
-import ModalAddElement from "../Modal/ModalAddElement";
-import ModalResponse from "../Modal/ModalResponse";
+import { Copy, Pencil, Trash2 } from "lucide-react";
+import CardCollapseElement from "@/components/Card/CardCollapseElement";
+import DropdownMenu from "@/components/Dropdown/DropdownMenu";
+import ModalConfirm from "@/components/Modal/ModalConfirm";
+import ModalAddElement from "@/components/Modal/ModalAddElement";
+import ModalResponse from "@/components/Modal/ModalResponse";
+import CardEmptyElement from "@/components/Card/CardEmptyElement";
 
 const GridUniversalElements = ({ items }) => {
   const [elements, setElements] = useState([]);
@@ -53,6 +53,7 @@ const GridUniversalElements = ({ items }) => {
         <CardCollapseElement
           key={element.id}
           title={element.name}
+          total={element.totalItems}
           items={element}
         >
           <div className="px-3 py-4">
@@ -98,22 +99,12 @@ const GridUniversalElements = ({ items }) => {
                 ))}
               </div>
             ) : (
-              <div className="space-y-4 text-center p-8">
-                <div className="space-y-0.5">
-                  <p className="text-sm font-semibold">Your list is empty</p>
-                  <span className="text-xs text-secondary">
-                    Add your first element to get started.
-                  </span>
-                </div>
-                <div className="flex justify-center">
-                  <ButtonSecondary
-                    icon={Plus}
-                    type={"button"}
-                    label={"Add Element"}
-                    onClick={setIsAddOpen}
-                  />
-                </div>
-              </div>
+              <CardEmptyElement
+                title=" Your list is empty"
+                description="Add your first element to get started."
+                label="Add Element"
+                onClick={setIsAddOpen}
+              />
             )}
           </div>
         </CardCollapseElement>

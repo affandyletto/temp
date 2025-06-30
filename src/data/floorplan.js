@@ -1,6 +1,7 @@
 // src/data/floorplan.js
 
 import { v4 as uuidv4 } from "uuid";
+import { faker } from "@faker-js/faker";
 
 export const floorPlanItems = [
   {
@@ -87,3 +88,77 @@ export const reportItems = [
     fileUrl: "/files/report-02.pdf",
   },
 ];
+
+const getRandom6Digit = () => Math.floor(100000 + Math.random() * 900000);
+const formatDateTime = (date) => {
+  const options = {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  };
+
+  const dateStr = new Intl.DateTimeFormat("en-US", options).format(date);
+  return `${dateStr} PDT`;
+};
+
+export const mockPhotos = Array.from({ length: 10 }).map((_, i) => {
+  const date = faker.date.recent({ days: 30 });
+  const imageUrls = [
+    "/images/sample-photo-1.webp",
+    "/images/sample-photo-2.webp",
+  ];
+  const image = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+
+  return {
+    id: uuidv4(),
+    name: `MV63X-${i + 1}`,
+    elementId: getRandom6Digit(),
+    cameraName: "CAMERA-1",
+    datetime: formatDateTime(date),
+    uploadedBy: "River Admin Stewart ",
+    image,
+  };
+});
+
+const formatDateTime2 = (date) => {
+  const options = {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  };
+
+  const dateStr = new Intl.DateTimeFormat("en-US", options).format(date);
+  return dateStr;
+};
+
+export const mockAlbums = Array.from({ length: 2 }).map((_, i) => {
+  const date = faker.date.recent({ days: 30 });
+  const totalPhotosArr = [1, 2, 3, 4, 5];
+  const totalPhotos =
+    totalPhotosArr[Math.floor(Math.random() * totalPhotosArr.length)];
+
+  const photos = mockPhotos
+    .sort(() => 0.5 - Math.random())
+    .slice(0, totalPhotos); // ambil acak sejumlah totalPhotos
+
+  return {
+    id: uuidv4(),
+    name: `Album-0${i + 1}`,
+    category: "Daily Report",
+    totalPhotos,
+    image: "/images/sample-photo-1.webp",
+    createdBy: "River Admin Stewart",
+    projectName: `Project Alpha ${i + 1}`,
+    date: "2025-06-01",
+    datetime: formatDateTime2(date),
+    photos,
+  };
+});

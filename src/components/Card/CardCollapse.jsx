@@ -25,7 +25,7 @@ const CardCollapse = ({ title = "More Info", children }) => {
       <div
         className={`transition-all duration-300 ease-in-out ${
           isOpen
-            ? "max-h-[500px] border-t border-neutral-400 "
+            ? "max-h-[1500px] border-t border-neutral-400 "
             : "max-h-0 overflow-hidden "
         }`}
       >

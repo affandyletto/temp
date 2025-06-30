@@ -1,9 +1,13 @@
 // src/components/Tabs.js
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function Tabs({ tabs = [] }) {
-  const [activeTab, setActiveTab] = useState(tabs[0]?.value);
+export default function Tabs({ tabs = [], value = "surveys" }) {
+  const [activeTab, setActiveTab] = useState(value);
+
+  useEffect(() => {
+    setActiveTab(value);
+  }, [value]);
 
   return (
     <div className="w-full">

@@ -46,3 +46,41 @@ export const mocksAccessories = Array.from({ length: 15 }).map((_, i) => {
     selected: false,
   };
 });
+
+const getRandomTotalSuper = () => {
+  const choices = [0, 4, 5];
+  return choices[Math.floor(Math.random() * choices.length)];
+};
+
+export const mocksSuperCategories = Array.from({ length: 3 }).map((_, superIndex) => {
+  const superName = `Super Category ${superIndex + 1}`;
+
+    const totalCategories = getRandomTotalSuper();
+    const listCategories = Array.from({ length: totalCategories }).map((_, catIndex) => {
+    const categoryName = `Category ${superIndex + 1}-${catIndex + 1}`;
+
+    const totalItems = getRandomTotalItems();
+    const listItems = Array.from({ length: totalItems }).map((_, elIndex) => {
+      const num = elIndex + 1;
+      return {
+        id: uuidv4(),
+        name: `Element ${num}`,
+        code: `E${String(num).padStart(2, "0")}`,
+      };
+    });
+
+    return {
+      id: uuidv4(),
+      name: categoryName,
+      totalItems,
+      listItems,
+    };
+  });
+
+  return {
+    id: uuidv4(),
+    name: superName,
+    totalCategories,
+    listCategories,
+  };
+});

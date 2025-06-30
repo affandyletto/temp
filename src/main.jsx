@@ -5,12 +5,15 @@ import "./index.css";
 import App from "./App";
 import { SidebarProvider } from "./context/SidebarContext";
 import { DropdownProvider } from "./context/DropdownContext";
+import { TabProvider } from "./context/TabContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <SidebarProvider>
     <DropdownProvider>
-      <App />
+      <TabProvider>
+        <App />
+      </TabProvider>
     </DropdownProvider>
   </SidebarProvider>
 );

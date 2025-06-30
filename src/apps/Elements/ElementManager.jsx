@@ -1,16 +1,23 @@
 // src/apps/Elements/ElementManager.jsx
 
 import { useMemo, useState } from "react";
-import { mocksUniversalElements } from "@/data/elementManager";
-import { Search } from "lucide-react";
+import { Plus } from "lucide-react";
+import {
+  mocksSuperCategories,
+  mocksUniversalElements,
+} from "@/data/elementManager";
 import GridUniversalElements from "@/components/Grid/GridUniversalElements";
 import ToggleTabs from "@/components/Toggle/ToggleTabs";
+import InputSearch from "@/components/Form/InputSearch";
+import ButtonPrimary from "@/components/Button/ButtonPrimary";
+import GridMyLibrary from "@/components/Grid/GridMyLibrary";
+import ModalSubmitSuperCategory from "@/components/Modal/ModalSubmitSuperCategory";
 
 const ElementManager = () => {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState(0);
 
-  const paginated = useMemo(() => {
+  const paginatedElements = useMemo(() => {
     return mocksUniversalElements.filter((c) => {
       const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
 
@@ -18,24 +25,45 @@ const ElementManager = () => {
     });
   }, [search]);
 
+  const paginatedMyLibary = useMemo(() => {
+    return mocksSuperCategories.filter((c) => {
+      const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
+
+      return matchSearch;
+    });
+  }, [search]);
+
+  // Handle Add
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  const handleAddSuperCategory = () => {
+    setIsAddOpen(false);
+  };
+
   return (
     <>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-semibold">Element Manager</h2>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 w-[300px] border border-neutral-400 rounded-lg p-3">
-              <Search className="size-5 text-secondary" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                }}
-                placeholder="Search universal element"
-                className="text-sm placeholder:text-secondary focus:outline-none focus:ring-0 active:outline-none active:ring-0"
+            <div className="w-[300px]">
+              <InputSearch
+                placeholder={
+                  activeTab === 0
+                    ? "Search universal element"
+                    : "Search my library"
+                }
+                search={search}
+                setSearch={setSearch}
               />
             </div>
+            {activeTab !== 0 && (
+              <ButtonPrimary
+                icon={Plus}
+                label={"Add Super Category"}
+                onClick={() => setIsAddOpen(true)}
+              />
+            )}
           </div>
         </div>
 
@@ -47,9 +75,19 @@ const ElementManager = () => {
           />
         </div>
 
-        {activeTab === 0 && <GridUniversalElements items={paginated} />}
+        {activeTab === 0 ? (
+          <GridUniversalElements items={paginatedElements} />
+        ) : (
+          <GridMyLibrary items={paginatedMyLibary} />
+        )}
       </div>
       <div className="h-20"></div>
+
+      <ModalSubmitSuperCategory
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onSubmit={handleAddSuperCategory}
+      />
     </>
   );
 };

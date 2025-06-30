@@ -18,6 +18,9 @@ import { mockProjects } from "./data/projects";
 import Organization from "./pages/Organization";
 import Users from "./pages/Users";
 import Elements from "./pages/Elements";
+import ProjectAlbumDetail from "./pages/ProjectAlbumDetail";
+import ProjectAlbums from "./pages/ProjectAlbums";
+import ProjectPhotos from "./pages/ProjectPhotos";
 
 function App() {
   const { isCollapsed } = useSidebar();
@@ -41,6 +44,18 @@ function App() {
             />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:id" element={<ProjectDetail />} />
+            <Route
+              path="/projects/:id/all-photos"
+              element={<ProjectPhotos />}
+            />
+            <Route
+              path="/projects/:id/all-albums"
+              element={<ProjectAlbums />}
+            />
+            <Route
+              path="/projects/:id/all-albums/:albumId"
+              element={<ProjectAlbumDetail />}
+            />
             <Route path="/clients" element={<Clients />} />
             <Route path="/clients/:id" element={<ClientDetail />} />
             <Route path="/tickets" element={<Tickets />} />

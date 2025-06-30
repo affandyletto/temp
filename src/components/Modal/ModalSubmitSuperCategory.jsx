@@ -1,24 +1,25 @@
-// src/components/Modal/ModalEditCategory.js
+// src/components/Modal/ModalSubmitSuperCategory.jsx
 
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import Modal from "./Modal";
 import Input from "@/components/Form/Input";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import DragFile from "@/components/Form/DragFile";
 import ButtonSecondary from "@/components/Button/ButtonSecondary";
-import Select from "../Form/Select";
-import { optionsElemetSuperCategories } from "@/data/dropdown";
-import { useEffect, useState } from "react";
 
-const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
-  const [categoryName, setCategoryName] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+const ModalSubmitSuperCategory = ({
+  isOpen,
+  onClose,
+  data = null,
+  onSubmit = () => {},
+}) => {
+  const [superName, setSuperName] = useState("");
   const [fileData, setFileData] = useState(null);
 
   useEffect(() => {
     if (data) {
-      setCategoryName(data.name || "");
-      setSelectedCategory(data.superCategory || "");
+      setSuperName(data.name || "");
     }
   }, [data]);
 
@@ -26,17 +27,11 @@ const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
     setFileData(null);
   }, [isOpen]);
 
-  const handleSelect = (value) => {
-    setCategoryName(value);
-    setSelectedCategory(value);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({
       ...data,
-      name: categoryName,
-      superCategory: selectedCategory,
+      name: superName,
     });
   };
 
@@ -50,7 +45,9 @@ const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
     <Modal isOpen={isOpen} onClose={onClose} sizeModal="w-[936px]">
       <div>
         <div className="flex items-center justify-between border-b border-neutral-400 p-6">
-          <h2 className="text-xl font-semibold">Edit Category</h2>
+          <h2 className="text-xl font-semibold">
+            {data ? "Edit" : "Add"} Super Category
+          </h2>
           <button
             onClick={onClose}
             className="flex items-center justify-center"
@@ -61,19 +58,10 @@ const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
 
         <form onSubmit={handleSubmit} className="px-6 pb-6 pt-4 space-y-4">
           <Input
-            id="category_name"
-            label="Category Name"
-            placeholder="Input category name"
-            value={data.name}
-            required
-          />
-          <Select
-            id="select_supercategory"
-            label="Select Super Category"
-            placeholder="Select super category"
-            options={optionsElemetSuperCategories}
-            value={categoryName}
-            onChange={handleSelect}
+            id="super_category_name"
+            label="Super Category Name"
+            placeholder="Input super category name"
+            value={data?.name}
             required
           />
 
@@ -85,7 +73,7 @@ const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
             setFileData={handleFileChange}
             accept="image/*"
             isPreview
-            isThumbnail
+            isThumbnail={data}
             required
           />
 
@@ -103,4 +91,4 @@ const ModalEditCategory = ({ isOpen, onClose, data, onSubmit = () => {} }) => {
   );
 };
 
-export default ModalEditCategory;
+export default ModalSubmitSuperCategory;

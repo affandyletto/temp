@@ -113,3 +113,27 @@ export const optionsElemetInformation = [
   { label: "Medium Text", value: "medium-text" },
   { label: "Long Text", value: "long-text" },
 ];
+
+export const optionsFloorPlan = [
+  { label: "Floor Plan 1", value: "floor-plan-1" },
+  { label: "Floor Plan 2", value: "floor-plan-2" },
+  { label: "Floor Plan 3", value: "floor-plan-3" },
+];
+
+export const optionsImageType = [
+  { label: "Image 1", value: "image-type-1" },
+  { label: "Image 2", value: "image-type-2" },
+  { label: "Image 3", value: "image-type-3" },
+];
+
+export const optionsElement = [
+  { label: "Element 1", value: "Element-1" },
+  { label: "Element 2", value: "Element-2" },
+  { label: "Element 3", value: "Element-3" },
+];
+
+export const optionsUser = [
+  { label: "User 1", value: "User-1" },
+  { label: "User 2", value: "User-2" },
+  { label: "User 3", value: "User-3" },
+];

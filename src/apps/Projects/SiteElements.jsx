@@ -1,18 +1,52 @@
 // src/apps/Projects/SiteElements.jsx
 
-import Maintenance from "@/components/Maintenance";
+import { useState } from "react";
+import { ChevronDown, Star } from "lucide-react";
+import InputSearch from "@/components/Form/InputSearch";
+import ToggleTabs from "@/components/Toggle/ToggleTabs";
 
 const SiteElements = () => {
+  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState(0);
+
   return (
-    <div
-      className="flex items-center justify-center"
-      style={{ height: "calc(100vh - 280px)" }}
-    >
-      <Maintenance
-        title={"Something Exciting is Coming Soon!"}
-        description={`We’re working hard to bring you a new experience. Stay tuned it’s going to be worth the wait!`}
-      />
-    </div>
+    <>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-semibold">Site Elements</h2>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <button
+                type="button"
+                className={`flex items-center gap-2 w-full bg-white border rounded-full text-sm py-2 px-4`}
+              >
+                <div className="flex items-center gap-1">
+                  <Star className="size-4" /> <span>Favorites (5/10)</span>
+                </div>
+                <ChevronDown
+                  className={`size-5 transition-transform duration-300 `}
+                />
+              </button>
+            </div>
+            <div className="w-[300px]">
+              <InputSearch
+                placeholder={"Search element"}
+                search={search}
+                setSearch={setSearch}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="w-[366px]">
+          <ToggleTabs
+            tabs={["Available Elements", "Quick Elements"]}
+            value={activeTab}
+            onChange={setActiveTab}
+          />
+        </div>
+      </div>
+    </>
   );
 };
 
