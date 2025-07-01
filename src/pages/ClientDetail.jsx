@@ -23,7 +23,7 @@ const ClientDetail = () => {
       <Topbar title={"Clients"} />
       <Nav breadcrumbItems={breadcrumbItems} />
       <div className="px-6 py-8">
-        <Tabs tabs={tabsClientDetail} />
+        <Tabs tabs={tabsClientDetail} value="basic-info" />
       </div>
     </>
   );

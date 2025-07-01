@@ -17,8 +17,8 @@ const UserList = () => {
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterType, setFilterType] = useState("");
-  const [filterApp, setFilterApp] = useState("");
+  const [filterType, setFilterType] = useState(null);
+  const [filterApp, setFilterApp] = useState(null);
 
   const filtered = useMemo(() => {
     return mockUsers.filter((c) => {
@@ -27,8 +27,10 @@ const UserList = () => {
         c.email.toLowerCase().includes(search.toLowerCase()) ||
         c.type.toLowerCase().includes(search.toLowerCase());
 
-      const matchType = filterType ? c.type === filterType : true;
-      const matchApp = filterApp ? c.app === filterApp : true;
+      const matchType =
+        filterType && filterType.value ? c.type === filterType.value : true;
+      const matchApp =
+        filterApp && filterApp.value ? c.app === filterApp.value : true;
 
       return matchSearch && matchType && matchApp;
     });
@@ -49,13 +51,13 @@ const UserList = () => {
 
   // Handle Change Type
   const handleChangeType = (item) => {
-    item.value === "" ? setFilterType(item.value) : setFilterType(item.label);
+    setFilterType(item);
     setCurrentPage(1);
   };
 
   // Handle Change App
   const handleChangeApp = (item) => {
-    item.value === "" ? setFilterApp(item.value) : setFilterApp(item.label);
+    setFilterApp(item);
     setCurrentPage(1);
   };
 
@@ -89,10 +91,12 @@ const UserList = () => {
         <div className="relative flex items-center gap-3">
           <DropdownType
             options={[{ label: "All Types", value: "" }, ...optionsUserTypes]}
+            value={filterType}
             onChange={handleChangeType}
           />
           <DropdownType
             options={[{ label: "All Apps", value: "" }, ...optionsUserApps]}
+            value={filterApp}
             onChange={handleChangeApp}
           />
         </div>

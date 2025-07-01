@@ -266,7 +266,10 @@ const ModalAddElement = ({
             </div>
           </div>
 
-          <DraggableFieldInformation options={optionsElemetInformation} />
+          <DraggableFieldInformation
+            label="Information"
+            options={optionsElemetInformation}
+          />
 
           <div className="h-6"></div>
           <div className="flex justify-end space-x-2">

@@ -1,5 +1,7 @@
 // src/data/dropdown.js
 
+import { v4 as uuidv4 } from "uuid";
+
 export const dropdownProgress = [
   {
     id: 1,
@@ -79,7 +81,7 @@ export const optionsClients = [
 ];
 
 export const optionsUserTypes = [
-  { label: "Client", value: "client" },
+  { label: "Client", value: "Client" },
   { label: "Consultant", value: "consultant" },
   { label: "Associate", value: "associate" },
   { label: "Employee", value: "employee" },
@@ -136,4 +138,57 @@ export const optionsUser = [
   { label: "User 1", value: "User-1" },
   { label: "User 2", value: "User-2" },
   { label: "User 3", value: "User-3" },
+];
+
+export const optionsInformation = [
+  { label: "MPOE", value: "MPOE" },
+  { label: "Restroom", value: "Restroom" },
+];
+
+export const optionsStatus = [
+  { label: "Operational", value: "Operational" },
+  { label: "Semi-operational", value: "Semi-operational" },
+];
+
+export const optionsCategory = [
+  { label: "Installed", value: "Installed" },
+  { label: "Pending Replacement", value: "Pending-Replacement" },
+];
+
+export const optionsType = [
+  { label: "Type-01", value: "type-01" },
+  { label: "Type-02", value: "type-02" },
+  { label: "Type-03", value: "type-03" },
+];
+
+export const optionClassification = [
+  { label: "(Not Specified)", value: "(Not Specified)" },
+];
+
+export const optionsPartNumber = [
+  { label: "Part 1 - $300", value: "$300" },
+  { label: "Part 2 - $400", value: "$400" },
+  { label: "Part 3 - $500", value: "$500" },
+];
+
+export const optionsAccessories = [
+  { id: uuidv4(), label: "Accessory 1 - $100", value: false },
+  { id: uuidv4(), label: "Accessory 2 - $200", value: false },
+  { id: uuidv4(), label: "Accessory 3 - $300", value: false },
+  { id: uuidv4(), label: "Accessory 4 - $400", value: false },
+];
+
+export const optionsFilterClassification = [
+  { id: uuidv4(), label: "All", value: true },
+  { id: uuidv4(), label: "(Not Specified)", value: true },
+];
+
+export const optionsFilterFloorplan = [
+  { id: uuidv4(), label: "All", value: true },
+  { id: uuidv4(), label: "First Survey", value: false },
+];
+
+export const optionsBillType = [
+  { label: "Space & Infrastructure", value: "Space & Infrastructure" },
+  { label: "(Not Specified)", value: "(Not Specified)" },
 ];

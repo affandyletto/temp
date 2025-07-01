@@ -9,14 +9,14 @@ const ToggleTabs = ({ tabs = [], value = 0, onChange = () => {} }) => {
           <button
             key={idx}
             onClick={() => onChange(idx)}
-            className={`w-full text-sm py-2 px-4 text-center rounded-xl transition-all duration-200
+            className={`flex items-center justify-center w-full rounded-xl text-sm p-2 transition-all duration-200
               ${
                 isActive
                   ? "bg-white shadow-sm"
                   : "bg-neutral-300 text-secondary"
               }`}
           >
-            {tab}
+            <span>{tab}</span>
           </button>
         );
       })}

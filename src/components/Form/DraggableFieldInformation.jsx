@@ -82,7 +82,7 @@ const SortableItem = ({ item, index, onChange, onDelete, options }) => {
   );
 };
 
-const DraggableFieldInformation = ({ options }) => {
+const DraggableFieldInformation = ({ label = "", options }) => {
   const [items, setItems] = useState([
     {
       id: uuidv4(),
@@ -123,7 +123,7 @@ const DraggableFieldInformation = ({ options }) => {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm">Information</p>
+      {label && <p className="text-sm">{label}</p>}
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={items} strategy={verticalListSortingStrategy}>
           <div className="space-y-3">

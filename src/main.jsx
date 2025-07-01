@@ -6,14 +6,17 @@ import App from "./App";
 import { SidebarProvider } from "./context/SidebarContext";
 import { DropdownProvider } from "./context/DropdownContext";
 import { TabProvider } from "./context/TabContext";
+import { ToastProvider } from "./context/ToastContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <SidebarProvider>
-    <DropdownProvider>
-      <TabProvider>
-        <App />
-      </TabProvider>
-    </DropdownProvider>
-  </SidebarProvider>
+  <ToastProvider>
+    <SidebarProvider>
+      <DropdownProvider>
+        <TabProvider>
+          <App />
+        </TabProvider>
+      </DropdownProvider>
+    </SidebarProvider>
+  </ToastProvider>
 );
