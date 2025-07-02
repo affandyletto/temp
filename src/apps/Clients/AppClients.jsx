@@ -46,9 +46,6 @@ const AppClients = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold">Client List</h2>
@@ -74,7 +71,7 @@ const AppClients = () => {
             </div>
           </div>
 
-          <TableClients items={paginated} />
+          <TableClients items={paginated} isLoading={isLoading} />
 
           <div className="flex justify-between items-center p-4">
             <SelectRowsPerPage
@@ -91,7 +88,6 @@ const AppClients = () => {
             />
           </div>
         </div>
-      )}
 
       <ModalSubmitClient
         isOpen={isAddOpen}

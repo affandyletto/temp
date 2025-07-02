@@ -9,7 +9,6 @@ import SelectRowsPerPage from "@/components/SelectRowsPerPage";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import ModalSubmitProject from "@/components/Modal/ModalSubmitProject";
 import Toggle from "@/components/Toggle/Toggle";
-import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
 
 const ProjectList = () => {
   // Loading
@@ -48,9 +47,6 @@ const ProjectList = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold">Project List</h2>
@@ -84,7 +80,7 @@ const ProjectList = () => {
             />
           </div>
 
-          <TableProjectList items={paginated} />
+          <TableProjectList items={paginated} isLoading={isLoading} />
 
           <div className="flex justify-between items-center p-4">
             <SelectRowsPerPage
@@ -109,7 +105,6 @@ const ProjectList = () => {
         onSubmit={handleAddProject}
       />
     </>
-  );
-};
+)};
 
 export default ProjectList;

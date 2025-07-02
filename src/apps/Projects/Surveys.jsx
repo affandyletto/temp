@@ -128,9 +128,6 @@ const Surveys = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonCard />
-      ) : (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <ButtonPrimary
@@ -151,6 +148,7 @@ const Surveys = () => {
                 <CardFloorPlan
                   key={item.id}
                   {...item}
+                  isLoading={isLoading}
                   onRename={() => handleRename(item.id, item.name)}
                   onTransfer={() => handleTransfer(item.id)}
                   onDuplicate={() => handleDuplicate(item.id)}
@@ -160,7 +158,6 @@ const Surveys = () => {
               ))}
           </div>
         </div>
-      )}
       <ModalAddFloorPlan
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}

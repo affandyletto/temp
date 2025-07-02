@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUpDown } from "lucide-react";
+import { SkeletonTable } from "@/components/Skeleton/SkeletonTable";
 
-const TableDataInstallation = ({ items }) => {
+const TableDataInstallation = ({ items, isLoading }) => {
   const [dataSurvey, setDataSurvey] = useState([]);
 
   useEffect(() => {
@@ -35,7 +36,13 @@ const TableDataInstallation = ({ items }) => {
           </tr>
         </thead>
         <tbody>
-          {dataSurvey.map((data) => (
+          {isLoading ? (
+            // Show skeleton rows when loading
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonTable key={index} headerCount={11}/>
+            ))
+            ) :
+          dataSurvey.map((data) => (
             <tr
               key={data.id}
               className={`border-t border-neutral-300 hover:bg-neutral-200 `}
@@ -52,7 +59,7 @@ const TableDataInstallation = ({ items }) => {
               <td>{data.techTypeRequired}</td>
               <td>{data.specificInstallationNote}</td>
             </tr>
-          ))}
+          ))}}
           {dataSurvey.length === 0 && (
             <tr className="!border-none">
               <td colSpan={11}>

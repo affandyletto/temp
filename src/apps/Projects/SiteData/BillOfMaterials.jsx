@@ -18,7 +18,6 @@ import Pagination from "@/components/Pagination";
 import DropdownType from "@/components/Dropdown/DropdownType";
 import Toggle from "@/components/Toggle/Toggle";
 import TableDataBillMaterial from "@/components/Table/TableDataBillMaterial";
-import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
 
 const BillOfMaterials = () => {
   // Loading
@@ -86,9 +85,6 @@ const BillOfMaterials = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
@@ -167,7 +163,7 @@ const BillOfMaterials = () => {
               />
             </div>
           </div>
-          <TableDataBillMaterial items={paginated} />
+          <TableDataBillMaterial items={paginated} isLoading={isLoading} />
           <div className="flex justify-between items-center p-4">
             <SelectRowsPerPage
               value={rowsPerPage}
@@ -183,7 +179,7 @@ const BillOfMaterials = () => {
             />
           </div>
         </div>
-      )}
+      }
     </>
   );
 };

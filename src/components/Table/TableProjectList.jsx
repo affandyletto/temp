@@ -7,8 +7,9 @@ import { useNavigate } from "react-router-dom";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import ModalSubmitProject from "@/components/Modal/ModalSubmitProject";
 import DropdownStage from "../Dropdown/DropdownStage";
+import { SkeletonTable } from "@/components/Skeleton/SkeletonTable";
 
-const TableProjectList = ({ items }) => {
+const TableProjectList = ({ items, isLoading }) => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [activeRowId, setActiveRowId] = useState(null);
@@ -33,6 +34,8 @@ const TableProjectList = ({ items }) => {
     }
   };
 
+  // Skeleton loading component
+
   return (
     <>
       <table className="table">
@@ -46,56 +49,63 @@ const TableProjectList = ({ items }) => {
           </tr>
         </thead>
         <tbody>
-          {projects.map((project) => (
-            <tr
-              key={project.number}
-              className={`border-t border-neutral-300 hover:bg-neutral-200 cursor-pointer ${
-                activeRowId === project.number ? "!bg-primary-100" : ""
-              }`}
+          {isLoading ? (
+            // Show skeleton rows when loading
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonTable key={index} headerCount={5}/>
+            ))
+          ) : (
+            // Show actual data when not loading
+            projects.map((project) => (
+              <tr
+                key={project.number}
+                className={`border-t border-neutral-300 hover:bg-neutral-200 cursor-pointer ${
+                  activeRowId === project.number ? "!bg-primary-100" : ""
+                }`}
                 onClick={() => navigate(`/projects/${project.number}`)}
-            >
-              <td
-                width="30%"
               >
-                {project.name}
-              </td>
-              <td>{project.number}</td>
-              <td className="w-52">
-                <div onClick={(e) => e.stopPropagation()}>
-                  <DropdownStage
-                    position="left"
-                    stage_id={project.stage_id}
-                    onChange={(item) => {
-                      const updated = projects.map((p) =>
-                        p.id === project.id
-                          ? { ...p, stage_id: item.id, stage: item.name }
-                          : p
-                      );
-                      setProjects(updated);
-                    }}
-                  />
-                </div>
-              </td>
-              <td>{project.clientOrganization}</td>
-              <td>
-                <div onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenu
-                    onOpen={() => setActiveRowId(project.id)}
-                    onClose={() => setActiveRowId(null)}
-                    menu={[
-                      {
-                        id: uuidv4(),
-                        name: "Edit",
-                        icon: Pencil,
-                        onClick: () => handleOpenEdit(project),
-                      },
-                    ]}
-                  />
-                </div>
-              </td>
-            </tr>
-          ))}
-          {projects.length === 0 && (
+                <td>
+                  {project.name}
+                </td>
+                <td>{project.number}</td>
+                <td className="w-52">
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <DropdownStage
+                      position="left"
+                      stage_id={project.stage_id}
+                      onChange={(item) => {
+                        const updated = projects.map((p) =>
+                          p.id === project.id
+                            ? { ...p, stage_id: item.id, stage: item.name }
+                            : p
+                        );
+                        setProjects(updated);
+                      }}
+                    />
+                  </div>
+                </td>
+                <td>{project.clientOrganization}</td>
+                <td>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu
+                      onOpen={() => setActiveRowId(project.id)}
+                      onClose={() => setActiveRowId(null)}
+                      menu={[
+                        {
+                          id: uuidv4(),
+                          name: "Edit",
+                          icon: Pencil,
+                          onClick: () => handleOpenEdit(project),
+                        },
+                      ]}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+          
+          {!isLoading && projects.length === 0 && (
             <tr className="!border-none">
               <td colSpan={5}>
                 <div className="space-y-1 text-center py-14">

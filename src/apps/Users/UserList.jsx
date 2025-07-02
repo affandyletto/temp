@@ -71,9 +71,6 @@ const UserList = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold">User List</h2>
@@ -112,7 +109,7 @@ const UserList = () => {
             />
           </div>
 
-          <TableUserList items={paginated} />
+          <TableUserList items={paginated} isLoading={isLoading} />
 
           <div className="flex justify-between items-center p-4">
             <SelectRowsPerPage
@@ -135,16 +132,17 @@ const UserList = () => {
                 name="OneSurvey"
                 totalSeats={20}
                 usedSeats={6}
+                isLoading={isLoading}
               />
               <ProgressBarSeatUsage
                 name="OneSnap"
                 totalSeats={15}
                 usedSeats={6}
+                isLoading={isLoading}
               />
             </div>
           </CardCollapse>
         </div>
-      )}
 
       <div className="h-20"></div>
 

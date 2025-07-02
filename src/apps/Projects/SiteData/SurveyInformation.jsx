@@ -91,9 +91,6 @@ const SurveyInformation = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -158,7 +155,7 @@ const SurveyInformation = () => {
               />
             </div>
           </div>
-          <TableDataSurvey items={paginated} />
+          <TableDataSurvey items={paginated} isLoading={isLoading} />
           <div className="flex justify-between items-center p-4">
             <SelectRowsPerPage
               value={rowsPerPage}
@@ -174,7 +171,7 @@ const SurveyInformation = () => {
             />
           </div>
         </div>
-      )}
+      }
     </>
   );
 };

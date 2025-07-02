@@ -3,8 +3,9 @@
 import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import { ArrowUpDown } from "lucide-react";
+import { SkeletonTable } from "@/components/Skeleton/SkeletonTable";
 
-const TableDataBillMaterial = ({ items }) => {
+const TableDataBillMaterial = ({ items, isLoading }) => {
   const [dataBill, setDataBill] = useState([]);
 
   useEffect(() => {
@@ -26,7 +27,13 @@ const TableDataBillMaterial = ({ items }) => {
         </tr>
       </thead>
       <tbody>
-        {dataBill.map((parent) => {
+        {isLoading ? (
+            // Show skeleton rows when loading
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonTable key={index} headerCount={5}/>
+            ))
+            ) :
+          dataBill.map((parent) => {
           return (
             <Fragment key={parent.id}>
               <tr className={`border-t border-neutral-300  !bg-gray-200`}>
@@ -70,7 +77,7 @@ const TableDataBillMaterial = ({ items }) => {
               ))}
             </Fragment>
           );
-        })}
+        })}}
 
         {dataBill.length === 0 && (
           <tr className="!border-none">

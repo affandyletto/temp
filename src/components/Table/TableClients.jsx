@@ -5,8 +5,9 @@ import { Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
+import { SkeletonTable } from "@/components/Skeleton/SkeletonTable";
 
-const TableClients = ({ items }) => {
+const TableClients = ({ items, isLoading }) => {
   const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [activeRowId, setActiveRowId] = useState(null);
@@ -41,7 +42,13 @@ const TableClients = ({ items }) => {
           </tr>
         </thead>
         <tbody>
-          {clients.map(({ id, name, email, number, projects }) => (
+
+          {isLoading ? (
+            // Show skeleton rows when loading
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonTable key={index} headerCount={5}/>
+            ))
+          ) : clients.map(({ id, name, email, number, projects }) => (
             <tr
               key={id}
               className={`border-t border-neutral-300 hover:bg-neutral-200 cursor-pointer ${
@@ -72,6 +79,8 @@ const TableClients = ({ items }) => {
               </td>
             </tr>
           ))}
+
+
           {clients.length === 0 && (
             <tr className="!border-none">
               <td colSpan={5}>

@@ -16,7 +16,6 @@ import ModalSubmitAccessories from "@/components/Modal/ModalSubmitAccessories";
 import ModalSubmitFields from "@/components/Modal/ModalSubmitFields";
 import ModalSubmitClassification from "@/components/Modal/ModalSubmitClassification";
 import ModalUpdate from "@/components/Modal/ModalUpdate";
-import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
 
 const ElementInformation = () => {
   // Loading
@@ -91,9 +90,6 @@ const ElementInformation = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -177,7 +173,7 @@ const ElementInformation = () => {
               />
             </div>
           </div>
-          <TableDataElement items={paginated} />
+          <TableDataElement items={paginated} isLoading={isLoading} />
           <div className="flex justify-between items-center p-4">
             <SelectRowsPerPage
               value={rowsPerPage}
@@ -193,7 +189,7 @@ const ElementInformation = () => {
             />
           </div>
         </div>
-      )}
+      }
 
       <ModalSubmitPartNumber
         isOpen={isEditPartNumber}

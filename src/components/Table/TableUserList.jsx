@@ -8,8 +8,9 @@ import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import UserTypeBadge from "@/components/Badge/UserTypeBadge";
 import LastLoginDisplay from "@/components/LastLoginDisplay";
 import OffcanvasEditUser from "../Offcanvas/OffcanvasEditUser";
+import { SkeletonTable } from "@/components/Skeleton/SkeletonTable";
 
-const TableUserList = ({ items }) => {
+const TableUserList = ({ items, isLoading }) => {
   const [clients, setClients] = useState([]);
   const [activeRowId, setActiveRowId] = useState(null);
 
@@ -48,7 +49,7 @@ const TableUserList = ({ items }) => {
 
   return (
     <>
-      <div className="max-h-[480px] overflow-y-auto border border-neutral-300 rounded-lg">
+      <div className="border border-neutral-300 rounded-lg">
         <table className="table w-full">
           <thead className="sticky top-0 bg-white z-10">
             <tr>
@@ -60,7 +61,13 @@ const TableUserList = ({ items }) => {
             </tr>
           </thead>
           <tbody>
-            {clients.map((user) => (
+          {isLoading ? (
+            // Show skeleton rows when loading
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonTable key={index} headerCount={5}/>
+            ))
+            ) : (
+            clients.map((user) => (
               <tr
                 key={user.id}
                 className={`border-t border-neutral-300 hover:bg-neutral-200 ${
@@ -97,7 +104,8 @@ const TableUserList = ({ items }) => {
                   />
                 </td>
               </tr>
-            ))}
+            ))
+            )}
             {clients.length === 0 && (
               <tr className="!border-none">
                 <td colSpan={5}>
