@@ -1,15 +1,23 @@
 // src/apps/Projects/Attachment.jsx
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { attachmentItems } from "@/data/floorplan";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import ToggleView from "@/components/Toggle/ToggleView";
 import TableAttachment from "@/components/Table/TableAttachment";
 import GridAttachment from "@/components/Grid/GridAttachment";
 import ModalUploadFile from "@/components/Modal/ModalUploadFile";
+import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
 
 const Attachment = () => {
+  // Loading
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const [isEnabled, setIsEnabled] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -25,22 +33,26 @@ const Attachment = () => {
 
   return (
     <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <ButtonPrimary
-            icon={Plus}
-            label={"Add File"}
-            onClick={() => setIsOpen(true)}
-          />
-          <ToggleView value={isEnabled} onChange={setIsEnabled} />
-        </div>
+      {isLoading ? (
+        <SkeletonDefault />
+      ) : (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <ButtonPrimary
+              icon={Plus}
+              label={"Add File"}
+              onClick={() => setIsOpen(true)}
+            />
+            <ToggleView value={isEnabled} onChange={setIsEnabled} />
+          </div>
 
-        {isEnabled ? (
-          <TableAttachment items={attachmentItems} />
-        ) : (
-          <GridAttachment items={attachmentItems} />
-        )}
-      </div>
+          {isEnabled ? (
+            <TableAttachment items={attachmentItems} />
+          ) : (
+            <GridAttachment items={attachmentItems} />
+          )}
+        </div>
+      )}
       <ModalUploadFile
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

@@ -1,14 +1,22 @@
 // src/components/Sidebar.js
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { ChevronRight, ChevronsUpDown, LogOut, Search } from "lucide-react";
 import { useSidebar } from "@/context/SidebarContext";
 import { menuDropdownUsers, menuItems, organizations } from "@/data/sidebar";
+import { Tooltip } from "react-tooltip";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 export default function Sidebar() {
-  const { isCollapsed } = useSidebar();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const { isCollapsed, setIsCollapsed } = useSidebar();
+
+  useEffect(() => {
+    setIsCollapsed(isMobile);
+  }, [isMobile, setIsCollapsed]);
+
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -75,20 +83,32 @@ export default function Sidebar() {
             {!isCollapsed && <p className="text-xs text-secondary">{name}</p>}
             <div className="space-y-1">
               {menus.map(({ label, icon: Icon, to }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className={`flex items-center ${
-                    isCollapsed ? "justify-center" : "justify-start"
-                  } gap-2 rounded-md p-2 ${
-                    currentPath.startsWith(to)
-                      ? "bg-neutral-300"
-                      : "hover:bg-neutral-300"
-                  }`}
-                >
-                  <Icon className="size-6" />
-                  {!isCollapsed && <span className="text-sm">{label}</span>}
-                </Link>
+                <Fragment key={to}>
+                  <Link
+                    to={to}
+                    data-tooltip-id={`sidebar-${to}`}
+                    className={`flex items-center ${
+                      isCollapsed ? "justify-center" : "justify-start"
+                    } gap-2 rounded-md p-2 ${
+                      currentPath.startsWith(to)
+                        ? "bg-neutral-300"
+                        : "hover:bg-neutral-300"
+                    }`}
+                  >
+                    <Icon className="size-6" />
+                    {!isCollapsed && <span className="text-sm">{label}</span>}
+                  </Link>
+                  {
+                    isCollapsed && (
+                      <Tooltip
+                        id={`sidebar-${to}`}
+                        place="right"
+                        content={label}
+                        style={{ backgroundColor: "#3F444D", borderRadius: "8px", zIndex: "9999" }}
+                      />
+                    )
+                  }
+                </Fragment>
               ))}
             </div>
           </nav>

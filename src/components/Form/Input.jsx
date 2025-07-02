@@ -24,10 +24,10 @@ const Input = ({
         <input
           id={id}
           type={type}
-          className={`w-full border border-neutral-400 text-sm rounded-lg p-4 placeholder:text-secondary focus:outline-none focus:ring-0 active:outline-none active:ring-0 ${padding} ${
+          className={`w-full placeholder:text-secondary text-sm rounded-lg p-4 border border-neutral-400 focus:outline-none focus:ring-0 active:outline-none active:ring-0 transition-all duration-300 ${padding} ${
             readOnly
               ? "bg-neutral-200 text-secondary"
-              : "bg-white focus:border-primary-300 "
+              : "bg-white focus:border-primary-200 "
           }`}
           placeholder={placeholder}
           defaultValue={value}

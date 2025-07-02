@@ -14,7 +14,6 @@ import Tickets from "./pages/Tickets";
 import QualityCheck from "./pages/QualityCheck";
 import Clients from "./pages/Clients";
 import ClientDetail from "./pages/ClientDetail";
-import { mockProjects } from "./data/projects";
 import Organization from "./pages/Organization";
 import Users from "./pages/Users";
 import Elements from "./pages/Elements";
@@ -24,7 +23,6 @@ import ProjectPhotos from "./pages/ProjectPhotos";
 
 function App() {
   const { isCollapsed } = useSidebar();
-  const defaultProjectId = mockProjects[0]?.id;
 
   return (
     <Router>
@@ -39,7 +37,7 @@ function App() {
             <Route
               path="/"
               element={
-                <Navigate to={`/projects/${defaultProjectId}`} replace />
+                <Navigate to={`/projects`} replace />
               }
             />
             <Route path="/projects" element={<Projects />} />

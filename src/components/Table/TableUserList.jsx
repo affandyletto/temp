@@ -48,72 +48,74 @@ const TableUserList = ({ items }) => {
 
   return (
     <>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Type</th>
-            <th>Last Login</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clients.map((user) => (
-            <tr
-              key={user.id}
-              className={`border-t border-neutral-300 hover:bg-neutral-200 ${
-                activeRowId === user.id ? "!bg-primary-100" : ""
-              }`}
-            >
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>
-                <UserTypeBadge type={user.type} />
-              </td>
-              <td>
-                <LastLoginDisplay value={user.lastLogin} />
-              </td>
-              <td>
-                <DropdownMenu
-                  onOpen={() => setActiveRowId(user.id)}
-                  onClose={() => setActiveRowId(null)}
-                  menu={[
-                    {
-                      id: uuidv4(),
-                      name: "Edit",
-                      icon: Pencil,
-                      onClick: () => handleOpenEdit(user),
-                    },
-                    {
-                      id: uuidv4(),
-                      name: "Delete",
-                      icon: Trash2,
-                      isRed: true,
-                      onClick: () => handleDelete(user.id),
-                    },
-                  ]}
-                />
-              </td>
+      <div className="max-h-[480px] overflow-y-auto border border-neutral-300 rounded-lg">
+        <table className="table w-full">
+          <thead className="sticky top-0 bg-white z-10">
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Type</th>
+              <th>Last Login</th>
+              <th>Actions</th>
             </tr>
-          ))}
-          {clients.length === 0 && (
-            <tr className="!border-none">
-              <td colSpan={5}>
-                <div className="space-y-1 text-center py-14">
-                  <p className="text-sm font-semibold">
-                    The user you are looking for was not found
-                  </p>
-                  <span className="text-xs text-secondary">
-                    Try checking the spelling of the user name or using other
-                    keywords.
-                  </span>
-                </div>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {clients.map((user) => (
+              <tr
+                key={user.id}
+                className={`border-t border-neutral-300 hover:bg-neutral-200 ${
+                  activeRowId === user.id ? "!bg-primary-100" : ""
+                }`}
+              >
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>
+                  <UserTypeBadge type={user.type} />
+                </td>
+                <td>
+                  <LastLoginDisplay value={user.lastLogin} />
+                </td>
+                <td>
+                  <DropdownMenu
+                    onOpen={() => setActiveRowId(user.id)}
+                    onClose={() => setActiveRowId(null)}
+                    menu={[
+                      {
+                        id: uuidv4(),
+                        name: "Edit",
+                        icon: Pencil,
+                        onClick: () => handleOpenEdit(user),
+                      },
+                      {
+                        id: uuidv4(),
+                        name: "Delete",
+                        icon: Trash2,
+                        isRed: true,
+                        onClick: () => handleDelete(user.id),
+                      },
+                    ]}
+                  />
+                </td>
+              </tr>
+            ))}
+            {clients.length === 0 && (
+              <tr className="!border-none">
+                <td colSpan={5}>
+                  <div className="space-y-1 text-center py-14">
+                    <p className="text-sm font-semibold">
+                      The user you are looking for was not found
+                    </p>
+                    <span className="text-xs text-secondary">
+                      Try checking the spelling of the user name or using other
+                      keywords.
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
       <ModalConfirm
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}

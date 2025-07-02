@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { dropdownProgress } from "@/data/dropdown";
 
-const DropdownStage = ({ stage_id = "", onChange = () => {} }) => {
+const DropdownStage = ({
+  position = "right",
+  stage_id = "",
+  onChange = () => {},
+}) => {
   const [selected, setSelected] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef();
@@ -36,6 +40,12 @@ const DropdownStage = ({ stage_id = "", onChange = () => {} }) => {
     onChange(item); // kirim ke parent
   };
 
+  const getDropdownPosition = () => {
+    if (position === "right") return "right-0";
+    if (position === "left") return "left-0";
+    return "right-0";
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -52,7 +62,9 @@ const DropdownStage = ({ stage_id = "", onChange = () => {} }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-neutral-400 rounded-lg p-2 z-50 shadow-md">
+        <div
+          className={`absolute ${getDropdownPosition()} top-full mt-2 w-72 bg-white border border-neutral-400 rounded-lg p-2 z-50 shadow-md`}
+        >
           {dropdownProgress.map((item) => (
             <div
               key={item.id}

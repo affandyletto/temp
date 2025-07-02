@@ -40,12 +40,11 @@ const ModalSubmitProject = ({ data, isOpen, onClose, onSubmit }) => {
             required={true}
           />
           <Input
-            id={"number"}
-            label={"Number"}
-            value={data?.number}
-            placeholder="Input number"
+            id={"projectId"}
+            label={"Project ID"}
+            value={data?.id}
+            placeholder="Input project ID"
             required={true}
-            type="number"
           />
 
           <Select

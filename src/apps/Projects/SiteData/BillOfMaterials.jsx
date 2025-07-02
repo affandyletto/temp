@@ -1,6 +1,6 @@
 // src/apps/Project/SiteData/BillOfMaterials.jsx
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
   optionsBillType,
@@ -18,8 +18,16 @@ import Pagination from "@/components/Pagination";
 import DropdownType from "@/components/Dropdown/DropdownType";
 import Toggle from "@/components/Toggle/Toggle";
 import TableDataBillMaterial from "@/components/Table/TableDataBillMaterial";
+import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
 
 const BillOfMaterials = () => {
+  // Loading
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -78,100 +86,104 @@ const BillOfMaterials = () => {
 
   return (
     <>
-      <div className="space-y-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4">
-              <p className="text-base font-semibold">Classification</p>
-              <div className="w-[230px]">
-                <DropdownCheck
-                  label="Filter Classifications"
-                  options={optionsFilterClassification}
-                  checkbox
-                />
+      {isLoading ? (
+        <SkeletonDefault />
+      ) : (
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
+                <p className="text-base font-semibold">Classification</p>
+                <div className="w-[230px]">
+                  <DropdownCheck
+                    label="Filter Classifications"
+                    options={optionsFilterClassification}
+                    checkbox
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="text-base font-semibold">Floorplan</p>
+                <div className="w-[230px]">
+                  <DropdownCheck
+                    label="Floorplan"
+                    options={optionsFilterFloorplan}
+                    checkbox
+                  />
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <p className="text-base font-semibold">Floorplan</p>
-              <div className="w-[230px]">
-                <DropdownCheck
-                  label="Floorplan"
-                  options={optionsFilterFloorplan}
-                  checkbox
-                />
-              </div>
+            <div className="flex items-center gap-6">
+              <Toggle
+                label={`Accessories`}
+                value={filterAccessories}
+                onChange={setFilterAccessories}
+              />
+              <DropdownMenu
+                onOpen={() => {}}
+                onClose={() => {}}
+                width="w-[206px]"
+                menu={[
+                  {
+                    id: uuidv4(),
+                    name: "Save PDF Report",
+                    onClick: handleSavePdf,
+                  },
+                ]}
+              />
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <Toggle
-              label={`Accessories`}
-              value={filterAccessories}
-              onChange={setFilterAccessories}
-            />
-            <DropdownMenu
-              onOpen={() => {}}
-              onClose={() => {}}
-              width="w-[206px]"
-              menu={[
-                {
-                  id: uuidv4(),
-                  name: "Save PDF Report",
-                  onClick: handleSavePdf,
-                },
-              ]}
-            />
+          <hr />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 w-[300px] border border-neutral-400 rounded-lg p-3">
+              <Search className="size-5 text-secondary" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Search..."
+                className="text-sm placeholder:text-secondary focus:outline-none focus:ring-0 active:outline-none active:ring-0"
+              />
+            </div>
+            <div className="relative flex items-center gap-3">
+              <DropdownType
+                position="right"
+                options={[{ label: "All Type", value: "" }, ...optionsBillType]}
+                value={filterType}
+                onChange={handleChangeStatus}
+              />
+              <DropdownType
+                position="right"
+                options={[
+                  { label: "All Element", value: "" },
+                  ...optionsInformation,
+                ]}
+                value={filterElement}
+                onChange={handleChangeCategory}
+                withIcon
+              />
+            </div>
           </div>
-        </div>
-        <hr />
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 w-[300px] border border-neutral-400 rounded-lg p-3">
-            <Search className="size-5 text-secondary" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
+          <TableDataBillMaterial items={paginated} />
+          <div className="flex justify-between items-center p-4">
+            <SelectRowsPerPage
+              value={rowsPerPage}
+              onChange={(val) => {
+                setRowsPerPage(val);
                 setCurrentPage(1);
               }}
-              placeholder="Search..."
-              className="text-sm placeholder:text-secondary focus:outline-none focus:ring-0 active:outline-none active:ring-0"
             />
-          </div>
-          <div className="relative flex items-center gap-3">
-            <DropdownType
-              position="right"
-              options={[{ label: "All Type", value: "" }, ...optionsBillType]}
-              value={filterType}
-              onChange={handleChangeStatus}
-            />
-            <DropdownType
-              position="right"
-              options={[
-                { label: "All Element", value: "" },
-                ...optionsInformation,
-              ]}
-              value={filterElement}
-              onChange={handleChangeCategory}
-              withIcon
+            <Pagination
+              current={currentPage}
+              total={totalPages}
+              onChange={setCurrentPage}
             />
           </div>
         </div>
-        <TableDataBillMaterial items={paginated} />
-        <div className="flex justify-between items-center p-4">
-          <SelectRowsPerPage
-            value={rowsPerPage}
-            onChange={(val) => {
-              setRowsPerPage(val);
-              setCurrentPage(1);
-            }}
-          />
-          <Pagination
-            current={currentPage}
-            total={totalPages}
-            onChange={setCurrentPage}
-          />
-        </div>
-      </div>
+      )}
     </>
   );
 };

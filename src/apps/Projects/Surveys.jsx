@@ -1,7 +1,7 @@
 // src/apps/Projects/Surveys.jsx
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { floorPlanItems } from "@/data/floorplan";
 import Toggle from "@/components/Toggle/Toggle";
@@ -11,8 +11,16 @@ import ModalRename from "@/components/Modal/ModalRename";
 import ModalTransfer from "@/components/Modal/ModalTransfer";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import ModalAddFloorPlan from "@/components/Modal/ModalAddFloorPlan";
+import SkeletonCard from "@/components/Skeleton/SkeletonCard";
 
 const Surveys = () => {
+  // Loading
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const [floorPlans, setFloorPlans] = useState(floorPlanItems);
 
   // Handle Add
@@ -120,35 +128,39 @@ const Surveys = () => {
 
   return (
     <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <ButtonPrimary
-            icon={Plus}
-            label={"Add Floor Plan"}
-            onClick={() => setIsAddOpen(true)}
-          />
-          <Toggle
-            label={`${isEnabled ? "Archived" : "Active"}`}
-            value={isEnabled}
-            onChange={setIsEnabled}
-          />
+      {isLoading ? (
+        <SkeletonCard />
+      ) : (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <ButtonPrimary
+              icon={Plus}
+              label={"Add Floor Plan"}
+              onClick={() => setIsAddOpen(true)}
+            />
+            <Toggle
+              label={`${isEnabled ? "Archived" : "Active"}`}
+              value={isEnabled}
+              onChange={setIsEnabled}
+            />
+          </div>
+          <div className="grid grid-cols-4 gap-6">
+            {floorPlans
+              .filter((item) => item.isArchive === isEnabled)
+              .map((item) => (
+                <CardFloorPlan
+                  key={item.id}
+                  {...item}
+                  onRename={() => handleRename(item.id, item.name)}
+                  onTransfer={() => handleTransfer(item.id)}
+                  onDuplicate={() => handleDuplicate(item.id)}
+                  onArchive={() => handleArchive(item.id, item.isArchive)}
+                  onDelete={() => handleDelete(item.id)}
+                />
+              ))}
+          </div>
         </div>
-        <div className="grid grid-cols-4 gap-6">
-          {floorPlans
-            .filter((item) => item.isArchive === isEnabled)
-            .map((item) => (
-              <CardFloorPlan
-                key={item.id}
-                {...item}
-                onRename={() => handleRename(item.id, item.name)}
-                onTransfer={() => handleTransfer(item.id)}
-                onDuplicate={() => handleDuplicate(item.id)}
-                onArchive={() => handleArchive(item.id, item.isArchive)}
-                onDelete={() => handleDelete(item.id)}
-              />
-            ))}
-        </div>
-      </div>
+      )}
       <ModalAddFloorPlan
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}

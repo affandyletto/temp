@@ -43,10 +43,10 @@ const FilterSelect = ({
         <button
           type="button"
           onClick={() => !readOnly && setIsOpen((prev) => !prev)}
-          className={`w-full text-left border border-neutral-400 text-sm rounded-lg p-4 flex justify-between items-center ${
+          className={`w-full text-left border-neutral-400 focus:outline-none focus:ring-0 active:outline-none active:ring-0 transition-all duration-300 text-sm rounded-lg p-4 flex justify-between items-center ${
             readOnly
               ? "bg-neutral-200 text-secondary"
-              : "bg-white focus:border-primary-300 "
+              : "bg-white focus:border-primary-200 "
           }`}
         >
           <span className={selectedOption ? "" : "text-secondary"}>

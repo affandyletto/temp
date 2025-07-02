@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import ModalSubmitProject from "@/components/Modal/ModalSubmitProject";
 import DropdownStage from "../Dropdown/DropdownStage";
 
 const TableProjectList = ({ items }) => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [activeRowId, setActiveRowId] = useState(null);
 
@@ -51,20 +53,27 @@ const TableProjectList = ({ items }) => {
                 activeRowId === project.id ? "!bg-primary-100" : ""
               }`}
             >
-              <td width="30%">{project.name}</td>
+              <td
+                width="30%"
+                className="cursor-pointer"
+                onClick={() => navigate(`/projects/${project.id}`)}
+              >
+                {project.name}
+              </td>
               <td>{project.number}</td>
               <td className="w-52">
-                  <DropdownStage
-                    stage_id={project.stage_id}
-                    onChange={(item) => {
-                      const updated = projects.map((p) =>
-                        p.id === project.id
-                          ? { ...p, stage_id: item.id, stage: item.name }
-                          : p
-                      );
-                      setProjects(updated);
-                    }}
-                  />
+                <DropdownStage
+                  position="left"
+                  stage_id={project.stage_id}
+                  onChange={(item) => {
+                    const updated = projects.map((p) =>
+                      p.id === project.id
+                        ? { ...p, stage_id: item.id, stage: item.name }
+                        : p
+                    );
+                    setProjects(updated);
+                  }}
+                />
               </td>
               <td>{project.clientOrganization}</td>
               <td>
@@ -91,7 +100,8 @@ const TableProjectList = ({ items }) => {
                     The project you are looking for was not found
                   </p>
                   <span className="text-xs text-secondary">
-                    Try checking the spelling of the project name or using other keywords.
+                    Try checking the spelling of the project name or using other
+                    keywords.
                   </span>
                 </div>
               </td>

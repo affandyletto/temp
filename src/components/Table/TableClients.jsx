@@ -2,21 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Eye, Trash2 } from "lucide-react";
-import { useGoToDetailPage } from "@/utils/navigation";
+import { Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 
 const TableClients = ({ items }) => {
+  const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [activeRowId, setActiveRowId] = useState(null);
 
   useEffect(() => {
     setClients(items);
   }, [items]);
-
-  // Handle Detail
-  const goToClient = useGoToDetailPage("/clients");
 
   // Handle Delete
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -51,7 +49,12 @@ const TableClients = ({ items }) => {
                 activeRowId === id ? "!bg-primary-100" : ""
               }`}
             >
-              <td>{name}</td>
+              <td
+                className="cursor-pointer"
+                onClick={() => navigate(`/clients/${id}`)}
+              >
+                {name}
+              </td>
               <td>{email}</td>
               <td>{number}</td>
               <td>{projects}</td>
@@ -60,12 +63,6 @@ const TableClients = ({ items }) => {
                   onOpen={() => setActiveRowId(id)}
                   onClose={() => setActiveRowId(null)}
                   menu={[
-                    {
-                      id: uuidv4(),
-                      name: "Detail",
-                      icon: Eye,
-                      onClick: () => goToClient(id),
-                    },
                     {
                       id: uuidv4(),
                       name: "Delete",

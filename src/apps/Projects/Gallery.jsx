@@ -6,8 +6,16 @@ import { ArrowRight } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import CardPhoto from "@/components/Card/CardPhoto";
 import CardAlbum from "@/components/Card/CardAlbum";
+import SkeletonCard from "@/components/Skeleton/SkeletonCard";
 
 const Gallery = () => {
+  // Loading
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const { id: projectId } = useParams();
   const [filteredPhotos, setFilteredPhotos] = useState([]);
   const [filteredAlbums, setFilteredAlbums] = useState([]);
@@ -19,6 +27,9 @@ const Gallery = () => {
 
   return (
     <>
+      {isLoading ? (
+        <SkeletonCard />
+      ) : (
       <div className="space-y-8">
         {/* Photos Section */}
         <div className="space-y-4">
@@ -72,6 +83,7 @@ const Gallery = () => {
 
         <div className="h-48" />
       </div>
+      )}
     </>
   );
 };

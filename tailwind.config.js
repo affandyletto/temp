@@ -9,11 +9,15 @@ module.exports = {
       colors: {
         default: "#1D2433",
         neutral: {
+          100: "#FFFFFF",
           200: "#F8F9FC",
           300: "#F1F3F9",
           400: "#E1E6EF",
           500: "#DADADA",
           600: "#3F444D",
+          700: "#23272F",
+          800: "#1B1F27",
+          900: "#0A0D14",
         },
         primary: {
           100: "#EDF8FC",
@@ -46,10 +50,15 @@ module.exports = {
           400: "#146726",
         },
         danger: {
+          100: "#FFF0F0",
           200: "#FF2828",
           300: "#CA0202",
+          400: "#AE0606",
         },
-        secondary: "#767A83",
+        secondary: {
+          DEFAULT: "#767A83",
+          300: "#39527B",
+        },
         light: "#DCE1EB",
         gray: {
           200: "#F5F5F5",

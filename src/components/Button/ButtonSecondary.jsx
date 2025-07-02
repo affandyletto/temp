@@ -11,7 +11,7 @@ const ButtonSecondary = ({
   return (
     <button
       type={type}
-      className={`flex items-center gap-2 bg-white  border border-neutral-400 text-sm font-semibold py-2.5 px-5 ${
+      className={`flex items-center gap-2 bg-white border border-neutral-400 hover:border-primary-200 active:border-primary-300  transition-all duration-300 text-sm font-semibold py-2.5 px-5 ${
         rounded ? "rounded-full" : "rounded-lg"
       } ${isRed ? "text-danger-200" : ""} `}
       onClick={onClick}

@@ -12,8 +12,16 @@ import ModalSubmitAlbum from "@/components/Modal/ModalSubmitAlbum";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import CardPhoto from "@/components/Card/CardPhoto";
 import ButtonSecondary from "@/components/Button/ButtonSecondary";
+import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
 
 const Album = () => {
+  // Loading
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const { id: projectId, albumId } = useParams();
   const [album, setAlbum] = useState(null);
 
@@ -35,7 +43,7 @@ const Album = () => {
   };
 
   const handleDeleteAlbum = () => {
-    setIsDeleteOpen(true);
+    setIsDeleteAlbumOpen(true);
   };
 
   const [selectMode, setSelectMode] = useState(false);
@@ -56,117 +64,121 @@ const Album = () => {
 
   return (
     <>
-      <div className="space-y-8">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Link
-                to={`/projects/${projectId}/all-albums`}
-                className="flex items-center"
-              >
-                <ArrowLeft className="size-7" />
-              </Link>
-              <div className="flex items-center gap-1">
-                <h2 className="text-xl font-semibold">Album-01</h2>
+      {isLoading ? (
+        <SkeletonDefault />
+      ) : (
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <Link
+                  to={`/projects/${projectId}/all-albums`}
+                  className="flex items-center"
+                >
+                  <ArrowLeft className="size-7" />
+                </Link>
+                <div className="flex items-center gap-1">
+                  <h2 className="text-xl font-semibold">Album-01</h2>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {selectedPhotos.length > 0 && (
-                <ButtonSecondary
-                  icon={Trash2}
-                  type={"button"}
-                  label={"Remove Photo From Album"}
-                  isRed
-                  onClick={() => setIsDeleteAlbumOpen(true)}
+              <div className="flex items-center gap-3">
+                {selectedPhotos.length > 0 && (
+                  <ButtonSecondary
+                    icon={Trash2}
+                    type={"button"}
+                    label={"Remove Photo From Album"}
+                    isRed
+                    onClick={() => setIsDeleteAlbumOpen(true)}
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={handleSelectMode}
+                  className={`flex items-center gap-1 rounded-full border text-sm py-2 px-4 ${
+                    selectMode
+                      ? "bg-primary-100 border-primary-100 text-primary-200"
+                      : "bg-white border-neutral-400 "
+                  }`}
+                >
+                  <span>
+                    {selectMode
+                      ? `${selectedPhotos.length} Photo Selected`
+                      : "Select Photo"}
+                  </span>
+                  {selectMode && <X className="size-5" />}
+                </button>
+                <DropdownMenu
+                  onOpen={() => {}}
+                  onClose={() => {}}
+                  menu={[
+                    {
+                      id: uuidv4(),
+                      name: "Generate PDF",
+                      icon: FileText,
+                      onClick: () => setIsGenerate(true),
+                    },
+                    {
+                      id: uuidv4(),
+                      name: "Share",
+                      icon: Share2,
+                      onClick: () => setIsShareOpen(true),
+                    },
+                    {
+                      id: uuidv4(),
+                      name: "Edit",
+                      icon: Pencil,
+                      onClick: () => setIsEditAlbumOpen(true),
+                    },
+                    {
+                      id: uuidv4(),
+                      name: "Delete",
+                      icon: Trash2,
+                      isRed: true,
+                      onClick: () => setIsDeleteOpen(true),
+                    },
+                  ]}
                 />
-              )}
-              <button
-                type="button"
-                onClick={handleSelectMode}
-                className={`flex items-center gap-1 rounded-full border text-sm py-2 px-4 ${
-                  selectMode
-                    ? "bg-primary-100 border-primary-100 text-primary-200"
-                    : "bg-white border-neutral-400 "
-                }`}
-              >
-                <span>
-                  {selectMode
-                    ? `${selectedPhotos.length} Photo Selected`
-                    : "Select Photo"}
-                </span>
-                {selectMode && <X className="size-5" />}
-              </button>
-              <DropdownMenu
-                onOpen={() => {}}
-                onClose={() => {}}
-                menu={[
-                  {
-                    id: uuidv4(),
-                    name: "Generate PDF",
-                    icon: FileText,
-                    onClick: () => setIsGenerate(true),
-                  },
-                  {
-                    id: uuidv4(),
-                    name: "Share",
-                    icon: Share2,
-                    onClick: () => setIsShareOpen(true),
-                  },
-                  {
-                    id: uuidv4(),
-                    name: "Edit",
-                    icon: Pencil,
-                    onClick: () => setIsEditAlbumOpen(true),
-                  },
-                  {
-                    id: uuidv4(),
-                    name: "Delete",
-                    icon: Trash2,
-                    isRed: true,
-                    onClick: () => setIsDeleteOpen(true),
-                  },
-                ]}
-              />
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4 pb-4 border-b border-neutral-400">
-            <div className="space-y-1">
-              <div className="flex items-center text-base">
-                <p className="font-semibold w-40">Name</p>
-                <p className="text-secondary">{album?.name}</p>
+            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-neutral-400">
+              <div className="space-y-1">
+                <div className="flex items-center text-base">
+                  <p className="font-semibold w-40">Name</p>
+                  <p className="text-secondary">{album?.name}</p>
+                </div>
+                <div className="flex items-center text-base">
+                  <p className="font-semibold w-40">Category</p>
+                  <p className="text-secondary">{album?.category}</p>
+                </div>
               </div>
-              <div className="flex items-center text-base">
-                <p className="font-semibold w-40">Category</p>
-                <p className="text-secondary">{album?.category}</p>
+              <div className="space-y-1">
+                <div className="flex items-center text-base">
+                  <p className="font-semibold w-40">Crated By</p>
+                  <p className="text-secondary">{album?.createdBy}</p>
+                </div>
+                <div className="flex items-center text-base">
+                  <p className="font-semibold w-40">Date Created</p>
+                  <p className="text-secondary">{album?.datetime}</p>
+                </div>
               </div>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center text-base">
-                <p className="font-semibold w-40">Crated By</p>
-                <p className="text-secondary">{album?.createdBy}</p>
-              </div>
-              <div className="flex items-center text-base">
-                <p className="font-semibold w-40">Date Created</p>
-                <p className="text-secondary">{album?.datetime}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-4 gap-5">
-            {album?.photos?.map(({ id, ...rest }) => (
-              <CardPhoto
-                key={id}
-                id={id}
-                {...rest}
-                selectMode={selectMode}
-                isSelected={selectedPhotos.includes(id)}
-                onSelect={() => handleSelectPhoto(id)}
-              />
-            ))}
+            <div className="grid grid-cols-4 gap-5">
+              {album?.photos?.map(({ id, ...rest }) => (
+                <CardPhoto
+                  key={id}
+                  id={id}
+                  {...rest}
+                  selectMode={selectMode}
+                  isSelected={selectedPhotos.includes(id)}
+                  onSelect={() => handleSelectPhoto(id)}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <ModalShare
         title="Share Album"

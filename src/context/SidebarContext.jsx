@@ -10,7 +10,7 @@ export function SidebarProvider({ children }) {
   const toggleSidebar = () => setIsCollapsed((prev) => !prev);
 
   return (
-    <SidebarContext.Provider value={{ isCollapsed, toggleSidebar }}>
+    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed, toggleSidebar }}>
       {children}
     </SidebarContext.Provider>
   );

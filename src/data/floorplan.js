@@ -1,7 +1,21 @@
 // src/data/floorplan.js
 
 import { v4 as uuidv4 } from "uuid";
-import { faker } from "@faker-js/faker";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+
+// Helper untuk membuat tanggal acak dalam 30 hari terakhir
+const getRandomDate = () => {
+  const now = new Date();
+  const past = new Date(now);
+  past.setDate(now.getDate() - Math.floor(Math.random() * 30));
+  return past;
+};
+
+// Format tanggal ke `dd/mm/yyyy hh:mm AM/PM WIB`
+const formatDate = (date) => {
+  return format(date, "dd/MM/yyyy hh:mm a", { locale: idLocale }) + " WIB";
+};
 
 export const floorPlanItems = [
   {
@@ -46,7 +60,7 @@ export const attachmentItems = [
     id: uuidv4(),
     name: "File Example 1",
     size: "850 KB",
-    createdAt: "2024-05-18",
+    createdAt: formatDate(getRandomDate()),
     type: "image",
     url: "/images/sample-floor-plan.webp",
   },
@@ -54,7 +68,7 @@ export const attachmentItems = [
     id: uuidv4(),
     name: "File Example 2",
     size: "1.4 MB",
-    createdAt: "2024-05-20",
+    createdAt: formatDate(getRandomDate()),
     type: "image",
     url: "/images/sample-floor-plan-2.webp",
   },
@@ -62,7 +76,7 @@ export const attachmentItems = [
     id: uuidv4(),
     name: "File Example 3",
     size: "1.2 MB",
-    createdAt: "2024-05-15",
+    createdAt: formatDate(getRandomDate()),
     type: "pdf",
     url: "/files/FloorPlan-A.pdf",
   },
@@ -73,7 +87,7 @@ export const reportItems = [
     id: uuidv4(),
     detail: "Lorem ipsum dolor sit amet consectetur sollicitudin ut.",
     type: "pdf",
-    dateTime: "31 May 2025, 12:20 AM WIB",
+    dateTime: formatDate(getRandomDate()),
     createdBy: "Affandy Letto",
     fileName: "Report 01",
     fileUrl: "/files/report-01.pdf",
@@ -82,7 +96,7 @@ export const reportItems = [
     id: uuidv4(),
     detail: "Lorem ipsum dolor sit amet consectetur sollicitudin ut.",
     type: "pdf",
-    dateTime: "31 May 2025, 12:20 AM WIB",
+    dateTime: formatDate(getRandomDate()),
     createdBy: "Affandy Letto",
     fileName: "Report 02",
     fileUrl: "/files/report-02.pdf",
@@ -90,23 +104,8 @@ export const reportItems = [
 ];
 
 const getRandom6Digit = () => Math.floor(100000 + Math.random() * 900000);
-const formatDateTime = (date) => {
-  const options = {
-    timeZone: "America/Los_Angeles",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-
-  const dateStr = new Intl.DateTimeFormat("en-US", options).format(date);
-  return `${dateStr} PDT`;
-};
 
 export const mockPhotos = Array.from({ length: 10 }).map((_, i) => {
-  const date = faker.date.recent({ days: 30 });
   const imageUrls = [
     "/images/sample-photo-1.webp",
     "/images/sample-photo-2.webp",
@@ -118,29 +117,13 @@ export const mockPhotos = Array.from({ length: 10 }).map((_, i) => {
     name: `MV63X-${i + 1}`,
     elementId: getRandom6Digit(),
     cameraName: "CAMERA-1",
-    datetime: formatDateTime(date),
+    datetime: formatDate(getRandomDate()),
     uploadedBy: "River Admin Stewart ",
     image,
   };
 });
 
-const formatDateTime2 = (date) => {
-  const options = {
-    timeZone: "America/Los_Angeles",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-
-  const dateStr = new Intl.DateTimeFormat("en-US", options).format(date);
-  return dateStr;
-};
-
 export const mockAlbums = Array.from({ length: 2 }).map((_, i) => {
-  const date = faker.date.recent({ days: 30 });
   const totalPhotosArr = [1, 2, 3, 4, 5];
   const totalPhotos =
     totalPhotosArr[Math.floor(Math.random() * totalPhotosArr.length)];
@@ -158,7 +141,7 @@ export const mockAlbums = Array.from({ length: 2 }).map((_, i) => {
     createdBy: "River Admin Stewart",
     projectName: `Project Alpha ${i + 1}`,
     date: "2025-06-01",
-    datetime: formatDateTime2(date),
+    datetime: formatDate(getRandomDate()),
     photos,
   };
 });
