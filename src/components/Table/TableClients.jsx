@@ -1,5 +1,4 @@
 // src/components/Table/TableClients.js
-
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Trash2 } from "lucide-react";
@@ -45,33 +44,31 @@ const TableClients = ({ items }) => {
           {clients.map(({ id, name, email, number, projects }) => (
             <tr
               key={id}
-              className={`border-t border-neutral-300 hover:bg-neutral-200 ${
+              className={`border-t border-neutral-300 hover:bg-neutral-200 cursor-pointer ${
                 activeRowId === id ? "!bg-primary-100" : ""
               }`}
+              onClick={() => navigate(`/clients/${id}`)}
             >
-              <td
-                className="cursor-pointer"
-                onClick={() => navigate(`/clients/${id}`)}
-              >
-                {name}
-              </td>
+              <td className="cursor-pointer">{name}</td>
               <td>{email}</td>
               <td>{number}</td>
               <td>{projects}</td>
               <td>
-                <DropdownMenu
-                  onOpen={() => setActiveRowId(id)}
-                  onClose={() => setActiveRowId(null)}
-                  menu={[
-                    {
-                      id: uuidv4(),
-                      name: "Delete",
-                      icon: Trash2,
-                      isRed: true,
-                      onClick: () => handleDelete(id),
-                    },
-                  ]}
-                />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu
+                    onOpen={() => setActiveRowId(id)}
+                    onClose={() => setActiveRowId(null)}
+                    menu={[
+                      {
+                        id: uuidv4(),
+                        name: "Delete",
+                        icon: Trash2,
+                        isRed: true,
+                        onClick: () => handleDelete(id),
+                      },
+                    ]}
+                  />
+                </div>
               </td>
             </tr>
           ))}

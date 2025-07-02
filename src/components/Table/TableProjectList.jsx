@@ -48,47 +48,50 @@ const TableProjectList = ({ items }) => {
         <tbody>
           {projects.map((project) => (
             <tr
-              key={project.id}
-              className={`border-t border-neutral-300 hover:bg-neutral-200 ${
-                activeRowId === project.id ? "!bg-primary-100" : ""
+              key={project.number}
+              className={`border-t border-neutral-300 hover:bg-neutral-200 cursor-pointer ${
+                activeRowId === project.number ? "!bg-primary-100" : ""
               }`}
+                onClick={() => navigate(`/projects/${project.number}`)}
             >
               <td
                 width="30%"
-                className="cursor-pointer"
-                onClick={() => navigate(`/projects/${project.id}`)}
               >
                 {project.name}
               </td>
               <td>{project.number}</td>
               <td className="w-52">
-                <DropdownStage
-                  position="left"
-                  stage_id={project.stage_id}
-                  onChange={(item) => {
-                    const updated = projects.map((p) =>
-                      p.id === project.id
-                        ? { ...p, stage_id: item.id, stage: item.name }
-                        : p
-                    );
-                    setProjects(updated);
-                  }}
-                />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DropdownStage
+                    position="left"
+                    stage_id={project.stage_id}
+                    onChange={(item) => {
+                      const updated = projects.map((p) =>
+                        p.id === project.id
+                          ? { ...p, stage_id: item.id, stage: item.name }
+                          : p
+                      );
+                      setProjects(updated);
+                    }}
+                  />
+                </div>
               </td>
               <td>{project.clientOrganization}</td>
               <td>
-                <DropdownMenu
-                  onOpen={() => setActiveRowId(project.id)}
-                  onClose={() => setActiveRowId(null)}
-                  menu={[
-                    {
-                      id: uuidv4(),
-                      name: "Edit",
-                      icon: Pencil,
-                      onClick: () => handleOpenEdit(project),
-                    },
-                  ]}
-                />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu
+                    onOpen={() => setActiveRowId(project.id)}
+                    onClose={() => setActiveRowId(null)}
+                    menu={[
+                      {
+                        id: uuidv4(),
+                        name: "Edit",
+                        icon: Pencil,
+                        onClick: () => handleOpenEdit(project),
+                      },
+                    ]}
+                  />
+                </div>
               </td>
             </tr>
           ))}
