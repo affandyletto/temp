@@ -20,6 +20,8 @@ import Elements from "./pages/Elements";
 import ProjectAlbumDetail from "./pages/ProjectAlbumDetail";
 import ProjectAlbums from "./pages/ProjectAlbums";
 import ProjectPhotos from "./pages/ProjectPhotos";
+import OneSnapPage from "./pages/OneSnapPage"
+import { OneSnapDetail } from "./pages/OneSnapDetail"
 
 function App() {
   const { isCollapsed } = useSidebar();
@@ -59,6 +61,8 @@ function App() {
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/quality-check" element={<QualityCheck />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/oneSnap" element={<OneSnapPage />} />
+            <Route path="/oneSnap/:id" element={<OneSnapDetail />} />
             <Route path="/organization" element={<Organization />} />
             <Route path="/elements" element={<Elements />} />
           </Routes>

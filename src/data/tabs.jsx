@@ -14,6 +14,9 @@ import BasicInfo from "@/apps/Clients/BasicInfo";
 import Projects from "@/apps/Clients/Projects";
 import OneSnaps from "@/apps/Clients/OneSnaps";
 
+
+import {OneSnapGallery} from "@/apps/OneSnap/Gallery";
+
 export const tabsProjectDetail = [
   {
     label: "Surveys",
@@ -84,3 +87,41 @@ export const tabsClientDetail = [
     content: <OneSnaps />,
   },
 ];
+
+export const tabsOneSnapDetail = [
+  {
+    label: "Gallery",
+    value: "gallery",
+    content: <OneSnapGallery />,
+  },
+  {
+    label: "Albums",
+    value: "albums",
+    content: <Gallery />,
+  },
+  {
+    label: "Map",
+    value: "map",
+    content: <Gallery />,
+  },
+  {
+    label: "Reports",
+    value: "reports",
+    content: <Gallery />,
+  },
+  {
+    label: "Archive",
+    value: "archive",
+    content: <Gallery />,
+  },
+  {
+    label: "Participant",
+    value: "participant",
+    content: <Gallery />,
+  },
+  {
+    label: "Floor Plan Builder",
+    value: "floorplanBuilder",
+    content: <Gallery />,
+  },
+  ]

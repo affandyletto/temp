@@ -33,9 +33,6 @@ const Attachment = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <ButtonPrimary
@@ -47,12 +44,12 @@ const Attachment = () => {
           </div>
 
           {isEnabled ? (
-            <TableAttachment items={attachmentItems} />
+            <TableAttachment isLoading={isLoading} items={attachmentItems} />
           ) : (
-            <GridAttachment items={attachmentItems} />
+            <GridAttachment isLoading={isLoading} items={attachmentItems} />
           )}
         </div>
-      )}
+      
       <ModalUploadFile
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

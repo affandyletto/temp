@@ -5,7 +5,7 @@ import "./index.css";
 import App from "./App";
 import { SidebarProvider } from "./context/SidebarContext";
 import { DropdownProvider } from "./context/DropdownContext";
-import { TabProvider } from "./context/TabContext";
+import { TabProvider, OneSnapTabProvider } from "./context/TabContext";
 import { ToastProvider } from "./context/ToastContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -14,7 +14,9 @@ root.render(
     <SidebarProvider>
       <DropdownProvider>
         <TabProvider>
-          <App />
+          <OneSnapTabProvider>
+            <App />
+          </OneSnapTabProvider>
         </TabProvider>
       </DropdownProvider>
     </SidebarProvider>

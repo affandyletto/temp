@@ -71,7 +71,7 @@ export const menuItems = [
       {
         label: "OneSnap",
         icon: Box,
-        to: "/one-snap",
+        to: "/oneSnap",
       },
       {
         label: "OneProposal",

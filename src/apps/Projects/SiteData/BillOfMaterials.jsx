@@ -178,8 +178,7 @@ const BillOfMaterials = () => {
               onChange={setCurrentPage}
             />
           </div>
-        </div>
-      }
+        </div>      
     </>
   );
 };

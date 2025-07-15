@@ -170,8 +170,7 @@ const SurveyInformation = () => {
               onChange={setCurrentPage}
             />
           </div>
-        </div>
-      }
+        </div>      
     </>
   );
 };

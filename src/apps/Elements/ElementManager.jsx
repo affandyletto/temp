@@ -50,9 +50,6 @@ const ElementManager = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold">Element Manager</h2>
@@ -87,12 +84,12 @@ const ElementManager = () => {
           </div>
 
           {activeTab === 0 ? (
-            <GridUniversalElements items={paginatedElements} />
+            <GridUniversalElements isLoading={isLoading} items={paginatedElements} />
           ) : (
             <GridMyLibrary items={paginatedMyLibary} />
           )}
         </div>
-      )}
+      
       <div className="h-20"></div>
 
       <ModalSubmitSuperCategory

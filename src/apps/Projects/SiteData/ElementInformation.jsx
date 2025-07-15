@@ -189,7 +189,7 @@ const ElementInformation = () => {
             />
           </div>
         </div>
-      }
+      
 
       <ModalSubmitPartNumber
         isOpen={isEditPartNumber}

@@ -7,8 +7,9 @@ import { renderIcon } from "@/utils/icon";
 import ModalRename from "@/components/Modal/ModalRename";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
+import { SkeletonTable } from "@/components/Skeleton/SkeletonTable";
 
-const TableAttachment = ({ items }) => {
+const TableAttachment = ({ items, isLoading }) => {
   const [attachments, setAttachments] = useState(items);
   const [activeRowId, setActiveRowId] = useState(null);
 
@@ -59,8 +60,14 @@ const TableAttachment = ({ items }) => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {attachments.map(({ id, name, size, createdAt, type }) => (
+        <tbody>          
+            {isLoading ? (
+            // Show skeleton rows when loading
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonTable key={index} headerCount={4}/>
+            ))
+            ):
+            attachments.map(({ id, name, size, createdAt, type }) => (
             <tr
               key={id}
               className={`border-t border-neutral-300 hover:bg-neutral-200 ${

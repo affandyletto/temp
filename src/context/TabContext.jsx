@@ -14,4 +14,18 @@ export function TabProvider({ children }) {
   );
 }
 
+const OneSnapTabContext = createContext();
+
+export function OneSnapTabProvider({ children }) {
+  const [tabValue, setTabValue] = useState("gallery");
+
+  return (
+    <OneSnapTabContext.Provider value={{ tabValue, setTabValue }}>
+      {children}
+    </OneSnapTabContext.Provider>
+  );
+}
+
+
 export const useTab = () => useContext(TabContext);
+export const useOneSnapTab = () => useContext(OneSnapTabContext);

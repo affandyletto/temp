@@ -7,7 +7,7 @@ import { reportItems } from "@/data/floorplan";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import ButtonDownload from "@/components/Button/ButtonDownload";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
-import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
+import { SkeletonTable } from "@/components/Skeleton/SkeletonTable";
 
 const Report = () => {
   // Loading
@@ -34,10 +34,7 @@ const Report = () => {
   };
 
   return (
-    <>
-      {isLoading ? (
-        <SkeletonDefault />
-      ) : (
+    <>      
         <table className="table">
           <thead>
             <tr>
@@ -60,7 +57,13 @@ const Report = () => {
             </tr>
           </thead>
           <tbody>
-            {reports.map(
+            {
+              isLoading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                      <SkeletonTable key={index} headerCount={6}/>
+                    ))
+              ) : 
+              reports.map(
               ({
                 id,
                 detail,
@@ -114,7 +117,7 @@ const Report = () => {
             )}
           </tbody>
         </table>
-      )}
+      
       <ModalConfirm
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}

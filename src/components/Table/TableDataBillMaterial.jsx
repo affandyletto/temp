@@ -77,7 +77,7 @@ const TableDataBillMaterial = ({ items, isLoading }) => {
               ))}
             </Fragment>
           );
-        })}}
+        })}
 
         {dataBill.length === 0 && (
           <tr className="!border-none">

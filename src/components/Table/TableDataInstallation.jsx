@@ -59,7 +59,7 @@ const TableDataInstallation = ({ items, isLoading }) => {
               <td>{data.techTypeRequired}</td>
               <td>{data.specificInstallationNote}</td>
             </tr>
-          ))}}
+          ))}
           {dataSurvey.length === 0 && (
             <tr className="!border-none">
               <td colSpan={11}>

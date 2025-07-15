@@ -166,7 +166,7 @@ const InstallationInformation = () => {
             />
           </div>
         </div>
-      }
+      
     </>
   );
 };
