@@ -2,7 +2,7 @@
 
 import { Image, X } from "lucide-react";
 import Input from "@/components/Form/Input";
-import TextArea from "@/components/Form/TextArea";
+import TextArea from "@/components/Form/Textarea";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import Modal from "./Modal";
 import ButtonSecondary from "../Button/ButtonSecondary";
