@@ -9,6 +9,15 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
   const [recordedAudio, setRecordedAudio] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [finalTranscript, setFinalTranscript] = useState("");
+  const [interimTranscript, setInterimTranscript] = useState("");
+  const [lastSpeechTime, setLastSpeechTime] = useState(null);
+  const [silenceTimeout, setSilenceTimeout] = useState(null);
+  
+  // Get complete transcription
+  const transcription = (finalTranscript + interimTranscript).trim();
+  const [recognition, setRecognition] = useState(null);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -63,7 +72,7 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
   const recordingInterval = useRef(null);
   const messagesEndRef = useRef(null);
 
-  // Initialize Tone.js
+  // Initialize Tone.js and Speech Recognition
   useEffect(() => {
     const initTone = async () => {
       if (Tone.context.state !== 'running') {
@@ -71,6 +80,89 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
       }
     };
     initTone();
+
+    // Initialize Speech Recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const speechRecognition = new SpeechRecognition();
+      speechRecognition.continuous = true;
+      speechRecognition.interimResults = true;
+      speechRecognition.lang = 'en-US';
+      
+      speechRecognition.onresult = (event) => {
+        let finalText = '';
+        let interimText = '';
+        
+        // Clear any existing silence timeout since we got speech
+        if (silenceTimeout) {
+          clearTimeout(silenceTimeout);
+          setSilenceTimeout(null);
+        }
+        
+        setLastSpeechTime(Date.now());
+        
+        // Only process new results from the last result index
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalText += transcript + ' ';
+          } else {
+            interimText += transcript;
+          }
+        }
+        
+        // Only add new final text to prevent duplication
+        if (finalText.trim()) {
+          setFinalTranscript(prev => prev + finalText);
+        }
+        
+        // Always update interim text (this replaces previous interim)
+        setInterimTranscript(interimText);
+        
+        // Set up silence detection timeout
+        const timeoutId = setTimeout(() => {
+          // If there's been silence for 3 seconds and we have content, add a comma
+          if (finalTranscript.trim() && !finalTranscript.trim().endsWith(',') && !finalTranscript.trim().endsWith('.')) {
+            setFinalTranscript(prev => prev.trim() + ', ');
+          }
+        }, 3000);
+        
+        setSilenceTimeout(timeoutId);
+      };
+      
+      speechRecognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsTranscribing(false);
+        setInterimTranscript(""); // Clear interim on error
+        
+        // Only restart on network errors, not on no-speech errors
+        if (event.error === 'network' && isRecording) {
+          setTimeout(() => {
+            try {
+              speechRecognition.start();
+              setIsTranscribing(true);
+            } catch (error) {
+              console.warn('Could not restart speech recognition:', error);
+            }
+          }, 1000);
+        }
+      };
+      
+      speechRecognition.onend = () => {
+        setIsTranscribing(false);
+        setInterimTranscript(""); // Clear interim when recognition ends
+        
+        // Clear silence timeout when recognition ends
+        if (silenceTimeout) {
+          clearTimeout(silenceTimeout);
+          setSilenceTimeout(null);
+        }
+        
+        // Don't auto-restart to avoid loops and duplication
+      };
+      
+      setRecognition(speechRecognition);
+    }
   }, []);
 
   // Auto-scroll to bottom when new messages are added
@@ -163,7 +255,7 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
         isVoice: recordedAudio ? true : false,
         content: content,
         duration: recordedAudio ? formatTime(recordedAudio.duration) : null,
-        transcript: newComment.trim() || `Voice message recorded for ${recordedAudio ? formatTime(recordedAudio.duration) : '0:00'}`,
+        transcript: recordedAudio ? transcription || `Voice message recorded for ${formatTime(recordedAudio.duration)}` : content,
         audioUrl: recordedAudio ? recordedAudio.url : null,
         showReadMore: !recordedAudio && content.length > 200,
         expanded: false,
@@ -180,6 +272,13 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
       setNewComment("");
       setRecordedAudio(null);
       setRecordingTime(0);
+      setFinalTranscript("");
+      setInterimTranscript("");
+      setLastSpeechTime(null);
+      if (silenceTimeout) {
+        clearTimeout(silenceTimeout);
+        setSilenceTimeout(null);
+      }
     }
   };
 
@@ -192,7 +291,7 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
         isVoice: true,
         content: "Voice message",
         duration: formatTime(recordedAudio.duration),
-        transcript: `Voice message recorded for ${formatTime(recordedAudio.duration)}`,
+        transcript: transcription || `Voice message recorded for ${formatTime(recordedAudio.duration)}`,
         audioUrl: recordedAudio.url,
         showReadMore: false,
         expanded: false,
@@ -208,11 +307,18 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
       setMessages(prev => [...prev, newVoiceMessage]);
       setRecordedAudio(null);
       setRecordingTime(0);
+      setFinalTranscript("");
+      setInterimTranscript("");
+      setLastSpeechTime(null);
+      if (silenceTimeout) {
+        clearTimeout(silenceTimeout);
+        setSilenceTimeout(null);
+      }
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isRecording && !recordedAudio) {
       e.preventDefault();
       handleSendComment();
     }
@@ -230,6 +336,13 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
       
       setAudioChunks([]);
       setMediaRecorder(recorder);
+      setFinalTranscript("");
+      setInterimTranscript("");
+      setLastSpeechTime(null);
+      if (silenceTimeout) {
+        clearTimeout(silenceTimeout);
+        setSilenceTimeout(null);
+      }
       
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -239,11 +352,20 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
       
       recorder.onstop = () => {
         stream.getTracks().forEach(track => track.stop());
+        if (recognition && isTranscribing) {
+          recognition.stop();
+        }
       };
       
       recorder.start(1000);
       setIsRecording(true);
       setRecordingTime(0);
+      
+      // Start speech recognition
+      if (recognition) {
+        setIsTranscribing(true);
+        recognition.start();
+      }
     } catch (error) {
       console.error('Error accessing microphone:', error);
       alert('Could not access microphone. Please check permissions.');
@@ -254,7 +376,18 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
     }
+    if (recognition && isTranscribing) {
+      recognition.stop();
+    }
+    
+    // Clear silence timeout when stopping
+    if (silenceTimeout) {
+      clearTimeout(silenceTimeout);
+      setSilenceTimeout(null);
+    }
+    
     setIsRecording(false);
+    setIsTranscribing(false);
   };
 
   // Handle recording completion
@@ -494,6 +627,18 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
     }
   };
 
+  const clearRecordedAudio = () => {
+    setRecordedAudio(null);
+    setFinalTranscript("");
+    setInterimTranscript("");
+    setRecordingTime(0);
+    setLastSpeechTime(null);
+    if (silenceTimeout) {
+      clearTimeout(silenceTimeout);
+      setSilenceTimeout(null);
+    }
+  };
+
   return (
     <>
       {/* Animated Backdrop */}
@@ -724,12 +869,12 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
                                   {message.duration}
                                 </span>
                               </div>
-                              {message.content && message.content !== "Voice message" && (
+                              {message.transcript && (
                                 <div className="relative">
-                                  <p className="text-white text-sm font-normal font-['Inter'] leading-snug tracking-tight">
+                                  <p className="text-white text-sm font-normal font-['Inter'] leading-snug tracking-tight opacity-90">
                                     {message.showReadMore && !message.expanded 
-                                      ? `${message.content.substring(0, 150)}...`
-                                      : message.content
+                                      ? `${message.transcript.substring(0, 150)}...`
+                                      : message.transcript
                                     }
                                   </p>
                                   {message.showReadMore && !message.expanded && (
@@ -798,57 +943,71 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
 
           {/* Animated Recording indicator */}
           {isRecording && (
-            <div className={`px-4 py-2 bg-red-50 border-t border-red-200 transition-all duration-300 ${
+            <div className={`px-4 py-3 bg-red-50 border-t border-red-200 transition-all duration-300 ${
               isRecording ? 'transform translate-y-0 opacity-100' : 'transform translate-y-4 opacity-0'
             }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-red-600 text-sm font-medium">Recording... {formatTime(recordingTime)}</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-red-600 text-sm font-medium">Recording... {formatTime(recordingTime)}</span>
+                  </div>
+                  <button
+                    onClick={stopRecording}
+                    className="px-3 py-1 bg-red-500 text-white text-sm rounded-full hover:bg-red-600 transition-all duration-200 hover:scale-105"
+                  >
+                    Stop
+                  </button>
                 </div>
-                <button
-                  onClick={stopRecording}
-                  className="px-3 py-1 bg-red-500 text-white text-sm rounded-full hover:bg-red-600 transition-all duration-200 hover:scale-105"
-                >
-                  Stop
-                </button>
+                {isTranscribing && transcription && (
+                  <div className="bg-white p-2 rounded border border-red-200">
+                    <p className="text-sm text-gray-600 italic">"{transcription}"</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* Animated Recorded audio preview */}
           {recordedAudio && !isRecording && (
-            <div className={`px-4 py-2 bg-blue-50 border-t border-blue-200 transition-all duration-300 ${
+            <div className={`px-4 py-3 bg-blue-50 border-t border-blue-200 transition-all duration-300 ${
               recordedAudio && !isRecording ? 'transform translate-y-0 opacity-100' : 'transform translate-y-4 opacity-0'
             }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={playRecordedAudioPreview}
-                    className="p-1 rounded-full transition-all duration-200 hover:scale-110"
-                    style={{ backgroundColor: '#367abb' }}
-                  >
-                    <Play className="w-3 h-3 text-white" />
-                  </button>
-                  <span className="text-sm text-gray-600">Voice message ({formatTime(recordedAudio.duration)})</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={playRecordedAudioPreview}
+                      className="p-1 rounded-full transition-all duration-200 hover:scale-110"
+                      style={{ backgroundColor: '#367abb' }}
+                    >
+                      <Play className="w-3 h-3 text-white" />
+                    </button>
+                    <span className="text-sm text-gray-600">Voice message ({formatTime(recordedAudio.duration)})</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={clearRecordedAudio}
+                      className="px-3 py-1 bg-gray-500 text-white text-sm rounded-full hover:bg-gray-600 transition-all duration-200 hover:scale-105"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={handleSendVoiceMessage}
+                      className="px-3 py-1 text-white text-sm rounded-full transition-all duration-200 hover:scale-105"
+                      style={{ backgroundColor: '#367abb' }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#2d5f94'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = '#367abb'}
+                    >
+                      Send
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setRecordedAudio(null)}
-                    className="px-3 py-1 bg-gray-500 text-white text-sm rounded-full hover:bg-gray-600 transition-all duration-200 hover:scale-105"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={handleSendVoiceMessage}
-                    className="px-3 py-1 text-white text-sm rounded-full transition-all duration-200 hover:scale-105"
-                    style={{ backgroundColor: '#367abb' }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#2d5f94'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = '#367abb'}
-                  >
-                    Send
-                  </button>
-                </div>
+                {transcription && (
+                  <div className="bg-white p-2 rounded border border-blue-200">
+                    <p className="text-sm text-gray-600">Transcription: "{transcription}"</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -873,6 +1032,7 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
                   onMouseLeave={(e) => {
                     if (!isRecording) e.target.style.backgroundColor = '#367abb';
                   }}
+                  title={isRecording ? "Stop recording" : "Start voice recording"}
                 >
                   {isRecording ? (
                     <Square className="w-4 h-4 text-white" />
@@ -882,12 +1042,15 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
                 </button>
                 <input
                   type="text"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
+                  value={recordedAudio ? "Voice message recorded" : newComment}
+                  onChange={(e) => !recordedAudio && setNewComment(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Enter your comment"
-                  className="flex-1 text-zinc-700 text-sm font-normal font-['Inter'] leading-snug tracking-tight bg-transparent outline-none placeholder-zinc-500 transition-all duration-200"
-                  disabled={isRecording}
+                  placeholder={isRecording ? "Recording in progress..." : recordedAudio ? "Voice message ready to send" : "Enter your comment"}
+                  className={`flex-1 text-zinc-700 text-sm font-normal font-['Inter'] leading-snug tracking-tight bg-transparent outline-none placeholder-zinc-500 transition-all duration-200 ${
+                    (isRecording || recordedAudio) ? 'cursor-not-allowed opacity-60' : ''
+                  }`}
+                  disabled={isRecording || recordedAudio}
+                  readOnly={recordedAudio}
                 />
               </div>
               <button
@@ -901,7 +1064,7 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
                 onMouseLeave={(e) => {
                   if (!e.target.disabled) e.target.style.backgroundColor = '#367abb';
                 }}
-                title={newComment.trim() && recordedAudio ? "Send text + voice message" : newComment.trim() ? "Send text message" : recordedAudio ? "Send voice message" : "Type or record to send"}
+                title={recordedAudio ? "Send voice message with transcription" : newComment.trim() ? "Send text message" : "Type or record to send"}
               >
                 <Send className="w-5 h-5 text-white" />
               </button>
