@@ -17,7 +17,7 @@ const ButtonIcon = ({
   };
 
   return (
-    <button
+    <div
       type="button"
       onClick={onClick}
       disabled={disabled}
@@ -28,7 +28,7 @@ const ButtonIcon = ({
       } flex items-center justify-center size-11 border border-neutral-400 rounded-lg p-0.5`}
     >
       <Icon className={sizeIcon} />
-    </button>
+    </div>
   );
 };
 

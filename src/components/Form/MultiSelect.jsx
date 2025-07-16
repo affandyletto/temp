@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, X, Info } from "lucide-react";
 
-const MultiSelect = ({ label, options = [], selected, setSelected, info }) => {
+const MultiSelect = ({ label, options = [], selected, setSelected, info, placeholder = "Select options..." }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
 
@@ -48,10 +48,10 @@ const MultiSelect = ({ label, options = [], selected, setSelected, info }) => {
       <div
         className={`w-full ${
           isOpen ? "border-primary-200" : "border-neutral-400"
-        } bg-white border  text-sm rounded-lg px-4 h-[54px] cursor-pointer flex items-center justify-between`}
+        } bg-white border text-sm rounded-lg px-4 h-[54px] cursor-pointer flex items-center justify-between`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 flex-1">
           {selected.length > 0
             ? selected.map((value) => {
                 const option = options.find((o) => o.value === value);
@@ -71,7 +71,7 @@ const MultiSelect = ({ label, options = [], selected, setSelected, info }) => {
                   </span>
                 );
               })
-            : ""}
+            : <span className="text-gray-500">{placeholder}</span>}
         </div>
         <ChevronDown
           className={`size-4 ml-2 shrink-0 transition-transform duration-300 ${

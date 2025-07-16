@@ -38,8 +38,8 @@ export const OneSnapReports = () => {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   <h2 className="text-xl font-semibold">Reports</h2>
-                  <div data-option="Default" data-show-action-arrow_up-outline="true" data-show-icon="true" data-truncate="false" data-type="Secondary" data-variant="Opsi 1" class="px-2 py-0.5 bg-blue-50 rounded-[999px] inline-flex justify-center items-center gap-2.5">
-                    <div class="justify-start text-cyan-700 text-[10px] font-normal font-['Inter'] leading-none tracking-tight">{reports?.length} Photos</div>
+                  <div data-option="Default" data-show-action-arrow_up-outline="true" data-show-icon="true" data-truncate="false" data-type="Secondary" data-variant="Opsi 1" className="px-2 py-0.5 bg-blue-50 rounded-[999px] inline-flex justify-center items-center gap-2.5">
+                    <div className="justify-start text-cyan-700 text-[10px] font-normal font-['Inter'] leading-none tracking-tight">{reports?.length} Photos</div>
                   </div>
                 </div>
               </div>

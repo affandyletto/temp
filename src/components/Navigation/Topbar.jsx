@@ -9,7 +9,7 @@ import ModalCopyProject from "@/components/Modal/ModalCopyProject";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import { useParams } from "react-router-dom";
 
-const Topbar = ({ title, isRename = false }) => {
+const Topbar = ({ title, isRename = false, isOnesnap=false }) => {
   const { id: projectId } = useParams();
   const { toggleSidebar } = useSidebar();
 
@@ -96,7 +96,9 @@ const Topbar = ({ title, isRename = false }) => {
                 className="text-xl font-semibold px-3 py-1.5 border border-neutral-400 rounded-lg bg-white focus:outline-none focus:ring-0 active:outline-none active:ring-0"
               />
             )}
-            { projectId && <p className="text-sm text-secondary">#{projectId}</p>}
+
+            { projectId && !isOnesnap&& <p className="text-sm text-secondary">#{projectId}</p>}
+
           </div>
         </div>
         {isRename && (

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import MultiSelect from "@/components/Form/MultiSelect";
+import SingleSelect from "@/components/Form/SingleSelect";
+
 import {
   optionsAccountManager,
   optionsClientOrganization,
@@ -27,30 +29,35 @@ const SiteSetting = () => {
             options={optionsAccountManager}
             selected={selectedItems1}
             setSelected={setSelectedItems1}
+            placeholder="Add account manager"
           />
           <MultiSelect
             label="Collaborator"
             options={optionsCollaborator}
             selected={selectedItems2}
             setSelected={setSelectedItems2}
+            placeholder="Add collaborator"
           />
           <MultiSelect
             label="Technician"
             options={optionsTechnician}
             selected={selectedItems3}
             setSelected={setSelectedItems3}
+            placeholder="Add technician"
           />
           <MultiSelect
             label="Viewer"
             options={optionsViewer}
             selected={selectedItems4}
             setSelected={setSelectedItems4}
+            placeholder="Add viewer"
           />
-          <MultiSelect
+          <SingleSelect
             label="Client Organization"
             options={optionsClientOrganization}
             selected={selectedItems5}
             setSelected={setSelectedItems5}
+            placeholder="No client selected"
           />
         </div>
       </div>

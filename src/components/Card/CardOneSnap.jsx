@@ -113,7 +113,7 @@ export const CardOneSnap = ({
       {/* More options button */}
       {!selectMode && (
         <div className="absolute top-4 right-4 z-10">
-          <button
+          <div
             type="button"
             className="size-8 rounded-lg border border-neutral-200 flex items-center justify-center bg-white hover:bg-gray-50"
           >
@@ -173,7 +173,7 @@ export const CardOneSnap = ({
               />
             }
             
-          </button>
+          </div>
         </div>
       )}
 
