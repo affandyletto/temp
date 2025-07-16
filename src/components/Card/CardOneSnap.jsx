@@ -13,11 +13,14 @@ export const CardOneSnap = ({
   isSelected = false,
   onSelect = () => {},
   openingComment,
-  isLoading
+  isLoading,
+  isAlbum=false,
+  isArchived=false
 }) => {
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+  const [isUnarchiveOpen, setIsUnarchiveOpen] = useState(false)
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const handleDelete=()=>{
@@ -115,25 +118,61 @@ export const CardOneSnap = ({
             className="size-8 rounded-lg border border-neutral-200 flex items-center justify-center bg-white hover:bg-gray-50"
           >
             <MoreVertical className="size-4" />
-            <DropdownMenu
-              onOpen={() => {}}
-              onClose={() => {}}
-              menu={[
-                {
-                  id: uuidv4(),
-                  name: "Archive",
-                  icon: Archive,
-                  onClick: () => setIsArchiveOpen(true),
-                },
-                {
-                  id: uuidv4(),
-                  name: "Delete",
-                  icon: Trash2,
-                  isRed: true,
-                  onClick: () => setIsDeleteOpen(true),
-                },
-              ]}
-            />
+            {isAlbum?
+              <DropdownMenu
+                onOpen={() => {}}
+                onClose={() => {}}
+                menu={[
+                  {
+                    id: uuidv4(),
+                    name: "Remove",
+                    icon: Trash2,
+                    onClick: () => setIsDeleteOpen(true),
+                  },
+                ]}
+              />
+            :isArchived?
+              <DropdownMenu
+                onOpen={() => {}}
+                onClose={() => {}}
+                menu={[
+                  {
+                    id: uuidv4(),
+                    name: "Unarchive",
+                    icon: Archive,
+                    onClick: () => setIsUnarchiveOpen(true),
+                  },
+                  {
+                    id: uuidv4(),
+                    name: "Delete",
+                    icon: Trash2,
+                    isRed: true,
+                    onClick: () => setIsDeleteOpen(true),
+                  },
+                ]}
+              />
+            :
+              <DropdownMenu
+                onOpen={() => {}}
+                onClose={() => {}}
+                menu={[
+                  {
+                    id: uuidv4(),
+                    name: "Archive",
+                    icon: Archive,
+                    onClick: () => setIsArchiveOpen(true),
+                  },
+                  {
+                    id: uuidv4(),
+                    name: "Delete",
+                    icon: Trash2,
+                    isRed: true,
+                    onClick: () => setIsDeleteOpen(true),
+                  },
+                ]}
+              />
+            }
+            
           </button>
         </div>
       )}
@@ -192,6 +231,14 @@ export const CardOneSnap = ({
         isOpen={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
         onConfirm={handleEdit}
+      />
+
+      <ModalConfirm
+        isOpen={isUnarchiveOpen}
+        onClose={() => setIsUnarchiveOpen(false)}
+        onConfirm={handleDelete}
+        title={`Unarchive Photo`}
+        message="Do you want to unarchive this Photo ?"
       />
 
       <ModalConfirm

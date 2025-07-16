@@ -16,6 +16,12 @@ import OneSnaps from "@/apps/Clients/OneSnaps";
 
 
 import {OneSnapGallery} from "@/apps/OneSnap/Gallery";
+import {OneSnapGalleryAlbum} from "@/apps/OneSnap/Album";
+import {OneSnapReports}  from "@/apps/OneSnap/Report";
+import {OneSnapArchive}  from "@/apps/OneSnap/Archive";
+import {Participant}  from "@/apps/OneSnap/Participant";
+import {FloorplanBuilder}  from "@/apps/OneSnap/FloorplanBuilder";
+
 
 export const tabsProjectDetail = [
   {
@@ -97,31 +103,31 @@ export const tabsOneSnapDetail = [
   {
     label: "Albums",
     value: "albums",
-    content: <Gallery />,
+    content: <OneSnapGalleryAlbum />,
   },
   {
     label: "Map",
     value: "map",
-    content: <Gallery />,
+    content: <></>,
   },
   {
     label: "Reports",
     value: "reports",
-    content: <Gallery />,
+    content: <OneSnapReports />,
   },
   {
     label: "Archive",
     value: "archive",
-    content: <Gallery />,
+    content: <OneSnapArchive />,
   },
   {
     label: "Participant",
     value: "participant",
-    content: <Gallery />,
+    content: <Participant />,
   },
   {
     label: "Floor Plan Builder",
     value: "floorplanBuilder",
-    content: <Gallery />,
+    content: <FloorplanBuilder />,
   },
   ]

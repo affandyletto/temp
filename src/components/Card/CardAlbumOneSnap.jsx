@@ -1,4 +1,4 @@
-// src/components/Card/CardAlbum.jsx
+// src/components/Card/CardAlbumOneSnap.jsx
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -7,11 +7,11 @@ import { FileText, Pencil, Share2, Trash2, Clock4, CircleUserRound } from "lucid
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import ModalSubmitAlbum from "../Modal/ModalSubmitAlbum";
 import ModalConfirm from "../Modal/ModalConfirm";
-import ModalGeneratePdf from "../Modal/ModalGeneratePdf";
+import ModalSubmitReportSnap from "../Modal/ModalSubmitReportSnap";
 import ModalShare from "../Modal/ModalShare";
 import { Link } from "react-router-dom";
 
-const CardAlbum = ({
+const CardAlbumOneSnap = ({
   id,
   name,
   projectName,
@@ -22,8 +22,9 @@ const CardAlbum = ({
   datetime,
   photos,
   linked = false,
+  isLoading = false,
+  onSelect
 }) => {
-  const { id: projectId } = useParams();
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isGenerate, setIsGenerate] = useState(false);
   const [isEditAlbumOpen, setIsEditAlbumOpen] = useState(false);
@@ -32,6 +33,37 @@ const CardAlbum = ({
   const handleDelete = () => {
     setIsDeleteOpen(true);
   };
+
+  // Skeleton loading component
+  const renderSkeleton = () => (
+    <div className="bg-white space-y-3 animate-pulse">
+      {/* Thumbnail skeleton */}
+      <div className="w-full h-[200px] bg-gray-200 rounded-lg"></div>
+      
+      {/* Title and photos count skeleton */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 rounded w-32"></div>
+          <div className="h-3 bg-gray-200 rounded w-20"></div>
+        </div>
+        <div className="w-6 h-6 bg-gray-200 rounded"></div>
+      </div>
+      
+      <hr />
+      
+      {/* Metadata skeleton */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-3 bg-gray-200 rounded-full"></div>
+          <div className="h-2 bg-gray-200 rounded w-24"></div>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-3 bg-gray-200 rounded-full"></div>
+          <div className="h-2 bg-gray-200 rounded w-20"></div>
+        </div>
+      </div>
+    </div>
+  );
 
   // Function to render album thumbnail based on number of photos
   const renderAlbumThumbnail = () => {
@@ -128,13 +160,18 @@ const CardAlbum = ({
     );
 
     return linked ? (
-      <Link to={`/projects/${projectId}/all-albums/${id}`}>
+      <div className="cursor-pointer" onClick={()=>onSelect(id)}>
         {albumContent}
-      </Link>
+      </div>
     ) : (
       albumContent
     );
   };
+
+  // Return skeleton if loading
+  if (isLoading) {
+    return renderSkeleton();
+  }
 
   return (
     <>
@@ -152,7 +189,7 @@ const CardAlbum = ({
             menu={[
               {
                 id: uuidv4(),
-                name: "Generate PDF",
+                name: "Create Report",
                 icon: FileText,
                 onClick: () => setIsGenerate(true),
               },
@@ -198,24 +235,15 @@ const CardAlbum = ({
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}
       />
-      <ModalGeneratePdf
+      <ModalSubmitReportSnap
         isOpen={isGenerate}
         onClose={() => setIsGenerate(false)}
-        data={{
-          id,
-          name,
-          projectName,
-          totalPhotos,
-          image,
-          createdBy,
-          date,
-          photos,
-        }}
       />
       <ModalSubmitAlbum
         isOpen={isEditAlbumOpen}
         onClose={() => setIsEditAlbumOpen(false)}
         data={{ id, name, totalPhotos, image }}
+        isSnap={true}
       />
       <ModalConfirm
         isOpen={isDeleteOpen}
@@ -228,4 +256,4 @@ const CardAlbum = ({
   );
 };
 
-export default CardAlbum;
+export default CardAlbumOneSnap;

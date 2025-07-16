@@ -1,9 +1,7 @@
-// src/components/Form/MultiSelect.js
-
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, X, Info } from "lucide-react";
 
-const MultiSelect = ({ label, options = [], selected, setSelected }) => {
+const MultiSelect = ({ label, options = [], selected, setSelected, info }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
 
@@ -32,7 +30,21 @@ const MultiSelect = ({ label, options = [], selected, setSelected }) => {
 
   return (
     <div className="relative space-y-2" ref={ref}>
-      {label && <label className="text-sm font-semibold">{label}</label>}
+      {label && (
+        <div className="flex items-center gap-1">
+          <label className="text-sm font-semibold">{label}</label>
+          {info && (
+            <div className="relative group">
+              <Info className="size-4 text-gray-500 cursor-pointer" />
+              <div className="absolute top-8 left-0 z-50 px-3 py-2 bg-zinc-700 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-[214px]">
+                <div className="self-stretch text-center justify-start text-white text-xs font-normal font-['Inter'] leading-tight tracking-tight opacity-90">
+                  {info}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       <div
         className={`w-full ${
           isOpen ? "border-primary-200" : "border-neutral-400"
@@ -67,7 +79,6 @@ const MultiSelect = ({ label, options = [], selected, setSelected }) => {
           }`}
         />
       </div>
-
       {isOpen && (
         <div className="mt-1 max-h-60 overflow-auto border border-neutral-400 rounded-lg bg-white shadow-md absolute z-50 w-full space-y-0.5 p-2">
           {options.map(({ value, label }) => {
