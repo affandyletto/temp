@@ -19,7 +19,7 @@ const QualityCheck = () => {
         style={{ height: "calc(100vh - 158px)" }}
       >
         <Maintenance
-          title={"Quality Check Are Coming Soon!"}
+          title={"Quality Check Is Coming Soon!"}
           description={`We're working on a powerful quality check system to help you track issues and requests. Stay tuned it's on the way!`}
         />
       </div>

@@ -105,6 +105,7 @@ const ProjectList = () => {
         onSubmit={handleAddProject}
       />
     </>
-)};
+  );
+};
 
 export default ProjectList;
