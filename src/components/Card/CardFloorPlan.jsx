@@ -23,6 +23,7 @@ const CardFloorPlan = ({
   onDuplicate,
   onArchive,
   onDelete,
+  onClick
 }) => {
   const [activeRowId, setActiveRowId] = useState(null);
 
@@ -46,9 +47,10 @@ const CardFloorPlan = ({
 
   return (
     <div
-      className={`w-full h-[308px] bg-white hover:bg-neutral-200 border border-neutral-400 rounded-lg py-4 ${
+      className={`w-full h-[308px] bg-white hover:bg-neutral-200 border border-neutral-400 rounded-lg py-4 cursor-pointer ${
         activeRowId === id ? "!bg-primary-100" : ""
       }`}
+      onClick={onClick}
     >
       <div className="flex items-center justify-between space-x-2 border-b border-neutral-400 px-4 pb-3">
         <div>

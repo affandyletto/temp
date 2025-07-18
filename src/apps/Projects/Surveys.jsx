@@ -12,16 +12,23 @@ import ModalTransfer from "@/components/Modal/ModalTransfer";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import ModalAddFloorPlan from "@/components/Modal/ModalAddFloorPlan";
 import SkeletonCard from "@/components/Skeleton/SkeletonCard";
+import { useNavigate } from "react-router-dom";
 
 const Surveys = () => {
   // Loading
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
   const [floorPlans, setFloorPlans] = useState(floorPlanItems);
+
+  const handleClick = (data) => {
+    navigate(`/survey/${data.id}`)
+  }
 
   // Handle Add
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -154,6 +161,7 @@ const Surveys = () => {
                   onDuplicate={() => handleDuplicate(item.id)}
                   onArchive={() => handleArchive(item.id, item.isArchive)}
                   onDelete={() => handleDelete(item.id)}
+                  onClick={()=> handleClick(item.id)}
                 />
               ))}
           </div>

@@ -12,8 +12,7 @@ export const LibrarySidebar = () => {
   const categories = [
     'Category-01', 'Category-02', 'Category-03', 'Category-04', 'Category-05',
     'Category-06', 'Category-07', 'Category-08', 'Category-09', 'Category-10',
-    'Category-11', 'Category-12', 'Category-13', 'Category-14', 'Category-15',
-    'Category-16'
+    'Category-11'
   ];
 
   const elements = [
@@ -77,18 +76,16 @@ export const LibrarySidebar = () => {
   );
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <div className={`${isCollapsed ? 'w-0' : 'w-72'} bg-white border-r border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
+    <>
         {/* Header */}
-        <div className="p-3 flex justify-between items-center">
-        <div className="w-[268px]">
-          <Favorites />
-        </div>
+        <div className="p-3 flex justify-between items-center flex-shrink-0">
+          <div className="w-[268px]">
+            <Favorites />
+          </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="px-3 mb-4 flex justify-center">
+        <div className="px-3 mb-4 flex justify-center flex-shrink-0">
           <div className="w-[258px]">
             <ToggleSurveyTabs
               tabs={["Universal Elements", "My Library"]}
@@ -100,8 +97,8 @@ export const LibrarySidebar = () => {
 
         {/* Categories List */}
         <div className="flex-1 px-3 overflow-hidden">
-          <div className="h-full border border-slate-200 rounded-tl-lg rounded-tr-lg overflow-hidden">
-            <div className="h-full bg-white flex flex-col overflow-y-auto">
+          <div className="h-full border border-slate-200 rounded-tl-lg rounded-tr-lg overflow-y-auto">
+            <div className="bg-white">
               {categories.map((category) => (
                 <CategoryItem
                   key={category}
@@ -115,17 +112,6 @@ export const LibrarySidebar = () => {
             </div>
           </div>
         </div>
-
-        {/* Collapse Handle */}
-        <div className={`absolute ${isCollapsed ? 'left-0' : 'left-72'} top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-in-out`}>
-          <button 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-6 h-24 bg-white rounded-r-3xl border-r border-t border-b border-slate-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
-          >
-            <ChevronRight className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${isCollapsed ? 'rotate-0' : 'rotate-180'}`} />
-          </button>
-        </div>
-      </div>      
-    </div>
+    </>
   );
 };

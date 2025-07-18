@@ -11,14 +11,14 @@ const ActionButton = ({ icon: Icon, label }) => {
     </button>
   );
 };
-export const Topnav=()=>{
+export const Topnav=({onBack})=>{
 	return(
 		<>
 			<div className="w-full px-5 py-3 bg-white border-b border-gray-300 flex justify-between items-center">
 		      {/* Left Section - Project Info */}
 		      <div className="flex items-center gap-3">
-		        <div className="p-2 bg-white rounded-lg border border-slate-200 flex items-center justify-center">
-		          <ArrowLeft className="w-4 h-4 text-gray-800" />
+		        <div className="p-2 bg-white rounded-lg border border-slate-200 flex items-center justify-center cursor-pointer" onClick={onBack}>
+		          <ArrowLeft className="w-4 h-4 text-gray-800"/>
 		        </div>
 		        <div className="flex flex-col gap-1">
 		          <div className="flex items-center gap-1">

@@ -1,0 +1,42 @@
+.survey-container ::-webkit-scrollbar {
+  width: 12px;
+}
+
+.survey-container ::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 999px;
+  margin: 2px;
+}
+
+.survey-container ::-webkit-scrollbar-thumb {
+  background: #0e7490;
+  border-radius: 999px;
+  border: 2px solid #f8fafc;
+  min-height: 32px;
+}
+
+.survey-container ::-webkit-scrollbar-thumb:hover {
+  background: #0891b2;
+  cursor: pointer;
+}
+
+.survey-container ::-webkit-scrollbar-thumb:active {
+  background: #164e63;
+}
+
+.survey-container ::-webkit-scrollbar-corner {
+  background: #f8fafc;
+}
+
+.survey-container {
+  background-image: url('/images/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Firefox fallback */
+.survey-container * {
+  scrollbar-width: thin;
+  scrollbar-color: #0e7490 #f8fafc;
+}
