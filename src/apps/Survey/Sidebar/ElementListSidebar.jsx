@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Camera, ChevronRight } from 'lucide-react';
 
-export const ElementListSidebar = ({isCollapsed}) => {
+export const ElementListSidebar = ({setSelectedElement, isCollapsed}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const elements = [
@@ -33,7 +33,7 @@ export const ElementListSidebar = ({isCollapsed}) => {
   return (
     <>
       {/* Sidebar */}
-      <div className={`${isCollapsed ? 'w-0' : 'w-72'} h-full bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
+      
         <div className="px-3 pt-4 flex flex-col gap-4 h-full">
           {/* Header */}
           <div className="pb-3 border-b border-slate-200 flex-shrink-0">
@@ -71,6 +71,7 @@ export const ElementListSidebar = ({isCollapsed}) => {
                   <div
                     key={element.id}
                     className="pb-2 bg-white border-b border-slate-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={()=>setSelectedElement(element)}
                   >
                     <div className="flex items-center gap-2">
                       <div className="flex-1 flex items-center gap-2.5">
@@ -94,7 +95,6 @@ export const ElementListSidebar = ({isCollapsed}) => {
             )}
           </div>
         </div>
-      </div>
     </>
   );
 };

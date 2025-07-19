@@ -11,6 +11,7 @@ import { ToastProvider } from "./context/ToastContext";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <ToastProvider>
+
     <SidebarProvider>
       <DropdownProvider>
         <TabProvider>
@@ -20,5 +21,6 @@ root.render(
         </TabProvider>
       </DropdownProvider>
     </SidebarProvider>
+    
   </ToastProvider>
 );

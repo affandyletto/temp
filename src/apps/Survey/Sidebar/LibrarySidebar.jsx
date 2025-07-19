@@ -12,7 +12,22 @@ export const LibrarySidebar = () => {
   const categories = [
     'Category-01', 'Category-02', 'Category-03', 'Category-04', 'Category-05',
     'Category-06', 'Category-07', 'Category-08', 'Category-09', 'Category-10',
-    'Category-11'
+    'Category-11',
+    'Category-12',
+    'Category-13',
+    'Category-14',
+    'Category-15',
+    'Category-16',
+    'Category-17',
+    'Category-18',
+    'Category-19',
+    'Category-20',
+    'Category-21',
+    'Category-22',
+    'Category-23',
+    'Category-24',
+    'Category-25',
+    'Category-26'
   ];
 
   const elements = [
@@ -76,42 +91,42 @@ export const LibrarySidebar = () => {
   );
 
   return (
-    <>
-        {/* Header */}
-        <div className="p-3 flex justify-between items-center flex-shrink-0">
-          <div className="w-[268px]">
-            <Favorites />
-          </div>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="p-3 flex justify-between items-center flex-shrink-0">
+        <div className="w-[268px]">
+          <Favorites />
         </div>
+      </div>
 
-        {/* Tab Navigation */}
-        <div className="px-3 mb-4 flex justify-center flex-shrink-0">
-          <div className="w-[258px]">
-            <ToggleSurveyTabs
-              tabs={["Universal Elements", "My Library"]}
-              value={activeTab}
-              onChange={setActiveTab}
-            />
-          </div>
+      {/* Tab Navigation */}
+      <div className="px-3 mb-4 flex justify-center flex-shrink-0">
+        <div className="w-[258px]">
+          <ToggleSurveyTabs
+            tabs={["Universal Elements", "My Library"]}
+            value={activeTab}
+            onChange={setActiveTab}
+          />
         </div>
+      </div>
 
-        {/* Categories List */}
-        <div className="flex-1 px-3 overflow-hidden">
-          <div className="h-full border border-slate-200 rounded-tl-lg rounded-tr-lg overflow-y-auto">
-            <div className="bg-white">
-              {categories.map((category) => (
-                <CategoryItem
-                  key={category}
-                  category={category}
-                  isExpanded={expandedCategory === category}
-                  onToggle={(cat) => setExpandedCategory(
-                    expandedCategory === cat ? null : cat
-                  )}
-                />
-              ))}
-            </div>
+      {/* Categories List */}
+      <div className="flex-1 px-3 overflow-hidden min-h-0">
+        <div className="h-full border border-slate-200 rounded-tl-lg rounded-tr-lg overflow-y-auto">
+          <div className="bg-white">
+            {categories.map((category) => (
+              <CategoryItem
+                key={category}
+                category={category}
+                isExpanded={expandedCategory === category}
+                onToggle={(cat) => setExpandedCategory(
+                  expandedCategory === cat ? null : cat
+                )}
+              />
+            ))}
           </div>
         </div>
-    </>
+      </div>
+    </div>
   );
 };
