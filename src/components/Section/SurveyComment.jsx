@@ -5,7 +5,7 @@ import { CommentHeader, MessageItem, Messages, RealTimeWaveform, RecordingIndica
 
 
 // Main CommentSection Component
-const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
+const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) => {
   const [newComment, setNewComment] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -479,110 +479,6 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  
-const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio, handleSendVoiceMessage }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(null);
-  
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-  
-  const playRecordedAudioPreview = () => {
-    if (!recordedAudio) return;
-    
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.src = recordedAudio.url || URL.createObjectURL(recordedAudio.blob);
-      
-      audioRef.current.onended = () => {
-        setIsPlaying(false);
-      };
-    }
-    
-    if (isPlaying) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
-  };
-  
-  const stopAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-  
-  // Cleanup when component unmounts or recordedAudio changes
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-        audioRef.current = null;
-      }
-    };
-  }, [recordedAudio]);
-  
-  return (
-    <div className={`px-4 py-5 transition-all duration-300 delay-200 transform translate-y-0 opacity-100
-  }`}>
-      <div className="pl-5 pr-2 py-3 rounded-full bg-blue-50 flex items-center gap-2.5 transition-all duration-200 hover:shadow-md focus-within:shadow-lg" style={{ borderColor: '#367abb' }}>
-        {/* X button on the left */}
-        <button
-          onClick={clearRecordedAudio}
-          className="py-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-        >
-          <X className="w-5 h-5" />
-        </button>
-        
-        {/* Play/Pause button */}
-        <button
-          onClick={playRecordedAudioPreview}
-          className="p-2 rounded-full transition-all duration-200 hover:scale-110"
-          style={{ backgroundColor: '#367abb' }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#2d5f94'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#367abb'}
-        >
-          {isPlaying ? (
-            <Pause className="w-4 h-4 text-white" />
-          ) : (
-            <Play className="w-4 h-4 text-white" />
-          )}
-        </button>
-        
-        {/* Waveform - takes up remaining space */}
-        <div className="flex-1 min-w-0">
-          <RealTimeWaveform2 isPlaying={isPlaying} audioElement={audioRef.current} color="#367abb" />
-        </div>
-        
-        {/* Duration */}
-        <span className="text-sm text-gray-600 tabular-nums">
-          {formatTime(recordedAudio?.duration || 0)}
-        </span>
-        
-        {/* Send button with arrow up */}
-        <button
-          onClick={handleSendVoiceMessage}
-          className="p-2 text-white rounded-full transition-all duration-200 hover:scale-105"
-          style={{ backgroundColor: '#367abb' }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#2d5f94'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#367abb'}
-        >
-          <ArrowUp className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
   const playRecordedAudioPreview = async () => {
     if (!recordedAudio) return;
     
@@ -631,19 +527,7 @@ const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio
 
   return (
     <>
-      <div 
-        className={`fixed inset-0 bg-black z-40 transition-all duration-300 ease-in-out ${
-          isOpen ? 'opacity-50 visible' : 'opacity-0 invisible'
-        }`} 
-      />
-      <div 
-        ref={sidebarRef}
-        className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 transition-all duration-300 ease-in-out transform overflow-hidden ${
-          isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
-        }`}
-      >
-        <div className="h-full flex flex-col border-l border-slate-200">
-          <CommentHeader onClose={onClose} isOpen={isOpen} />
+        <div className="space-y-4 overflow-y-auto">
           <Messages 
             messages={messages}
             playingVoice={playingVoice}
@@ -653,6 +537,7 @@ const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio
             toggleReadMore={toggleReadMore}
             deleteMessage={deleteMessage}
             isOpen={isOpen}
+            isSurvey={true}
           />
           {isRecording && (
             <RecordingIndicator 
@@ -671,8 +556,9 @@ const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio
               handleSendVoiceMessage={handleSendVoiceMessage}
             />
           )}
-          {!recordedAudio&&!isRecording &&
+          {!recordedAudio&&!isRecording &&!isHistory&&
             <InputArea 
+            	isSurvey={true}
               isRecording={isRecording}
               recordedAudio={recordedAudio}
               newComment={newComment}
@@ -685,9 +571,8 @@ const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio
           }
           
         </div>
-      </div>
     </>
   );
 };
 
-export default CommentSection;
+export default SurveyComment;

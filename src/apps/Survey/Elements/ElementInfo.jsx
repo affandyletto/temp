@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Upload, 
   Image, 
@@ -16,135 +16,51 @@ import {
   Plus
 } from 'lucide-react';
 import { Button, ButtonGroup } from "@/components/Button/ButtonSurveys"
-import { ElementPhotos } from "@/apps/Survey/Elements/ElementPhotos"
+import { SliderControl } from "@/components/Form/SliderControl"
+import { useUrlParams } from "@/hooks/useUrlParams";
 
-// Refactored Sidebar Component
-export const ElementDetailSidebarFigma = ({ selectedElement, setSelectedElement }) => {
-  const [tab, setTab] = useState("")
-  const [fov, setFov] = useState(50);
-  const [depth, setDepth] = useState(0);
-  const [labelForm, setLabelForm] = useState('N/A');
-  const [angle, setAngle] = useState(75);
-  const [opacity, setOpacity] = useState(50);
-  const [fieldColor, setFieldColor] = useState('#D9D9D9');
-  const [elementColor, setElementColor] = useState('#3F444D');
+
+export const ElementInfo=({data, setTab})=>{
+    const { toggleParameter, getParam } = useUrlParams();
+    const [fov, setFov] = useState(50);
+    const [depth, setDepth] = useState(0);
+    const [labelForm, setLabelForm] = useState('N/A');
+    const [angle, setAngle] = useState(75);
+    const [opacity, setOpacity] = useState(50);
+    const [fieldColor, setFieldColor] = useState('#D9D9D9');
+    const [elementColor, setElementColor] = useState('#3F444D');
+
+    // Check if design parameter is active on component mount
+    useEffect(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+    }, []);
 
   const photosClick=()=>{
-  	setTab("photos")
-  }
+      setTab("photos")
+   }
 
+  const commentClick=()=>{
+      setTab("comment")
+   }
+
+  const taskClick=()=>{
+      setTab("task")
+   }
+
+  const pathClick=()=>{
+      setTab("path")
+   }
+  
   const menuItems = [
-    { icon: Image, label: 'Photos', count: 2, action:photosClick },
-    { icon: MessageSquare, label: 'Comment', count: 3, action:photosClick },
-    { icon: CheckSquare, label: 'Task', count: 0, action:photosClick },
-    { icon: Route, label: 'Path', count: 10, action:photosClick }
-  ];
+      { icon: Image, label: 'Photos', count: 2, action:photosClick },
+      { icon: MessageSquare, label: 'Comment', count: 3, action:commentClick },
+      { icon: CheckSquare, label: 'Task', count: 0, action:taskClick },
+      { icon: Route, label: 'Path', count: 10, action:pathClick }
+    ];
 
-  const handleSliderChange = (value, setter, max = 100) => {
-    setter(Math.max(0, Math.min(max, value)));
-  };
-
-  const SliderControl = ({ label, value, setValue, max = 100, unit = '' }) => (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-800">{label}</span>
-        <span className="text-xs text-gray-800">{value}{unit}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <button 
-          onClick={() => handleSliderChange(value - 1, setValue, max)}
-          className="w-4 h-4 flex items-center justify-center hover:bg-slate-100 rounded"
-        >
-          <Minus className="w-3 h-3 text-zinc-500" />
-        </button>
-        <div 
-          className="flex-1 h-1.5 bg-slate-200 rounded-full relative cursor-pointer"
-          onClick={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const percentage = Math.max(0, Math.min(1, x / rect.width));
-            setValue(Math.round(percentage * max));
-          }}
-        >
-          <div
-            className="h-full bg-cyan-700 rounded-full"
-            style={{ width: `${(value / max) * 100}%` }}
-          />
-          <div
-            className="absolute top-1/2 w-3 h-3 bg-cyan-700 rounded-full transform -translate-y-1/2 -translate-x-1/2 cursor-pointer"
-            style={{ left: `${(value / max) * 100}%` }}
-            onMouseDown={(e) => {
-              const startX = e.clientX;
-              const startValue = value;
-              const rect = e.currentTarget.parentElement.getBoundingClientRect();
-              
-              const handleMouseMove = (e) => {
-                const deltaX = e.clientX - startX;
-                const deltaPercentage = deltaX / rect.width;
-                const newValue = Math.max(0, Math.min(max, startValue + (deltaPercentage * max)));
-                setValue(Math.round(newValue));
-              };
-              
-              const handleMouseUp = () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-              };
-              
-              document.addEventListener('mousemove', handleMouseMove);
-              document.addEventListener('mouseup', handleMouseUp);
-            }}
-          />
-        </div>
-        <button 
-          onClick={() => handleSliderChange(value + 1, setValue, max)}
-          className="w-4 h-4 flex items-center justify-center hover:bg-slate-100 rounded"
-        >
-          <Plus className="w-3 h-3 text-zinc-500" />
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="w-72 bg-white border-l border-slate-200 h-full flex flex-col relative">
-      {/* Header */}
-      <div className="px-3 pt-4 pb-3 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
-        <div className="flex-1">
-          <h2 className="text-base font-bold text-gray-800">Element-02</h2>
-          <p className="text-xs text-zinc-500">ID: 63115</p>
-        </div>
-        <button
-          onClick={() => setSelectedElement?.(null)}
-          className="p-1 hover:bg-slate-100 rounded"
-        >
-          <X className="w-5 h-5 text-zinc-500" />
-        </button>
-      </div>
-
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="px-3 py-4 space-y-4">
-          {/* Input Field */}
-          <div className="space-y-1">
-            <label className="text-sm text-gray-800">Element Label</label>
-            <div className="p-3 bg-slate-100 rounded-lg">
-              <span className="text-sm text-zinc-500">Input label</span>
-            </div>
-          </div>
-
-
-
-
-
-
-          {tab==="photos"?
-          	<>
-          		<ElementPhotos/>
-          	</>
-          :
-
-      	  <>
-          {/* Upload Area */}
+  return(
+    <>
+      {/* Upload Area */}
           <div className="px-10 py-8 border border-gray-300 rounded-lg flex flex-col items-center gap-2">
             <Upload className="w-8 h-8 text-gray-800" />
             <span className="text-xs text-zinc-500">Upload a Photo</span>
@@ -172,7 +88,7 @@ export const ElementDetailSidebarFigma = ({ selectedElement, setSelectedElement 
           <ButtonGroup>
             <Button 
               icon={RefreshCw} 
-              onClick={() => console.log('Swap clicked')}
+              onClick={() => setTab("swap")}
               className="flex-1"
             >
               Swap
@@ -283,19 +199,18 @@ export const ElementDetailSidebarFigma = ({ selectedElement, setSelectedElement 
               </div>
             </div>
           </div>
-
-          {/* Action Buttons - Using Reusable Button Component */}
+          
           <ButtonGroup>
             <Button 
               icon={Edit} 
-              onClick={() => console.log('Design clicked')}
-              className="flex-1"
+              onClick={()=>toggleParameter('more', 'design')}
+              className={`flex-1`}
             >
               Design
             </Button>
             <Button 
               icon={Palette} 
-              onClick={() => console.log('Installation clicked')}
+               onClick={()=>toggleParameter("more", "installationAccess")}
               className="flex-1"
             >
               Installation
@@ -305,7 +220,7 @@ export const ElementDetailSidebarFigma = ({ selectedElement, setSelectedElement 
           <ButtonGroup>
             <Button 
               icon={CheckSquare} 
-              onClick={() => console.log('Element clicked')}
+              onClick={() => toggleParameter("more", "elementInformation")}
               className="flex-1"
             >
               Element
@@ -328,13 +243,6 @@ export const ElementDetailSidebarFigma = ({ selectedElement, setSelectedElement 
           >
             Delete
           </Button>
-          	</>
-          }
-
-
-
-        </div>
-      </div>
-    </div>
-  );
-};
+    </>
+  )
+}

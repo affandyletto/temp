@@ -5,6 +5,7 @@ const ButtonIcon = ({
   icon: Icon,
   sizeIcon,
   sizeBtn,
+  border=true,
   disabled = false,
   isRed = false,
   isGreen = false,
@@ -24,8 +25,8 @@ const ButtonIcon = ({
       className={`${sizeBtn} ${getTextColor()} ${
         disabled
           ? "disabled bg-light"
-          : "bg-white border border-neutral-400 hover:border-primary-200 active:border-primary-300 transition-all duration-300"
-      } flex items-center justify-center size-11 border border-neutral-400 rounded-lg p-0.5`}
+          : `bg-white ${border&&'border border-neutral-400 hover:border-primary-200 active:border-primary-300'} transition-all duration-300`
+      } flex items-center justify-center size-11 ${border&&`border border-neutral-400`} rounded-lg p-0.5`}
     >
       <Icon className={sizeIcon} />
     </div>

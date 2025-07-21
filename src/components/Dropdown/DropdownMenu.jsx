@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import ButtonIcon from "@/components/Button/ButtonIcon";
 import { EllipsisVertical } from "lucide-react";
 
-const DropdownMenu = ({ menu = [], onOpen, onClose, width = "w-48" }) => {
+const DropdownMenu = ({ menu = [], onOpen, onClose, width = "w-48", border=true }) => {
   const dropdownRef = useRef();
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggle = () => {
+  const toggle = (e) => {
+    e.stopPropagation();
     const next = !isOpen;
     next ? onOpen?.() : onClose?.();
     setIsOpen(next);
@@ -32,12 +33,13 @@ const DropdownMenu = ({ menu = [], onOpen, onClose, width = "w-48" }) => {
   }, [isOpen, onClose]);
 
   return (
-    <div className="relative size-8" ref={dropdownRef}>
+    <div className="relative size-8 cursor-pointer" ref={dropdownRef}>
       <ButtonIcon
         icon={EllipsisVertical}
         sizeIcon={"size-4"}
         sizeBtn={"size-8"}
-        onClick={toggle}
+        onClick={(e)=>toggle(e)}
+        border={border}
       />
       {isOpen && (
         <div
@@ -46,7 +48,8 @@ const DropdownMenu = ({ menu = [], onOpen, onClose, width = "w-48" }) => {
           {menu.map(({ id, name, icon: Icon, onClick, isRed = false }) => (
             <button
               key={id}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 onClick?.();
                 onClose?.();
                 setIsOpen(false);
