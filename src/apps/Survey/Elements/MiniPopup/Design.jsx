@@ -147,7 +147,7 @@ export const Design = () => {
                   value={category}
                   checked={formData.category === category}
                   onChange={(e) => handleCategorySelect(e.target.value)}
-                  className="w-4 h-4"
+                  className="w-4 h-4 accent-primary-200"
                 />
                 <span className="text-gray-800 text-xs font-normal font-['Inter'] leading-tight tracking-tight">
                   {category}

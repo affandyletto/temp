@@ -39,11 +39,11 @@ export const SliderControl = ({ label, value, setValue, max = 100, unit = '', on
           }}
         >
           <div
-            className="h-full bg-blue-500 rounded-full"
+            className="h-full bg-primary-200 rounded-full"
             style={{ width: `${(parseFloat(value) / max) * 100}%` }}
           />
           <div
-            className="absolute top-1/2 w-3 h-3 bg-blue-500 rounded-full transform -translate-y-1/2 -translate-x-1/2 cursor-pointer"
+            className="absolute top-1/2 w-3 h-3 bg-primary-200 rounded-full transform -translate-y-1/2 -translate-x-1/2 cursor-pointer"
             style={{ left: `${(parseFloat(value) / max) * 100}%` }}
             onMouseDown={(e) => {
               const startX = e.clientX;
