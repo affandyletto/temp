@@ -4,7 +4,7 @@ import { Topnav } from "@/apps/Survey/Topnav";
 import ToggleSurveyTabs from "@/components/Toggle/ToggleSurveyTabs";
 import { Favorites } from "@/apps/Survey/Favorites"
 
-export const LibrarySidebar = () => {
+export const LibrarySidebar = ({ onDragStart }) => {
   const [activeTab, setActiveTab] = useState('universal');
   const [expandedCategory, setExpandedCategory] = useState('Category-01');
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -31,22 +31,83 @@ export const LibrarySidebar = () => {
   ];
 
   const elements = [
-    { id: 'E01', name: 'Element 01', hasInitials: true },
-    { id: 'E02', name: 'Element 02', hasInitials: false },
-    { id: 'E03', name: 'Element 03', hasInitials: false },
-    { id: 'E04', name: 'Element 04', hasInitials: false },
-    { id: 'E05', name: 'Element 05', hasInitials: true },
-    { id: 'E06', name: 'Element 06', hasInitials: true }
+    { id: 'E01', name: 'Element 01', hasInitials: true, type: 'marker' },
+    { id: 'E02', name: 'Element 02', hasInitials: false, type: 'marker' },
+    { id: 'E03', name: 'Element 03', hasInitials: false, type: 'marker' },
+    { id: 'E04', name: 'Element 04', hasInitials: false, type: 'marker' },
+    { id: 'E05', name: 'Element 05', hasInitials: true, type: 'marker' },
+    { id: 'E06', name: 'Element 06', hasInitials: true, type: 'marker' }
   ];
 
+  const handleDragStart = (e, element) => {
+    // Set the data to transfer
+    const elementData = {
+      id: element.id,
+      name: element.name,
+      type: element.type,
+      hasInitials: element.hasInitials
+    };
+    
+    e.dataTransfer.setData('application/json', JSON.stringify(elementData));
+    e.dataTransfer.effectAllowed = 'copy';
+    
+    // Create custom drag image
+    const dragImage = document.createElement('div');
+    dragImage.style.cssText = `
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: absolute;
+      top: -1000px;
+      left: -1000px;
+      background: white;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = 'https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=40&h=40&fit=crop&crop=center';
+    img.alt = element.name;
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+    
+    dragImage.appendChild(img);
+    document.body.appendChild(dragImage);
+    
+    // Set the custom drag image
+    e.dataTransfer.setDragImage(dragImage, 20, 20);
+    
+    // Clean up the temporary element after a short delay
+    setTimeout(() => {
+      if (document.body.contains(dragImage)) {
+        document.body.removeChild(dragImage);
+      }
+    }, 0);
+    
+    // Make the original element semi-transparent
+    e.currentTarget.style.opacity = '0.5';
+    
+    // Call the parent's onDragStart if provided
+    if (onDragStart) {
+      onDragStart(element);
+    }
+  };
+
+  const handleDragEnd = (e) => {
+    // Restore opacity after drag ends
+    e.currentTarget.style.opacity = '1';
+  };
+
   const ElementItem = ({ element }) => (
-    <div className="flex-1 px-1 py-2 bg-white rounded-lg flex flex-col justify-center items-center gap-1 hover:bg-gray-50 cursor-pointer">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-        element.hasInitials 
-          ? 'bg-blue-50 text-cyan-700 text-xs font-semibold' 
-          : 'bg-slate-200'
-      }`}>
-        {element.hasInitials && element.id}
+    <div 
+      className="flex-1 px-1 py-2 bg-white rounded-lg flex flex-col justify-center items-center gap-1 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
+      draggable={true}
+      onDragStart={(e) => handleDragStart(e, element)}
+    >
+      <div className="w-10 h-10 rounded-full overflow-hidden">
+        <img 
+          src="https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=40&h=40&fit=crop&crop=center"
+          alt={element.name}
+          className="w-full h-full object-cover"
+        />
       </div>
       <div className="text-center text-gray-800 text-xs font-normal tracking-tight">
         {element.name}

@@ -30,10 +30,10 @@ export const MessageItem = ({ message, index, playingVoice, audioPlayers, playPr
   const renderWaveform = (messageId, isPlaying) => {
     const duration = message ? parseInt(message.duration?.split(':')[1]) * 1000 : 5000;
     const progress = playProgress[messageId] || 0;
-
+    const wavve=isSurvey?15:29
     return (
       <div className="flex gap-1 items-end">
-        {Array.from({ length: message.type === "sent" ? 29 : 30 }, (_, i) => {
+        {Array.from({ length: message.type === "sent" ? wavve : 30 }, (_, i) => {
           const heights = message.type === "sent" 
             ? ['h-4', 'h-2', 'h-3', 'h-4', 'h-2', 'h-1.5', 'h-3', 'h-2', 'h-4', 'h-2']
             : ['h-6', 'h-3', 'h-4', 'h-5', 'h-3', 'h-2', 'h-3.5', 'h-2.5', 'h-5', 'h-2.5'];
@@ -57,7 +57,7 @@ export const MessageItem = ({ message, index, playingVoice, audioPlayers, playPr
 
   return (
     <div 
-      className={`pl-2 rounded-lg flex gap-2 transition-all duration-300 ${
+      className={`pl-2 rounded-lg flex gap-2 transition-all duration-300 overflow-x-hidden ${
         isOpen ? 'transform translate-x-0 opacity-100' : 'transform translate-x-8 opacity-0'
       }`}
       style={{ transitionDelay: `${200 + index * 100}ms` }}
@@ -325,7 +325,7 @@ export const Messages = ({ messages, playingVoice, audioPlayers, playProgress, t
   );
 };
 
-export const RealTimeWaveform = ({ isRecording }) => {
+export const RealTimeWaveform = ({ isRecording, isSurvey }) => {
   const [audioLevels, setAudioLevels] = useState(Array(40).fill(0));
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
@@ -422,7 +422,7 @@ export const RealTimeWaveform = ({ isRecording }) => {
   };
 
   return (
-    <div className="flex items-center justify-center gap-0.5 h-12 overflow-hidden">
+    <div className={`flex items-center justify-center gap-0.5 ${isSurvey?'h-8':'h-12'} overflow-hidden`}>
       <div className="flex items-center gap-0.5">
         {audioLevels.map((level, index) => (
           <div
@@ -439,7 +439,7 @@ export const RealTimeWaveform = ({ isRecording }) => {
   );
 };
 
-export const RecordingIndicator = ({ isRecording, recordingTime, transcription, stopRecording, mediaRecorder }) => {
+export const RecordingIndicator = ({ isRecording, recordingTime, transcription, stopRecording, mediaRecorder, isSurvey }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -447,13 +447,12 @@ export const RecordingIndicator = ({ isRecording, recordingTime, transcription, 
   };
 
   return (
-    <div className={`px-4 py-5 transition-all duration-300 delay-200 transform translate-y-0 opacity-100
-}`}>
+    <div className={`${isSurvey?'px-1':'px-4'} py-5 transition-all duration-300 delay-200 transform translate-y-0 opacity-100`}>
   <div className="pl-5 pr-2 bg-red-50 py-2 rounded-full flex items-center gap-2.5 transition-all duration-200 hover:shadow-md focus-within:shadow-lg" style={{ borderColor: '#367abb' }}>
         <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0"></div>
         
         <div className="flex-1 min-w-0">
-          <RealTimeWaveform isRecording={isRecording} />
+          <RealTimeWaveform isRecording={isRecording} isSurvey={isSurvey} />
         </div>
         
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -691,36 +690,16 @@ const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio
     </div>
   );
 };
-
 // Input Area Component
 export const InputArea = ({ isRecording, recordedAudio, newComment, setNewComment, handleSendComment, startRecording, stopRecording, handleKeyPress, isSurvey }) => {
+  // Determine if we should show the mic icon or send icon
+  const showSendIcon = newComment.trim() || recordedAudio;
+  
   return (
     <div className={`${!isSurvey&&'px-4'} py-5 border-t border-slate-100 transition-all duration-300 delay-200 transform translate-y-0 opacity-100
     }`}>
-      <div className="pl-5 pr-2 py-2 rounded-full border flex items-center gap-2.5 transition-all duration-200 hover:shadow-md focus-within:shadow-lg" style={{ borderColor: '#367abb' }}>
-        <div className="flex-1 flex items-center gap-2">
-          <button
-            onClick={isRecording ? stopRecording : startRecording}
-            className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${
-              isRecording 
-                ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                : ''
-            }`}
-            style={!isRecording ? { backgroundColor: '#367abb' } : {}}
-            onMouseEnter={(e) => {
-              if (!isRecording) e.target.style.backgroundColor = '#2d5f94';
-            }}
-            onMouseLeave={(e) => {
-              if (!isRecording) e.target.style.backgroundColor = '#367abb';
-            }}
-            title={isRecording ? "Stop recording" : "Start voice recording"}
-          >
-            {isRecording ? (
-              <Square className="w-4 h-4 text-white" />
-            ) : (
-              <Mic className="w-4 h-4 text-white" />
-            )}
-          </button>
+      <div className={`pl-5 pr-2 ${!isSurvey?'py-2':'py-1'} rounded-full border flex items-center transition-all duration-200 hover:shadow-md focus-within:shadow-lg`} style={{ borderColor: '#367abb' }}>
+        <div className="flex-1 flex items-center">
           <input
             type="text"
             value={recordedAudio ? "Voice message recorded" : newComment}
@@ -734,20 +713,38 @@ export const InputArea = ({ isRecording, recordedAudio, newComment, setNewCommen
             readOnly={recordedAudio}
           />
         </div>
+        
+        {/* Single icon button that changes based on state */}
         <button
-          onClick={handleSendComment}
-          disabled={(!newComment.trim() && !recordedAudio) || isRecording}
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 disabled:hover:scale-100"
-          style={{ backgroundColor: '#367abb' }}
+          onClick={showSendIcon ? handleSendComment : (isRecording ? stopRecording : startRecording)}
+          disabled={showSendIcon ? false : false} // Always enabled for mic/send functionality
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 ${
+            isRecording 
+              ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+              : ''
+          }`}
+          style={!isRecording ? { backgroundColor: '#367abb' } : {}}
           onMouseEnter={(e) => {
-            if (!e.target.disabled) e.target.style.backgroundColor = '#2d5f94';
+            if (!isRecording) e.target.style.backgroundColor = '#2d5f94';
           }}
           onMouseLeave={(e) => {
-            if (!e.target.disabled) e.target.style.backgroundColor = '#367abb';
+            if (!isRecording) e.target.style.backgroundColor = '#367abb';
           }}
-          title={recordedAudio ? "Send voice message with transcription" : newComment.trim() ? "Send text message" : "Type or record to send"}
+          title={
+            isRecording 
+              ? "Stop recording" 
+              : showSendIcon 
+                ? (recordedAudio ? "Send voice message" : "Send message")
+                : "Start voice recording"
+          }
         >
-          <ArrowUp className="w-5 h-5 text-white" />
+          {isRecording ? (
+            <Square className="w-4 h-4 text-white" />
+          ) : showSendIcon ? (
+            <ArrowUp className="w-5 h-5 text-white" />
+          ) : (
+            <Mic className="w-4 h-4 text-white" />
+          )}
         </button>
       </div>
     </div>

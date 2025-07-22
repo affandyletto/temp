@@ -24,7 +24,7 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
   const [audioPlayers, setAudioPlayers] = useState({});
   const sidebarRef = useRef(null);
   const recordingInterval = useRef(null);
-
+  const [currentStream, setCurrentStream] = useState(null);
   // Initialize Tone.js and Speech Recognition
   useEffect(() => {
     const initTone = async () => {
@@ -248,66 +248,79 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
   };
 
   const startRecording = async () => {
-    try {
-      if (Tone.context.state !== 'running') {
-        await Tone.start();
-      }
+  try {
+    if (Tone.context.state !== 'running') {
+      await Tone.start();
+    }
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      
-      setAudioChunks([]);
-      setMediaRecorder(recorder);
-      setFinalTranscript("");
-      setLastSpeechTime(null);
-      if (silenceTimeout) {
-        clearTimeout(silenceTimeout);
-        setSilenceTimeout(null);
-      }
-      
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          setAudioChunks(prev => [...prev, event.data]);
-        }
-      };
-      
-      recorder.onstop = () => {
-        stream.getTracks().forEach(track => track.stop());
-        if (recognition && isTranscribing) {
-          recognition.stop();
-        }
-      };
-      
-      recorder.start(1000);
-      setIsRecording(true);
-      setRecordingTime(0);
-      
-      if (recognition) {
-        setIsTranscribing(true);
-        recognition.start();
-      }
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      alert('Could not access microphone. Please check permissions.');
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-    }
-    if (recognition && isTranscribing) {
-      recognition.stop();
-    }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    setCurrentStream(stream); // Store the stream reference
     
+    const recorder = new MediaRecorder(stream);
+    
+    setAudioChunks([]);
+    setMediaRecorder(recorder);
+    setFinalTranscript("");
+    setLastSpeechTime(null);
     if (silenceTimeout) {
       clearTimeout(silenceTimeout);
       setSilenceTimeout(null);
     }
     
-    setIsRecording(false);
-    setIsTranscribing(false);
-  };
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        setAudioChunks(prev => [...prev, event.data]);
+      }
+    };
+    
+    recorder.onstop = () => {
+      // Clean up in the onstop handler as well
+      stream.getTracks().forEach(track => track.stop());
+      setCurrentStream(null);
+      if (recognition && isTranscribing) {
+        recognition.stop();
+      }
+    };
+    
+    recorder.start(1000);
+    setIsRecording(true);
+    setRecordingTime(0);
+    
+    if (recognition) {
+      setIsTranscribing(true);
+      recognition.start();
+    }
+  } catch (error) {
+    console.error('Error accessing microphone:', error);
+    alert('Could not access microphone. Please check permissions.');
+  }
+};
+
+const stopRecording = () => {
+  // Stop the current stream tracks immediately
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => {
+      track.stop();
+    });
+    setCurrentStream(null);
+  }
+  
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
+  
+  if (recognition && isTranscribing) {
+    recognition.stop();
+  }
+  
+  if (silenceTimeout) {
+    clearTimeout(silenceTimeout);
+    setSilenceTimeout(null);
+  }
+  
+  setIsRecording(false);
+  setIsTranscribing(false);
+};
 
   useEffect(() => {
     if (mediaRecorder) {
@@ -480,7 +493,7 @@ const CommentSection = ({ isOpen = true, onClose = () => {} }) => {
   };
 
   
-const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio, handleSendVoiceMessage }) => {
+const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio, handleSendVoiceMessage, isSurvey }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
   

@@ -514,6 +514,109 @@ const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) =
     }
   };
 
+  const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio, handleSendVoiceMessage }) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef(null);
+    
+    const formatTime = (seconds) => {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+    
+    const playRecordedAudioPreview = () => {
+      if (!recordedAudio) return;
+      
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+        audioRef.current.src = recordedAudio.url || URL.createObjectURL(recordedAudio.blob);
+        
+        audioRef.current.onended = () => {
+          setIsPlaying(false);
+        };
+      }
+      
+      if (isPlaying) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    };
+    
+    const stopAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsPlaying(false);
+      }
+    };
+    
+    // Cleanup when component unmounts or recordedAudio changes
+    useEffect(() => {
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.src = '';
+          audioRef.current = null;
+        }
+      };
+    }, [recordedAudio]);
+    
+    return (
+      <div className={`py-5 transition-all duration-300 delay-200 transform translate-y-0 opacity-100
+    }`}>
+        <div className="pl-4 pr-2 py-2 rounded-full bg-blue-50 flex items-center gap-2.5 transition-all duration-200 hover:shadow-md focus-within:shadow-lg" style={{ borderColor: '#367abb' }}>
+          {/* X button on the left */}
+          <button
+            onClick={clearRecordedAudio}
+            className="py-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          
+          {/* Play/Pause button */}
+          <button
+            onClick={playRecordedAudioPreview}
+            className="p-2 rounded-full transition-all duration-200 hover:scale-110"
+            style={{ backgroundColor: '#367abb' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#2d5f94'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#367abb'}
+          >
+            {isPlaying ? (
+              <Pause className="w-4 h-4 text-white" />
+            ) : (
+              <Play className="w-4 h-4 text-white" />
+            )}
+          </button>
+          
+          {/* Waveform - takes up remaining space */}
+          <div className="flex-1 min-w-0">
+            <RealTimeWaveform2 isPlaying={isPlaying} audioElement={audioRef.current} color="#367abb" />
+          </div>
+          
+          {/* Duration */}
+          <span className="text-sm text-gray-600 tabular-nums">
+            {formatTime(recordedAudio?.duration || 0)}
+          </span>
+          
+          {/* Send button with arrow up */}
+          <button
+            onClick={handleSendVoiceMessage}
+            className="p-2 text-white rounded-full transition-all duration-200 hover:scale-105"
+            style={{ backgroundColor: '#367abb' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#2d5f94'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#367abb'}
+          >
+            <ArrowUp className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const clearRecordedAudio = () => {
     setRecordedAudio(null);
     setFinalTranscript("");
@@ -526,8 +629,11 @@ const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) =
   };
 
   return (
-    <>
-        <div className="space-y-4 overflow-y-auto">
+  <>
+    <div className="flex flex-col h-full max-h-[680px]">
+      {/* Messages area - takes remaining space */}
+      <div className="flex-1 overflow-y-auto min-h-2">
+        <div className="space-y-4 pr0">
           <Messages 
             messages={messages}
             playingVoice={playingVoice}
@@ -539,40 +645,51 @@ const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) =
             isOpen={isOpen}
             isSurvey={true}
           />
+
+        </div>
+      </div>
+      <div className="flex-shrink-0">
           {isRecording && (
             <RecordingIndicator 
               isRecording={isRecording}
               recordingTime={recordingTime}
               transcription={transcription}
               stopRecording={stopRecording}
+              isSurvey={true}
             />
           )}
-          {recordedAudio && !isRecording && (
-            <RecordedAudioPreview 
-              recordedAudio={recordedAudio}
-              transcription={transcription}
-              playRecordedAudioPreview={playRecordedAudioPreview}
-              clearRecordedAudio={clearRecordedAudio}
-              handleSendVoiceMessage={handleSendVoiceMessage}
-            />
-          )}
-          {!recordedAudio&&!isRecording &&!isHistory&&
-            <InputArea 
-            	isSurvey={true}
-              isRecording={isRecording}
-              recordedAudio={recordedAudio}
-              newComment={newComment}
-              setNewComment={setNewComment}
-              handleSendComment={handleSendComment}
-              startRecording={startRecording}
-              stopRecording={stopRecording}
-              handleKeyPress={handleKeyPress}
-            />
-          }
-          
-        </div>
-    </>
-  );
+      </div>
+      <div className="flex-shrink-0">
+        {recordedAudio && !isRecording && (
+          <RecordedAudioPreview 
+            recordedAudio={recordedAudio}
+            transcription={transcription}
+            playRecordedAudioPreview={playRecordedAudioPreview}
+            clearRecordedAudio={clearRecordedAudio}
+            handleSendVoiceMessage={handleSendVoiceMessage}
+            isSurvey={true}
+          />
+        )}
+      </div>
+      {/* InputArea - fixed at bottom */}
+      <div className="flex-shrink-0">
+        {!recordedAudio && !isRecording && !isHistory && (
+          <InputArea 
+            isSurvey={true}
+            isRecording={isRecording}
+            recordedAudio={recordedAudio}
+            newComment={newComment}
+            setNewComment={setNewComment}
+            handleSendComment={handleSendComment}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            handleKeyPress={handleKeyPress}
+          />
+        )}
+      </div>
+    </div>
+  </>
+);
 };
 
 export default SurveyComment;

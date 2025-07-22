@@ -63,8 +63,8 @@ export const ElementDetailSidebar = ({ selectedElement, setSelectedElement }) =>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="px-3 py-4 space-y-4">
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
           {/* Input Field */}
           <div className="space-y-1">
             <label className="text-sm text-gray-800">Element Label</label>
