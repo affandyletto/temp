@@ -40,3 +40,8 @@
   scrollbar-width: thin;
   scrollbar-color: #2C6499 #f8fafc;
 }
+
+.leaflet-marker-draggable {
+  will-change: transform;
+  transform-origin: center center;
+}

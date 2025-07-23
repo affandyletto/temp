@@ -34,28 +34,16 @@ export const Survey = () => {
   // Create custom icon function - memoized for better performance
   const createCustomIcon = useCallback((elementData) => {
     const iconHtml = `
-      <div style="
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 2px solid white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        cursor: move;
-        will-change: transform;
-        backface-visibility: hidden;
-      ">
-        <img 
-          src="https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=40&h=40&fit=crop&crop=center"
-          alt="${elementData.name}"
-          style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;"
-        />
-      </div>
+      <img 
+        src="https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=40&h=40&fit=crop&crop=center"
+        alt="${elementData.name}"
+        style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;"
+      />
     `;
     
     return L.divIcon({
       html: iconHtml,
-      className: 'custom-div-icon',
+      className: 'custom-div-icon circular-icon',
       iconSize: [40, 40],
       iconAnchor: [20, 20],
       popupAnchor: [0, -20]
@@ -64,29 +52,23 @@ export const Survey = () => {
 
   // Optimized drag end handler with debouncing
   const handleMarkerDragEnd = useCallback((e) => {
-    const position = e.target.getLatLng();
-    const markerId = e.target._leaflet_id;
-    
-    // Clear any pending updates
-    if (updateTimeoutRef.current) {
-      clearTimeout(updateTimeoutRef.current);
-    }
-    
-    // Debounce the state update to reduce re-renders
-    updateTimeoutRef.current = setTimeout(() => {
-      setPlacedElements(prev => 
-        prev.map(el => 
-          el.markerId === markerId 
-            ? { ...el, position: [position.lat, position.lng] }
-            : el
-        )
-      );
-      console.log('Marker moved to:', position);
-    }, 100); // 100ms debounce
-  }, []);
+  const position = e.target.getLatLng();
+  const markerId = e.target._leaflet_id;
+  
+  requestAnimationFrame(() => {
+    setPlacedElements(prev => 
+      prev.map(el => 
+        el.markerId === markerId 
+          ? { ...el, position: [position.lat, position.lng] }
+          : el
+      )
+    );
+  });
+}, []);
 
   // Optimized drag handler for smoother movement
   const handleMarkerDrag = useCallback((e) => {
+
     // Optional: Add visual feedback during drag without updating state
     // This runs on every drag event but doesn't trigger React re-renders
   }, []);
@@ -152,8 +134,14 @@ export const Survey = () => {
     const imageHeight = 1380;
     const bounds = [[-imageHeight/2, -imageWidth/2], [imageHeight/2, imageWidth/2]];
 
-    // Add the image overlay
-    L.imageOverlay(imageUrl, bounds).addTo(map);
+
+    const backgroundImageUrl = '/images/background.png';
+    const backgroundBounds = [[-imageHeight/2, -imageWidth/2], [imageHeight/2, imageWidth/2]];
+    L.imageOverlay(backgroundImageUrl, backgroundBounds, { opacity: 0.8 }).addTo(map);
+
+    // Foreground layer (top)
+    const foregroundImageUrl = imageUrl
+    L.imageOverlay(foregroundImageUrl, bounds, { opacity: 0.9 }).addTo(map);
 
     // Fit the map to the image bounds
     map.fitBounds(bounds);
@@ -163,8 +151,10 @@ export const Survey = () => {
       const marker = L.marker(position, { 
         icon: createCustomIcon(data),
         draggable: true,
-        autoPan: false, // Disable auto-panning during drag for better performance
-        keyboard: false // Disable keyboard for performance
+        autoPan: false,
+        keyboard: false,
+        riseOnHover: false,
+        riseOffset: 0
       }).addTo(map)
         .bindPopup(data.name);
 
@@ -207,7 +197,6 @@ export const Survey = () => {
       mapContainer.style.cursor = 'default';
       
       try {
-        // Get the dropped element data
         const elementData = JSON.parse(e.dataTransfer.getData('application/json'));
         
         // Get the mouse position relative to the map container
@@ -265,6 +254,19 @@ export const Survey = () => {
       }
       .leaflet-zoom-anim .leaflet-zoom-animated {
         will-change: transform;
+      }
+      .custom-div-icon.circular-icon {
+        background: transparent !important;
+        border: none !important;
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 50% !important;
+        overflow: hidden !important;
+        border: 2px solid white !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+        cursor: move !important;
+        will-change: transform !important;
+        backface-visibility: hidden !important;
       }
     `;
     document.head.appendChild(style);
