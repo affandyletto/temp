@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Move, ChevronRight, Search, Camera, Upload, MoreVertical, Clock, User, ChevronLeft, Check } from 'lucide-react';
+import { useMap } from '@/context/MapContext';
 
 const StageSelector = ({ onSelect, onClose }) => {
   const stages = [
@@ -191,7 +192,21 @@ const ContextMenu = ({ position, onClose }) => {
 
 export const ElementPhotos = ({isHistory}) => {
   const [contextMenu, setContextMenu] = useState(null);
-
+  const [photos, setPhotos] = useState(null);
+  const fileInputRef = useRef(null);
+  const {
+    selectedElement,
+    uploadPhoto
+  } = useMap();
+  
+  useEffect(()=>{
+    if(selectedElement?.photos){
+      setPhotos(selectedElement?.photos)
+    }
+  },[selectedElement])
+  
+  console.info(photos)
+  
   const handleMoreClick = (event) => {
     event.preventDefault();
     const rect = event.currentTarget.getBoundingClientRect();
@@ -201,14 +216,52 @@ export const ElementPhotos = ({isHistory}) => {
     });
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+      // Validate that all files are images
+      const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
+      if (invalidFiles.length > 0) {
+        alert('Please select only image files');
+        return;
+      }
+      
+      // Call the uploadPhoto function with each selected file with delay
+      for (const file of files) {
+        uploadPhoto(selectedElement.markerId, file);
+        // Add delay between uploads (adjust milliseconds as needed)
+        await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+      }
+      
+      // Reset the input value so the same files can be selected again if needed
+      event.target.value = '';
+    }
+  };
+
   return (
     <>
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
+      
       {/* Photos Section Header */}
-
-      {!isHistory&&        
+      {!isHistory &&        
         <div className="flex justify-between items-center">
           <h2 className="text-base font-semibold text-gray-800">Photos</h2>
-          <button className="px-5 py-2 bg-white border border-slate-200 rounded-lg flex items-center gap-2 hover:bg-slate-50 transition-colors duration-150">
+          <button 
+            className="px-5 py-2 bg-white border border-slate-200 rounded-lg flex items-center gap-2 hover:bg-slate-50 transition-colors duration-150"
+            onClick={handleUploadClick}
+          >
             <Upload className="w-4 h-4 text-gray-800" />
             <span className="text-xs font-semibold text-gray-800">Upload</span>
           </button>
@@ -217,16 +270,16 @@ export const ElementPhotos = ({isHistory}) => {
       
       {/* Photo Cards */}
       <div className="flex flex-col gap-3">
-        {[1, 2, 3, 4].map((index) => (
+        {photos?.map((photo, index) => (
           <div key={index} className="bg-white border border-gray-300 rounded-xl transition-all duration-200 hover:shadow-md">
             {/* Image Container */}
             <div className="p-2 relative">
               <img 
                 className="w-full h-44 bg-gray-200 rounded-lg object-cover" 
-                src="https://placehold.co/240x172" 
+                src={photo?.picture}
                 alt="Camera capture"
               />
-              {!isHistory&&                
+              {!isHistory &&                
                 <button 
                   className="absolute top-4 right-4 p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all duration-150 hover:scale-105"
                   onClick={handleMoreClick}
@@ -240,8 +293,8 @@ export const ElementPhotos = ({isHistory}) => {
               <div className="flex flex-col gap-2">
                 {/* Title and ID */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-800">MV63X</h3>
-                  <p className="text-xs text-zinc-500">Element ID: 766796 | CAMERA-{index}</p>
+                  <h3 className="text-sm font-semibold text-gray-800">{photo?.name}</h3>
+                  <p className="text-xs text-zinc-500">Element ID: {photo?.elementId} | {photo?.elementName}</p>
                 </div>
                 <hr className="border-slate-200" />
                 {/* Metadata */}
@@ -260,7 +313,6 @@ export const ElementPhotos = ({isHistory}) => {
           </div>
         ))}
       </div>
-
       {contextMenu && (
         <ContextMenu 
           position={contextMenu}

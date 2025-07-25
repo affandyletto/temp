@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Upload, 
   Image, 
@@ -13,12 +13,14 @@ import {
   ChevronRight,
   X,
   Minus,
-  Plus
+  Plus,
+  Camera
 } from 'lucide-react';
 import { Button, ButtonGroup } from "@/components/Button/ButtonSurveys"
 import { SliderControl } from "@/components/Form/SliderControl"
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { useMap } from '@/context/MapContext';
+import { useTab } from '@/context/TabContext';
 
 
 export const ElementInfo=({data, setTab})=>{
@@ -30,7 +32,8 @@ export const ElementInfo=({data, setTab})=>{
     const [opacity, setOpacity] = useState(50);
     const [fieldColor, setFieldColor] = useState('#D9D9D9');
     const [elementColor, setElementColor] = useState('#3F444D');
-
+    const fileInputRef = useRef(null);
+    const isInitializing = useRef(false);
 
     const {
       selectedElement,
@@ -38,37 +41,40 @@ export const ElementInfo=({data, setTab})=>{
       placedElements,
       setPlacedElements,
       redrawFOV,
-      duplicateElement,
+      duplicateElement,   
+      uploadPhoto   
+    } = useMap();
 
+    const {
       selectColor,
       setSelectColor,
       selectBGColor,
       setSelectBGColor
-    } = useMap();
+    }= useTab()
 
   useEffect(()=>{
-    setFieldColor(selectColor)
-    setElementColor(selectBGColor)
+    setFieldColor(selectBGColor)
+    setElementColor(selectColor)
   },[selectColor, selectBGColor])
 
   useEffect(() => {
-      if (selectedElement && selectedElement.id) {
+      if (selectedElement && !isInitializing.current) {
         redrawFOV(selectedElement?.markerId, {angle:angle, opacity:opacity, rotate:fov, depth:depth})
-          setPlacedElements(prevElements => 
-              prevElements.map(element => 
-                  element.markerId === selectedElement.markerId 
-                      ? {
-                          ...element,
-                          rotate: fov,
-                          depth: depth,
-                          angle: angle,
-                          opacity: opacity,
-                          color:elementColor,
-                          bgColor:fieldColor
-                      }
-                      : element
-              )
-          );
+        setPlacedElements(prevElements => 
+            prevElements.map(element => 
+                element.markerId === selectedElement.markerId 
+                    ? {
+                        ...element,
+                        rotate: fov,
+                        depth: depth,
+                        angle: angle,
+                        opacity: opacity,
+                        color:elementColor,
+                        bgColor:fieldColor
+                    }
+                    : element
+            )
+        );
       }
   }, [angle, opacity, fov, depth, fieldColor, elementColor]);
 
@@ -81,8 +87,25 @@ export const ElementInfo=({data, setTab})=>{
       setOpacity(selectedElement?.opacity)
       setFieldColor(selectedElement?.bgColor)
       setElementColor(selectedElement?.color)
+      setSelectColor(selectedElement?.color)
+      setSelectBGColor(selectedElement?.bgColor)
+      setTimeout(() => { isInitializing.current = false; }, 0);
     }
   }, [selectedElement]);
+
+  // Handle photo upload
+  const handlePhotoUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      uploadPhoto(selectedElement?.markerId, file);
+    }
+    // Reset the input value to allow selecting the same file again
+    event.target.value = '';
+  };
 
   const photosClick=()=>{
       setTab("photos")
@@ -101,7 +124,7 @@ export const ElementInfo=({data, setTab})=>{
    }
   
   const menuItems = [
-      { icon: Image, label: 'Photos', count: 2, action:photosClick },
+      { icon: Image, label: 'Photos', count: selectedElement?.photos?.length, action:photosClick },
       { icon: MessageSquare, label: 'Comment', count: 3, action:commentClick },
       { icon: CheckSquare, label: 'Task', count: 0, action:taskClick },
       { icon: Route, label: 'Path', count: 10, action:pathClick }
@@ -110,10 +133,23 @@ export const ElementInfo=({data, setTab})=>{
   return(
     <>
       {/* Upload Area */}
-          <div className="px-10 py-8 border border-gray-300 rounded-lg flex flex-col items-center gap-2">
-            <Upload className="w-8 h-8 text-gray-800" />
-            <span className="text-xs text-zinc-500">Upload a Photo</span>
-          </div>
+      <div 
+        className="px-10 py-8 border border-gray-300 rounded-lg flex flex-col items-center gap-2 cursor-pointer hover:border-blue-400 transition-colors"
+        onClick={handlePhotoUpload}
+      >
+        <Upload className="w-8 h-8 text-gray-800" />
+        <span className="text-xs text-zinc-500">Upload a Photo</span>
+      </div>
+        
+      {/* Hidden file input with camera support */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment" // This opens the back camera on mobile devices
+        onChange={handleFileSelect}
+        className="hidden"
+      />
 
           {/* Menu Items */}
           <div className="space-y-2">

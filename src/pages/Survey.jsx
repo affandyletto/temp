@@ -76,8 +76,6 @@ export const Survey = () => {
     console.log("Navigating back to projects");
   }, []);
 
-  console.info(moreParam)
-
   return (
     <div className="survey-container h-screen flex flex-col">
       {/* Topnav with higher z-index and proper positioning */}
@@ -113,7 +111,7 @@ export const Survey = () => {
           />
         </div>
         
-        <div className={`absolute ${isCollapsedLeft ? 'right-0' : 'right-72'} top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-in-out z-[60]`}
+        <div className={`absolute ${isCollapsedLeft ? 'right-0' : 'right-72'} top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-in-out z-10`}
           style={{ top: 'calc(50vh - 54.5px)' }}
         >
           <button 

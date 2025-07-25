@@ -1,33 +1,49 @@
 import { Slider, Sketch, Material, Colorful, Compact, Circle, Wheel, Block, Github, Chrome } from '@uiw/react-color';
-import { useMap } from '@/context/MapContext';
+import { X } from 'lucide-react';
+import { useTab } from '@/context/TabContext';
+import { useUrlParams } from "@/hooks/useUrlParams";
 
-export const ColorSelection=({type})=>{
-	const {
-	    selectColor,
-	    setSelectColor,
-	    selectBGColor,
-	    setSelectBGColor
-	  } = useMap();
+export const ColorSelection = ({ type }) => {
+    const { toggleParameter } = useUrlParams();
+    const {
+        selectColor,
+        setSelectColor,
+        selectBGColor,
+        setSelectBGColor
+    } = useTab();
 
-	return(<>
-		{type==="bgColor"?
-			<Sketch
-	          style={{ marginLeft: 20 }}
-	          color={selectBGColor}
-	          onChange={(color) => {
-	            setSelectBGColor(color.hex);
-	          }}
-	        />
-		:
-			<Sketch
-	          style={{ marginLeft: 20 }}
-	          color={selectColor}
-	          onChange={(color) => {
-	            setSelectColor(color.hex);
-	          }}
-	        />
-		}
-			
-        </>
-	)
+    return (
+        <div style={{ position: 'relative' }}>
+            <X 
+                style={{ 
+                    position: 'absolute', 
+                    top: 0, 
+                    right: 0, 
+                    cursor: 'pointer',
+                    zIndex: 10
+                }}
+                size={20}
+                onClick={() => {
+                    toggleParameter("more",type)
+                }}
+            />
+            {type === "bgColor" ? 
+                <Sketch
+                    style={{ marginLeft: 20 }}
+                    color={selectBGColor}
+                    onChange={(color) => {
+                        setSelectBGColor(color.hex);
+                    }}
+                />
+                :
+                <Sketch
+                    style={{ marginLeft: 20 }}
+                    color={selectColor}
+                    onChange={(color) => {
+                        setSelectColor(color.hex);
+                    }}
+                />
+            }
+        </div>
+    );
 }

@@ -17,10 +17,10 @@ export const useMap = () => {
 
 // Map Provider component
 export const MapProvider = ({ children }) => {
-	
 
-	
-	const placedElementsRef = useRef([]);
+
+
+  const placedElementsRef = useRef([]);
   const [placedElements, setPlacedElements] = useState([]);
   const [selectedElement, setSelectedElement] = useState(null)
   const [isInitialDrown, setIsInitialDrown] = useState(false)
@@ -46,7 +46,7 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
       style="
       object-fit: cover; 
       pointer-events: none;
-      background-color:${elementData.bgColor};
+      background-color:${elementData.color};
       width: 40px !important;
       height: 40px !important;
       border-radius: 50% !important;
@@ -104,7 +104,7 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
     points.push([centerLat, centerLng]);
     
     // Calculate the arc points for the field of view
-    const numPoints = 20; // Number of points to create smooth arc
+    const numPoints = 30; // Number of points to create smooth arc
     const startAngle = rotateRad - angleRad / 2;
     const endAngle = rotateRad + angleRad / 2;
     
@@ -126,7 +126,7 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
       color: elementData.bgColor || '#3F444D',
       fillColor: elementData.bgColor || '#3F444D',
       fillOpacity: opacity/100,
-      weight: 2,
+      weight: 1,
       opacity: 1,
       className: 'field-of-view-polygon'
     });
@@ -459,11 +459,13 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
 
   const duplicateElement = useCallback(() => {
 	 if (!selectedElement) return;
-	 
+	 const currentElements = placedElementsRef.current;
+	 const selectedEl = currentElements.find(x => x.markerId === selectedElement.markerId);
+
 	 const duplicatedElement = {
-	   ...selectedElement,
+	   ...selectedEl,
 	   id: uuidv4(),
-	   position: [selectedElement.position[0], selectedElement.position[1] + 40]
+	   position: [selectedEl.position[0], selectedEl.position[1] + 40]
 	 };
 	 
 	 const newMarker = createOptimizedMarker(duplicatedElement.position, duplicatedElement);
@@ -485,6 +487,29 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
 	 setSelectedElement(duplicatedElement);
 	}, [selectedElement, createOptimizedMarker, createFieldOfView]);
 
+  const uploadPhoto = (markerId, photo) => {
+	  var newPic = {
+	    name: selectedElement?.name,
+	    elementId: selectedElement?.id,
+	    elementName: selectedElement?.name,
+	    picture: URL.createObjectURL(photo)
+	  }
+	  
+	  // Use functional update to get the current state
+	  setSelectedElement(prev => ({
+	    ...prev, 
+	    photos: [...(prev.photos || []), newPic]
+	  }));
+	  
+	  setPlacedElements(prev => 
+	    prev.map(el => 
+	      el.markerId === markerId 
+	        ? { ...el, photos: [...(el.photos || []), photo] }
+	        : el
+	    )
+	  );
+	}
+
   // Context value
   const contextValue = {
     // State
@@ -493,6 +518,7 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
     selectedElement,
     setSelectedElement,
     duplicateElement,
+    uploadPhoto,
     // Map instance
     mapInstanceRef,
     
