@@ -1,33 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Camera, ChevronRight } from 'lucide-react';
+import { useMap } from '@/context/MapContext';
 
-export const ElementListSidebar = ({setSelectedElement, isCollapsed, onDragStart}) => {
+export const ElementListSidebar = ({ isCollapsed, onDragStart}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [draggedElement, setDraggedElement] = useState(null);
+  const [filteredElements, setFilteredElements] = useState([])
+  const {
+    placedElements,
+    setSelectedElement
+  } = useMap();
 
-  const elements = [
-    { id: 1, name: 'Camera-01', type: 'Element-01' },
-    { id: 2, name: 'Camera-02', type: 'Element-01' },
-    { id: 3, name: 'Camera-03', type: 'Element-01' },
-    { id: 4, name: 'Camera-04', type: 'Element-01' },
-    { id: 5, name: 'Camera-05', type: 'Element-01' },
-    { id: 6, name: 'Camera-06', type: 'Element-01' },
-    { id: 7, name: 'Camera-07', type: 'Element-01' },
-    { id: 8, name: 'Camera-08', type: 'Element-01' },
-    { id: 9, name: 'Camera-09', type: 'Element-01' },
-    { id: 10, name: 'Camera-10', type: 'Element-01' },
-    { id: 11, name: 'Camera-11', type: 'Element-01' },
-    { id: 12, name: 'Camera-12', type: 'Element-01' },
-    { id: 13, name: 'Camera-13', type: 'Element-01' },
-    { id: 14, name: 'Camera-14', type: 'Element-01' },
-    { id: 15, name: 'Camera-15', type: 'Element-01' },
-    { id: 16, name: 'Camera-16', type: 'Element-01' },
-    { id: 17, name: 'Camera-17', type: 'Element-01' },
-  ];
+  useEffect(() => {
+    const theFilter = placedElements.filter(element =>
+      element.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredElements(theFilter);
+  }, [placedElements, searchTerm]);
 
-  const filteredElements = elements.filter(element =>
-    element.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  
 
   const handleDragStart = (e, element) => {
     setDraggedElement(element);
@@ -83,12 +74,12 @@ export const ElementListSidebar = ({setSelectedElement, isCollapsed, onDragStart
             <div className="flex flex-col gap-3">
               {filteredElements.map((element) => (
                 <div
-                  key={element.id}
+                  key={element.markerId}
                   draggable={true}
                   onDragStart={(e) => handleDragStart(e, element)}
                   onDragEnd={handleDragEnd}
                   className={`pb-2 bg-white border-b border-slate-200 cursor-pointer hover:bg-gray-50 transition-colors select-none ${
-                    draggedElement?.id === element.id ? 'opacity-50' : ''
+                    draggedElement?.markerId === element.markerId ? 'opacity-50' : ''
                   }`}
                   onClick={() => setSelectedElement(element)}
                 >

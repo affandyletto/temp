@@ -84,3 +84,74 @@ export const mocksSuperCategories = Array.from({ length: 3 }).map((_, superIndex
     listCategories,
   };
 });
+
+
+export const generateDummyData=()=> {
+  const categories = [
+    'Category-01', 'Category-02', 'Category-03', 'Category-04', 'Category-05',
+    'Category-06', 'Category-07', 'Category-08', 'Category-09', 'Category-10',
+    'Category-11', 'Category-12', 'Category-13', 'Category-14', 'Category-15',
+    'Category-16', 'Category-17', 'Category-18', 'Category-19', 'Category-20',
+    'Category-21', 'Category-22', 'Category-23', 'Category-24', 'Category-25',
+    'Category-26'
+  ];
+
+  // Helper function to generate random INTEGER within range
+  const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Helper function to generate random color
+  const randomColor = () => {
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', 
+                   '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+  // Helper function to generate random background color (lighter shades)
+  const randomBgColor = () => {
+    const bgColors = ['#FFE5E5', '#E5F9F6', '#E5F4FD', '#F0F8F0', '#FFF8E1',
+                     '#F5E6FF', '#E8F5F0', '#FDF4E3', '#F0E6F7', '#E1F0FD'];
+    return bgColors[Math.floor(Math.random() * bgColors.length)];
+  };
+
+  // Helper function to generate random camera URL
+  const randomCameraUrl = () => {
+    const cameraNumber = Math.floor(Math.random() * 5) + 1; // 1-5
+    return `/images/dummyElements/camera${cameraNumber}.png`;
+  };
+
+  // Generate elements for each category
+  const result = categories.map((category, categoryIndex) => {
+    // Each category gets 3-8 random elements
+    const elementCount = Math.floor(randomInRange(3, 9));
+    const elements = [];
+
+    for (let i = 0; i < elementCount; i++) {
+      const elementId = `E${String(categoryIndex * 10 + i + 1).padStart(3, '0')}`;
+      
+      elements.push({
+        id: uuidv4(),
+        name: `Element ${elementId.substring(1)}`,
+        hasInitials: Math.random() > 0.5, // Random true/false
+        type: 'marker',
+        order: i + 1, // Sequential order within category
+        angle: randomInRange(0, 360), // 0-360 degrees
+        depth: randomInRange(0, 100), // 0-100 depth
+        opacity: Math.floor(Math.random() * 10 + 1) *10, // 0.1-1.0 opacity (rounded to 1 decimal)
+        color: randomColor(),
+        bgColor: randomBgColor(),
+        rotate: randomInRange(-180, 180), // -180 to 180 degrees
+        iconRotate: randomInRange(-180, 180), // -180 to 180 degrees
+        xposition: randomInRange(-500, 500), // Random X position
+        yposition: randomInRange(-500, 500), // Random Y position
+        url: randomCameraUrl() // Random camera URL
+      });
+    }
+
+    return {
+      name: category,
+      elements: elements
+    };
+  });
+
+  return result;
+}

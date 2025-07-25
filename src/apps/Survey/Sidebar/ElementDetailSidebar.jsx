@@ -24,11 +24,19 @@ import { ElementPath } from "@/apps/Survey/Elements/ElementPath"
 
 import { ModalSwapElement } from "@/components/Modal/ModalSwapElement"
 import SurveyComment from "@/components/Section/SurveyComment"
+import { useMap } from '@/context/MapContext';
+
 
 // Refactored Sidebar Component
-export const ElementDetailSidebar = ({ selectedElement, setSelectedElement }) => {
-  const [tab, setTab] = useState("main")  
+export const ElementDetailSidebar = () => {
+  const [tab, setTab] = useState("main")
 
+  const {
+    selectedElement,
+    setSelectedElement
+  } = useMap();
+
+  
   const handleSwap=()=>{
 
   }
@@ -46,8 +54,8 @@ export const ElementDetailSidebar = ({ selectedElement, setSelectedElement }) =>
           }
 
         <div className="flex-1">
-          <h2 className="text-base font-bold text-gray-800">Element-02</h2>
-          <p className="text-xs text-zinc-500">ID: 63115</p>
+          <h2 className="text-base font-bold text-gray-800">{selectedElement?.name}</h2>
+          <p className="text-xs text-zinc-500">ID: {selectedElement?.id}</p>
         </div>
 
         {tab==="main"&&

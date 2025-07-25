@@ -1,34 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, ChevronRight, ChevronDown } from 'lucide-react';
 import { Topnav } from "@/apps/Survey/Topnav";
 import ToggleSurveyTabs from "@/components/Toggle/ToggleSurveyTabs";
 import { Favorites } from "@/apps/Survey/Favorites"
+import { generateDummyData } from "@/data/elementManager"
 
 export const LibrarySidebar = ({ onDragStart }) => {
   const [activeTab, setActiveTab] = useState('universal');
   const [expandedCategory, setExpandedCategory] = useState('Category-01');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [categories, setCategories]=useState([])
 
-  const categories = [
-    'Category-01', 'Category-02', 'Category-03', 'Category-04', 'Category-05',
-    'Category-06', 'Category-07', 'Category-08', 'Category-09', 'Category-10',
-    'Category-11',
-    'Category-12',
-    'Category-13',
-    'Category-14',
-    'Category-15',
-    'Category-16',
-    'Category-17',
-    'Category-18',
-    'Category-19',
-    'Category-20',
-    'Category-21',
-    'Category-22',
-    'Category-23',
-    'Category-24',
-    'Category-25',
-    'Category-26'
-  ];
+  useEffect(()=>{
+    var zzz=generateDummyData()
+    setCategories(zzz)
+  },[])
 
   const elements = [
     { id: 'E01', name: 'Element 01', hasInitials: true, type: 'marker' },
@@ -41,12 +27,7 @@ export const LibrarySidebar = ({ onDragStart }) => {
 
   const handleDragStart = (e, element) => {
     // Set the data to transfer
-    const elementData = {
-      id: element.id,
-      name: element.name,
-      type: element.type,
-      hasInitials: element.hasInitials
-    };
+    const elementData = element
     
     e.dataTransfer.setData('application/json', JSON.stringify(elementData));
     e.dataTransfer.effectAllowed = 'copy';
@@ -65,7 +46,7 @@ export const LibrarySidebar = ({ onDragStart }) => {
     `;
     
     const img = document.createElement('img');
-    img.src = 'https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=40&h=40&fit=crop&crop=center';
+    img.src = element.url;
     img.alt = element.name;
     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
     
@@ -95,18 +76,17 @@ export const LibrarySidebar = ({ onDragStart }) => {
     // Restore opacity after drag ends
     e.currentTarget.style.opacity = '1';
   };
-
   const ElementItem = ({ element }) => (
     <div 
       className="flex-1 px-1 py-2 bg-white rounded-lg flex flex-col justify-center items-center gap-1 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
       draggable={true}
       onDragStart={(e) => handleDragStart(e, element)}
     >
-      <div className="w-10 h-10 rounded-full overflow-hidden">
+      <div className="w-10 h-10 rounded-full overflow-hidden bg-[yellow]">
         <img 
-          src="https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=40&h=40&fit=crop&crop=center"
+          src={element.url}
           alt={element.name}
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover`}
         />
       </div>
       <div className="text-center text-gray-800 text-xs font-normal tracking-tight">
@@ -119,12 +99,12 @@ export const LibrarySidebar = ({ onDragStart }) => {
     <div className="bg-white border-b border-slate-200">
       <div 
         className="p-3 flex justify-between items-center cursor-pointer hover:bg-gray-50"
-        onClick={() => onToggle(category)}
+        onClick={() => onToggle(category.name)}
       >
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-zinc-300 rounded-md"></div>
           <div className="text-gray-800 text-xs font-normal tracking-tight">
-            {category}
+            {category.name}
           </div>
         </div>
         {isExpanded ? (
@@ -137,12 +117,12 @@ export const LibrarySidebar = ({ onDragStart }) => {
       {isExpanded && (
         <div className="p-2 bg-white flex flex-col gap-2">
           <div className="flex justify-start items-start gap-2">
-            {elements.slice(0, 3).map((element) => (
+            {category.elements.slice(0, 3).map((element) => (
               <ElementItem key={element.id} element={element} />
             ))}
           </div>
           <div className="flex justify-start items-start gap-2">
-            {elements.slice(3, 6).map((element) => (
+            {category.elements.slice(3, 6).map((element) => (
               <ElementItem key={element.id} element={element} />
             ))}
           </div>
@@ -177,9 +157,9 @@ export const LibrarySidebar = ({ onDragStart }) => {
           <div className="bg-white">
             {categories.map((category) => (
               <CategoryItem
-                key={category}
+                key={category.name}
                 category={category}
-                isExpanded={expandedCategory === category}
+                isExpanded={expandedCategory === category.name}
                 onToggle={(cat) => setExpandedCategory(
                   expandedCategory === cat ? null : cat
                 )}

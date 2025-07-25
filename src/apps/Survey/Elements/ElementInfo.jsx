@@ -18,6 +18,7 @@ import {
 import { Button, ButtonGroup } from "@/components/Button/ButtonSurveys"
 import { SliderControl } from "@/components/Form/SliderControl"
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { useMap } from '@/context/MapContext';
 
 
 export const ElementInfo=({data, setTab})=>{
@@ -30,10 +31,58 @@ export const ElementInfo=({data, setTab})=>{
     const [fieldColor, setFieldColor] = useState('#D9D9D9');
     const [elementColor, setElementColor] = useState('#3F444D');
 
+
+    const {
+      selectedElement,
+      setSelectedElement,
+      placedElements,
+      setPlacedElements,
+      redrawFOV,
+      duplicateElement,
+
+      selectColor,
+      setSelectColor,
+      selectBGColor,
+      setSelectBGColor
+    } = useMap();
+
+  useEffect(()=>{
+    setFieldColor(selectColor)
+    setElementColor(selectBGColor)
+  },[selectColor, selectBGColor])
+
+  useEffect(() => {
+      if (selectedElement && selectedElement.id) {
+        redrawFOV(selectedElement?.markerId, {angle:angle, opacity:opacity, rotate:fov, depth:depth})
+          setPlacedElements(prevElements => 
+              prevElements.map(element => 
+                  element.markerId === selectedElement.markerId 
+                      ? {
+                          ...element,
+                          rotate: fov,
+                          depth: depth,
+                          angle: angle,
+                          opacity: opacity,
+                          color:elementColor,
+                          bgColor:fieldColor
+                      }
+                      : element
+              )
+          );
+      }
+  }, [angle, opacity, fov, depth, fieldColor, elementColor]);
+
     // Check if design parameter is active on component mount
-    useEffect(() => {
-      const urlParams = new URLSearchParams(window.location.search);
-    }, []);
+  useEffect(() => {
+    if(selectedElement){
+      setFov(selectedElement?.rotate)
+      setDepth(selectedElement?.depth)
+      setAngle(selectedElement?.angle)
+      setOpacity(selectedElement?.opacity)
+      setFieldColor(selectedElement?.bgColor)
+      setElementColor(selectedElement?.color)
+    }
+  }, [selectedElement]);
 
   const photosClick=()=>{
       setTab("photos")
@@ -95,7 +144,7 @@ export const ElementInfo=({data, setTab})=>{
             </Button>
             <Button 
               icon={Copy} 
-              onClick={() => console.log('Duplicate clicked')}
+              onClick={duplicateElement}
               className="flex-1"
             >
               Duplicate
@@ -110,10 +159,10 @@ export const ElementInfo=({data, setTab})=>{
                 <input
                   type="number"
                   value={fov}
+                  max={360}
                   onChange={(e) => setFov(Number(e.target.value))}
                   className="bg-transparent text-sm text-gray-800 border-none outline-none w-full"
                 />
-                <ChevronRight className="w-5 h-5 text-zinc-500" />
               </div>
             </div>
             <div className="flex-1 space-y-1">
@@ -125,7 +174,6 @@ export const ElementInfo=({data, setTab})=>{
                   onChange={(e) => setDepth(Number(e.target.value))}
                   className="bg-transparent text-sm text-gray-800 border-none outline-none w-full"
                 />
-                <ChevronRight className="w-5 h-5 text-zinc-500" />
               </div>
             </div>
           </div>
@@ -152,7 +200,7 @@ export const ElementInfo=({data, setTab})=>{
             label="Angle" 
             value={angle} 
             setValue={setAngle} 
-            max={180} 
+            max={360} 
             unit="°" 
           />
           
@@ -166,9 +214,13 @@ export const ElementInfo=({data, setTab})=>{
 
           {/* Color Inputs */}
           <div className="space-y-2">
-            <div className="space-y-1">
+            <div className="space-y-1 cursor-pointer">
               <label className="text-sm text-gray-800">Field Color</label>
-              <div className="p-3 bg-slate-100 rounded-lg flex items-center gap-2">
+              <div className="p-3 bg-slate-100 rounded-lg flex items-center gap-2"                  
+                onClick={()=>{
+                    toggleParameter('more', 'bgColor');
+                  }}
+                >
                 <div
                   className="w-5 h-5 rounded border"
                   style={{ backgroundColor: fieldColor }}
@@ -179,15 +231,19 @@ export const ElementInfo=({data, setTab})=>{
                   onChange={(e) => setFieldColor(e.target.value)}
                   className="flex-1 bg-transparent text-sm text-zinc-500 border-none outline-none"
                   placeholder="#D9D9D9"
+                  disabled
                 />
               </div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1  cursor-pointer">
               <label className="text-sm text-gray-800">Element Color</label>
               <div className="p-3 bg-slate-100 rounded-lg flex items-center gap-2">
                 <div
                   className="w-5 h-5 rounded border"
                   style={{ backgroundColor: elementColor }}
+                  onClick={()=>{
+                    toggleParameter('more', 'color');
+                  }}
                 />
                 <input
                   type="text"
