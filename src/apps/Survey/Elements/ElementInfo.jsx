@@ -124,7 +124,7 @@ export const ElementInfo=({data, setTab})=>{
    }
   
   const menuItems = [
-      { icon: Image, label: 'Photos', count: selectedElement?.photos?.length, action:photosClick },
+      { icon: Image, label: 'Photos', count: selectedElement?.photos?.length||0, action:photosClick },
       { icon: MessageSquare, label: 'Comment', count: 3, action:commentClick },
       { icon: CheckSquare, label: 'Task', count: 0, action:taskClick },
       { icon: Route, label: 'Path', count: 10, action:pathClick }
@@ -134,10 +134,10 @@ export const ElementInfo=({data, setTab})=>{
     <>
       {/* Upload Area */}
       <div 
-        className="px-10 py-8 border border-gray-300 rounded-lg flex flex-col items-center gap-2 cursor-pointer hover:border-blue-400 transition-colors"
+        className="px-10 py-8 border border-dashed border-gray-300 rounded-lg flex flex-col items-center gap-2 cursor-pointer hover:border-blue-400 transition-colors"
         onClick={handlePhotoUpload}
       >
-        <Upload className="w-8 h-8 text-gray-800" />
+        <Camera className="w-8 h-8 text-gray-800" />
         <span className="text-xs text-zinc-500">Upload a Photo</span>
       </div>
         

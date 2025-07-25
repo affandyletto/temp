@@ -85,9 +85,12 @@ export const LeafletMap = ({ onElementDragStart }) => {
       ref={mapRef} 
       className="w-full h-full"
       style={{ 
-        background: '#f0f0f0',
-        position: 'relative',
-        zIndex: 1
+        backgroundImage: `url('/images/background.png')`,
+	    backgroundSize: 'cover', // or 'contain' depending on desired effect
+	    backgroundPosition: 'center',
+	    backgroundRepeat: 'no-repeat',
+	    position: 'relative',
+	    zIndex: 1
       }}
     />
   );

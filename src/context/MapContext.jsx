@@ -308,12 +308,12 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
     const bounds = [[-imageHeight/2, -imageWidth/2], [imageHeight/2, imageWidth/2]];
 
     // Background layer
-    const backgroundImageUrl = '/images/background.png';
+    const backgroundImageUrl = '/images/sample-floor-plan.webp';
     const backgroundBounds = [[-imageHeight/2, -imageWidth/2], [imageHeight/2, imageWidth/2]];
     L.imageOverlay(backgroundImageUrl, backgroundBounds, { opacity: 0.8 }).addTo(map);
 
     // Foreground layer (top)
-    L.imageOverlay(imageUrl, bounds, { opacity: 0.9 }).addTo(map);
+    L.imageOverlay(backgroundImageUrl, bounds, { opacity: 0.9 }).addTo(map);
 
     // Fit the map to the image bounds
     map.fitBounds(bounds);

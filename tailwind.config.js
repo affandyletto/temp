@@ -3,6 +3,12 @@ module.exports = {
   content: ["./src/**/*.{js,jsx}"],
   theme: {
     extend: {
+      backgroundImage: {
+        'dashed-line': 'repeating-linear-gradient(to right, #ccc 0, #ccc 5px, transparent 5px, transparent 10px)',
+      },
+      backgroundSize: {
+        'dash': '10px 1px',
+      },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui"],
       },
