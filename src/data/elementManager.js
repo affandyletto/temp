@@ -149,7 +149,8 @@ export const generateDummyData=()=> {
 
     return {
       name: category,
-      elements: elements
+      elements: elements,
+      id: uuidv4(),
     };
   });
 

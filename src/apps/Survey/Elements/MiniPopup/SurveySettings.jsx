@@ -7,8 +7,7 @@ export const SurveySettings = ({onClose}) => {
   
   const {
       survey,
-      updateSurvey,
-      redrawAllElements
+      updateSurvey
     } = useMap();
 
   const elementSize = survey?.elementSize || 15;
@@ -23,13 +22,11 @@ export const SurveySettings = ({onClose}) => {
   const handleSizeChange = (increment) => {
     const newSize = Math.max(1, elementSize + increment);
     updateSurvey({ elementSize: newSize });
-    redrawAllElements();
   };
 
   const handleSizeInput = (value) => {
     const newSize = Math.max(1, parseInt(value) || 1);
     updateSurvey({ elementSize: newSize });
-    redrawAllElements();
   };
 
   return (
@@ -60,12 +57,12 @@ export const SurveySettings = ({onClose}) => {
             <Minus className="w-4 h-4 text-gray-800" />
           </button>
           <input 
-            type="number"
-            value={elementSize}
-            onChange={(e) => handleSizeInput(e.target.value)}
-            className="text-primary-200 text-sm font-medium bg-transparent w-8 text-center outline-none"
-            min="1"
-          />
+			  type="number"
+			  value={elementSize}
+			  onChange={(e) => handleSizeInput(e.target.value)}
+			  className="text-primary-200 text-sm font-medium bg-transparent w-12 text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+			  min="1"
+			/>
           <button 
             onClick={() => handleSizeChange(1)}
             className="p-2 bg-white rounded-lg border border-slate-200 hover:bg-gray-50 transition-colors"

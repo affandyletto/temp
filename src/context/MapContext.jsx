@@ -23,6 +23,7 @@ export const MapProvider = ({ children }) => {
   const [selectedID, setSelectedID]=useState(null)
   const [selectedElement, setSelectedElement] = useState(null)
   const [isInitialDrown, setIsInitialDrown] = useState(false)
+  const [swapElement, setSwapElement] = useState(null)
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
   const surveyRef = useRef(null);
@@ -211,6 +212,11 @@ const redrawFOV = useCallback((markerId, data) => {
 }, [placedElements, selectedElement, survey?.elementSize, createCustomIcon, redrawFOV]);
 
 
+useEffect(() => {
+  if (survey?.elementSize) {
+    redrawAllElements();
+  }
+}, [survey?.elementSize, redrawAllElements]);
 
  useEffect(()=>{
  	initialLoad()
@@ -581,6 +587,8 @@ const redrawFOV = useCallback((markerId, data) => {
     setPlacedElements,
     selectedElement,
     setSelectedElement,
+    swapElement,
+    setSwapElement,
     duplicateElement,
     uploadPhoto,
     updateElementInState,

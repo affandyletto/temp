@@ -13,6 +13,7 @@ import {
   mocksUniversalElements,
 } from "@/data/elementManager";
 import { generateDummyData } from "@/data/elementManager"
+import { useMap } from '@/context/MapContext';
 
 export const ElementSwap = ({toggleButton}) => {
   const [elements, setElements] = useState([])
@@ -21,9 +22,13 @@ export const ElementSwap = ({toggleButton}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
+  const {
+    swapElement,
+    setSwapElement
+  } = useMap();
+
   useEffect(()=>{
     var datta=generateDummyData()
-    console.info(datta)
     setElements(datta)
     setSupElements(mocksSuperCategories)
   },[])
@@ -51,12 +56,12 @@ export const ElementSwap = ({toggleButton}) => {
     // Find the target element and item
     const elementIndex = newElements.findIndex(x => x.id === element.id);
     const itemIndex = newElements[elementIndex].elements.findIndex(x => x.id === item.id);
-    
     // Check if this item was already selected (before we cleared all selections)
     const wasSelected = elements[elementIndex].elements[itemIndex].isSelected || false;
     
     // If it wasn't selected, select it now. If it was selected, leave it deselected
     if (!wasSelected) {
+      setSwapElement(newElements[elementIndex].elements[itemIndex])
       newElements[elementIndex].elements[itemIndex].isSelected = true;
     }
     

@@ -34,12 +34,25 @@ export const ElementDetailSidebar = () => {
   const {
     selectedElement,
     setSelectedID,
-    setSelectedElement
+    setSelectedElement,
+    swapElement,
+    setSwapElement,
+    setPlacedElements
   } = useMap();
 
-  const handleSwap=()=>{
-
-  }
+  const handleSwap = () => {
+    const newElement = { ...swapElement, id: selectedElement.id, markerId:selectedElement.markerId };
+    // Update the placedElements array - replace the element with matching ID
+    setPlacedElements(prev => 
+      prev.map(element => 
+        element.id === selectedElement.id ? newElement : element
+      )
+    );
+    
+    // Clear the swapElement
+    setSwapElement(null);
+    setTab('main')
+  };
   
   return (
     <div className="w-72 bg-white border-l border-slate-200 h-full flex flex-col relative">

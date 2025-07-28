@@ -33,7 +33,7 @@ export const ModalSwapElement = ({
 		    </div>
 		    <div className="flex-1 overflow-y-auto">
 		      <div className="px-6 pb-6 pt-4 space-y-4">
-		        <ElementSwap/>
+		        <ElementSwap />
 		      </div>
 		    </div>
 		    <div className="flex justify-end space-x-2 p-6 border-t border-neutral-400 flex-shrink-0">
@@ -42,7 +42,7 @@ export const ModalSwapElement = ({
 		        label={"Cancel"}
 		        onClick={onClose}
 		      />
-		      <ButtonPrimary type={"submit"} label={"Confirm"} />
+		      <ButtonPrimary type={"submit"} label={"Confirm"} onClick={onSubmit} />
 		    </div>
 		  </div>
 		</Modal>

@@ -23,7 +23,7 @@ const GridSwapElement = ({ isSwap=false, items, toggleElement }) => {
     <>
       {elements.map((element) => (
         <CardCollapseElement
-          key={element.id}
+          key={element.name}
           title={element.name}
           total={element.elements.length}
           items={element}
