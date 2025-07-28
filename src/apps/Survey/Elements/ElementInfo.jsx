@@ -30,7 +30,6 @@ export const ElementInfo=({data, setTab})=>{
     const [depth, setDepth] = useState(0);
     const [labelForm, setLabelForm] = useState('N/A');
     const [angle, setAngle] = useState(75);
-    const [opacity, setOpacity] = useState(50);
     const [fieldColor, setFieldColor] = useState('#D9D9D9');
     const [elementColor, setElementColor] = useState('#3F444D');
     const [isDeleteElement, setIsDeleteElement] = useState(false)
@@ -49,10 +48,6 @@ export const ElementInfo=({data, setTab})=>{
     } = useMap();
 
     const {
-      selectColor,
-      setSelectColor,
-      selectBGColor,
-      setSelectBGColor,
       setMiniTab,
       miniTab
     }= useTab()
@@ -65,23 +60,17 @@ export const ElementInfo=({data, setTab})=>{
     }
   }
 
-  useEffect(()=>{
-    setFieldColor(selectBGColor)
-    setElementColor(selectColor)
-  },[selectColor, selectBGColor])
-
   useEffect(() => {
     if (selectedElement && !isInitializing.current) {
       redrawFOV(selectedElement?.markerId, {
         angle: angle, 
-        opacity: opacity, 
         rotate: fov, 
         depth: depth, 
         bgColor: fieldColor, 
         color: elementColor
       });
     }
-}, [selectedElement, angle, opacity, fov, depth, fieldColor, elementColor]);
+}, [selectedElement, angle, fov, depth, fieldColor, elementColor]);
 
   useEffect(() => {
     if (selectedElement && !isInitializing.current) {
@@ -94,7 +83,6 @@ export const ElementInfo=({data, setTab})=>{
       updateTimeoutRef.current = setTimeout(() => {
         updateElementInState(selectedElement.id, {
           angle: angle, 
-          opacity: opacity, 
           rotate: fov, 
           depth: depth, 
           bgColor: fieldColor, 
@@ -102,7 +90,7 @@ export const ElementInfo=({data, setTab})=>{
         })
       }, 300); // Update state 300ms after user stops changing values
     }
-}, [angle, opacity, fov, depth, fieldColor, elementColor]);
+}, [angle, fov, depth, fieldColor, elementColor]);
 
   useEffect(() => {
   return () => {
@@ -118,11 +106,8 @@ export const ElementInfo=({data, setTab})=>{
       setFov(selectedElement?.rotate)
       setDepth(selectedElement?.depth)
       setAngle(selectedElement?.angle)
-      setOpacity(selectedElement?.opacity)
       setFieldColor(selectedElement?.bgColor)
       setElementColor(selectedElement?.color)
-      setSelectColor(selectedElement?.color)
-      setSelectBGColor(selectedElement?.bgColor)
       setTimeout(() => { isInitializing.current = false; }, 0);
     }
   }, [selectedElement]);
@@ -135,7 +120,7 @@ export const ElementInfo=({data, setTab})=>{
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      uploadPhoto(selectedElement?.markerId, file);
+      uploadPhoto(selectedElement?.id, file);
     }
     // Reset the input value to allow selecting the same file again
     event.target.value = '';
@@ -246,24 +231,7 @@ export const ElementInfo=({data, setTab})=>{
                 />
               </div>
             </div>
-          </div>
-
-          {/* Label Form */}
-          <div className="space-y-1">
-            <label className="text-sm text-gray-800">Label Form</label>
-            <div className="p-3 bg-slate-100 rounded-lg flex items-center justify-between">
-              <select
-                value={labelForm}
-                onChange={(e) => setLabelForm(e.target.value)}
-                className="bg-transparent text-sm text-gray-800 border-none outline-none w-full"
-              >
-                <option value="N/A">N/A</option>
-                <option value="Option 1">Option 1</option>
-                <option value="Option 2">Option 2</option>
-              </select>
-              <ChevronRight className="w-5 h-5 text-zinc-500" />
-            </div>
-          </div>
+          </div>          
 
           {/* Sliders */}
           <SliderControl 
@@ -272,14 +240,6 @@ export const ElementInfo=({data, setTab})=>{
             setValue={setAngle} 
             max={360} 
             unit="°" 
-          />
-          
-          <SliderControl 
-            label="Opacity" 
-            value={opacity} 
-            setValue={setOpacity} 
-            max={100} 
-            unit="%" 
           />
 
           {/* Color Inputs */}
@@ -325,6 +285,21 @@ export const ElementInfo=({data, setTab})=>{
               </div>
             </div>
           </div>
+
+          <div className="space-y-1">
+            <label className="text-sm text-gray-800">Status</label>
+            <div className="p-3 bg-slate-100 rounded-lg flex items-center justify-between">
+              <select
+                value={labelForm}
+                onChange={(e) => setLabelForm(e.target.value)}
+                className="bg-transparent text-sm text-gray-800 border-none outline-none w-full"
+              >
+                <option value="N/A">N/A</option>
+                <option value="Option 1">Option 1</option>
+                <option value="Option 2">Option 2</option>
+              </select>
+            </div>
+          </div>
           
           <ButtonGroup>
             <Button 
@@ -356,7 +331,7 @@ export const ElementInfo=({data, setTab})=>{
               onClick={() => console.log('Quality Check clicked')}
               className="flex-1"
             >
-              Quality Check
+              Q-Check
             </Button>
           </ButtonGroup>
 

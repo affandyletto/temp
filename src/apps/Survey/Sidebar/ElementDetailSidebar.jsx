@@ -121,6 +121,7 @@ export const ElementDetailSidebar = () => {
             isOpen={tab==="swap"}
             onClose={() => setTab('main')}
             onSubmit={handleSwap}
+            isDisabled={!swapElement}
           />
 
         </div>

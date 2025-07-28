@@ -564,7 +564,7 @@ useEffect(() => {
 	 setSelectedID(duplicatedElement.id);
 	}, [selectedElement, createOptimizedMarker, createFieldOfView]);
 
-  const uploadPhoto = (markerId, photo) => {
+  const uploadPhoto = (id, photo) => {
 	  var newPic = {
 	    name: selectedElement?.name,
 	    elementId: selectedElement?.id,
@@ -573,8 +573,8 @@ useEffect(() => {
 	  }	  
 	  setPlacedElements(prev => 
 	    prev.map(el => 
-	      el.markerId === markerId 
-	        ? { ...el, photos: [...(el.photos || []), photo] }
+	      el.id === id 
+	        ? { ...el, photos: [...(el.photos || []), newPic] }
 	        : el
 	    )
 	  );

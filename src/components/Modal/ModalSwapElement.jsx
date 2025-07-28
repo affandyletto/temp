@@ -14,7 +14,9 @@ export const ModalSwapElement = ({
   isOpen,
   onClose,
   onSubmit = () => {},
+  isDisabled=false
 }) => {
+	
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} sizeModal={`w-[940px] max-h-[90vh] flex flex-col`}>
 		  <div className="flex flex-col h-full overflow-y-auto">
@@ -42,7 +44,7 @@ export const ModalSwapElement = ({
 		        label={"Cancel"}
 		        onClick={onClose}
 		      />
-		      <ButtonPrimary type={"submit"} label={"Confirm"} onClick={onSubmit} />
+		      <ButtonPrimary type={"submit"} label={"Confirm"} onClick={onSubmit} disabled={isDisabled} />
 		    </div>
 		  </div>
 		</Modal>

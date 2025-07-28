@@ -205,8 +205,6 @@ export const ElementPhotos = ({isHistory}) => {
     }
   },[selectedElement])
   
-  console.info(photos)
-  
   const handleMoreClick = (event) => {
     event.preventDefault();
     const rect = event.currentTarget.getBoundingClientRect();
@@ -232,7 +230,7 @@ export const ElementPhotos = ({isHistory}) => {
       
       // Call the uploadPhoto function with each selected file with delay
       for (const file of files) {
-        uploadPhoto(selectedElement.markerId, file);
+        uploadPhoto(selectedElement.id, file);
         // Add delay between uploads (adjust milliseconds as needed)
         await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
       }

@@ -85,6 +85,58 @@ export const mocksSuperCategories = Array.from({ length: 3 }).map((_, superIndex
   };
 });
 
+export const generateDummyData3=()=> {
+  // Helper function to generate random INTEGER within range
+  const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Helper function to generate random color
+  const randomColor = () => {
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', 
+                   '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+  // Helper function to generate random background color (lighter shades)
+  const randomBgColor = () => {
+    const bgColors = ['#FFE5E5', '#E5F9F6', '#E5F4FD', '#F0F8F0', '#FFF8E1',
+                     '#F5E6FF', '#E8F5F0', '#FDF4E3', '#F0E6F7', '#E1F0FD'];
+    return bgColors[Math.floor(Math.random() * bgColors.length)];
+  };
+
+  // Helper function to generate random camera URL
+  const randomCameraUrl = () => {
+    const cameraNumber = Math.floor(Math.random() * 5) + 1; // 1-5
+    return `/images/dummyElements/camera${cameraNumber}.png`;
+  };
+    // Each category gets 3-8 random elements
+    const elementCount = Math.floor(randomInRange(3, 9));
+    const elements = [];
+
+    for (let i = 0; i < elementCount; i++) {
+      const elementId = `E${String(i + 1).padStart(3, '0')}`;
+      
+      elements.push({
+        id: uuidv4(),
+        name: `Element ${elementId.substring(1)}`,
+        hasInitials: Math.random() > 0.5, // Random true/false
+        type: 'marker',
+        order: i + 1, // Sequential order within category
+        angle: randomInRange(0, 360), // 0-360 degrees
+        depth: randomInRange(0, 100), // 0-100 depth
+        opacity: Math.floor(Math.random() * 10 + 1) *10, // 0.1-1.0 opacity (rounded to 1 decimal)
+        color: randomColor(),
+        bgColor: randomBgColor(),
+        rotate: randomInRange(-180, 180), // -180 to 180 degrees
+        iconRotate: randomInRange(-180, 180), // -180 to 180 degrees
+        xposition: randomInRange(-500, 500), // Random X position
+        yposition: randomInRange(-500, 500), // Random Y position
+        url: randomCameraUrl() // Random camera URL
+      });
+    }
+
+  return elements;
+}
+
 
 export const generateDummyData=()=> {
   const categories = [
@@ -151,6 +203,89 @@ export const generateDummyData=()=> {
       name: category,
       elements: elements,
       id: uuidv4(),
+    };
+  });
+
+  return result;
+}
+
+export const generateDummyData2 = () => {
+  const superCategories = [
+    'Super-Category-A', 'Super-Category-B', 'Super-Category-C', 
+    'Super-Category-D', 'Super-Category-E', 'Super-Category-F'
+  ];
+
+  // Helper function to generate random INTEGER within range
+  const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Helper function to generate random color
+  const randomColor = () => {
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', 
+                   '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+  // Helper function to generate random background color (lighter shades)
+  const randomBgColor = () => {
+    const bgColors = ['#FFE5E5', '#E5F9F6', '#E5F4FD', '#F0F8F0', '#FFF8E1',
+                     '#F5E6FF', '#E8F5F0', '#FDF4E3', '#F0E6F7', '#E1F0FD'];
+    return bgColors[Math.floor(Math.random() * bgColors.length)];
+  };
+
+  // Helper function to generate random camera URL
+  const randomCameraUrl = () => {
+    const cameraNumber = Math.floor(Math.random() * 5) + 1; // 1-5
+    return `/images/dummyElements/camera${cameraNumber}.png`;
+  };
+
+  // Generate super categories with nested categories and elements
+  const result = superCategories.map((superCategory, superIndex) => {
+    // Each super category gets 2-5 categories
+    const categoryCount = randomInRange(2, 5);
+    const categories = [];
+
+    for (let catIndex = 0; catIndex < categoryCount; catIndex++) {
+      const categoryName = `${superCategory}-Category-${catIndex + 1}`;
+      
+      // Each category gets 3-8 elements
+      const elementCount = randomInRange(3, 8);
+      const elements = [];
+
+      for (let elemIndex = 0; elemIndex < elementCount; elemIndex++) {
+        const elementId = `E${String(superIndex * 100 + catIndex * 10 + elemIndex + 1).padStart(3, '0')}`;
+        
+        elements.push({
+          id: uuidv4(),
+          name: `Element ${elementId.substring(1)}`,
+          hasInitials: Math.random() > 0.5, // Random true/false
+          type: 'marker',
+          order: elemIndex + 1, // Sequential order within category
+          angle: randomInRange(0, 360), // 0-360 degrees
+          depth: randomInRange(0, 100), // 0-100 depth
+          opacity: Math.floor(Math.random() * 10 + 1) * 10, // 10-100 opacity
+          color: randomColor(),
+          bgColor: randomBgColor(),
+          rotate: randomInRange(-180, 180), // -180 to 180 degrees
+          iconRotate: randomInRange(-180, 180), // -180 to 180 degrees
+          xposition: randomInRange(-500, 500), // Random X position
+          yposition: randomInRange(-500, 500), // Random Y position
+          url: randomCameraUrl() // Random camera URL
+        });
+      }
+
+      categories.push({
+        id: uuidv4(),
+        name: categoryName,
+        elements: elements,
+        totalElements: elements.length
+      });
+    }
+
+    return {
+      id: uuidv4(),
+      name: superCategory,
+      categories: categories,
+      totalCategories: categories.length
     };
   });
 

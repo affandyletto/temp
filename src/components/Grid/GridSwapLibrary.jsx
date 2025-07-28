@@ -41,36 +41,43 @@ const GridSwapLibrary = ({ items=[], toggleElementLibrary }) => {
           total={category.totalCategories}
           items={category}
         >
-          {category.listCategories.length > 0 ? (
+          {category.categories.length > 0 ? (
             <div className="space-y-4 p-5">
-              {category.listCategories.map((element) => (
+              {category.categories.map((element) => (
                 <CardCollapseElement
-                  key={element.id}
+                  key={element.name}
                   title={element.name}
                   total={element.totalItems}
                   items={element}
                 >
                   <div className="px-3 py-4">
-                    {element.listItems.length > 0 ? (
+                    {element.elements.length > 0 ? (
                       <div className="grid grid-cols-9 gap-3">
-                        {element.listItems.map((item) => (
-                          <div
+                        {element.elements.map((item) => {
+                          const isSelected = item.isSelected
+                          return(
+                          <div 
                             key={item.id}
-                            className={`${item?.isSelected 
-	                          ? 'outline outline-1 outline-offset-[-1px] outline-[#2C6499]' 
-	                          : 'hover:bg-slate-50'
-	                        } relative flex items-center justify-center p-4 cursor-pointer
-                        rounded-lg transition-all duration-200`}
-                            onClick={()=>toggleElementLibrary(category, element, item)}
+                            className={`flex-1 px-1 py-2 bg-white rounded-lg flex flex-col justify-center items-center gap-1 hover:bg-gray-50 cursor-pointer ${isSelected 
+                                ? 'outline outline-1 outline-offset-[-1px] outline-[#2C6499]' 
+                                : 'hover:bg-slate-50'
+                              }`}
+                            draggable={true}
+                            onClick={() => toggleElementLibrary(category, element, item)}
                           >
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-center size-14 bg-primary-100 text-xs font-semibold text-primary-200 rounded-full mx-auto">
-                                {item.code}
-                              </div>
-                              <p className="text-sm">{item.name}</p>
+                            <div className="w-11 h-11 rounded-full overflow-hidden bg-[yellow]">
+                              <img 
+                                src={item.url}
+                                alt={item.name}
+                                className={`w-full h-full object-cover`}
+                              />
+                            </div>
+                            <div className="text-center text-gray-800 text-xs font-normal tracking-tight">
+                              {item.name}
                             </div>
                           </div>
-                        ))}
+                        )}
+                    )}
                       </div>
                     ) : (
                       <CardEmptyElement

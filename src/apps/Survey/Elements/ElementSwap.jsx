@@ -12,7 +12,7 @@ import {
   mocksSuperCategories,
   mocksUniversalElements,
 } from "@/data/elementManager";
-import { generateDummyData } from "@/data/elementManager"
+import { generateDummyData, generateDummyData2 } from "@/data/elementManager"
 import { useMap } from '@/context/MapContext';
 
 export const ElementSwap = ({toggleButton}) => {
@@ -29,8 +29,10 @@ export const ElementSwap = ({toggleButton}) => {
 
   useEffect(()=>{
     var datta=generateDummyData()
+    var maydatta=generateDummyData2()
+    console.info(maydatta)
     setElements(datta)
-    setSupElements(mocksSuperCategories)
+    setSupElements(maydatta)
   },[])
   
   const [isLoading, setIsLoading] = useState(true);
@@ -89,8 +91,8 @@ export const ElementSwap = ({toggleButton}) => {
     
     // First, deselect all items across all categories and elements
     newSupElements.forEach(cat => {
-      cat.listCategories.forEach(el => {
-        el.listItems.forEach(itm => {
+      cat.categories.forEach(el => {
+        el.elements.forEach(itm => {
           itm.isSelected = false;
         });
       });
@@ -98,15 +100,16 @@ export const ElementSwap = ({toggleButton}) => {
     
     // Find the target category, element, and item
     const categoryIndex = newSupElements.findIndex(x => x.id === category.id);
-    const elementIndex = newSupElements[categoryIndex].listCategories.findIndex(x => x.id === element.id);
-    const itemIndex = newSupElements[categoryIndex].listCategories[elementIndex].elements.findIndex(x => x.id === item.id);
+    const elementIndex = newSupElements[categoryIndex].categories.findIndex(x => x.id === element.id);
+    const itemIndex = newSupElements[categoryIndex].categories[elementIndex].elements.findIndex(x => x.id === item.id);
     
     // Check if this item was already selected (before we cleared all selections)
-    const wasSelected = supElements[categoryIndex].listCategories[elementIndex].elements[itemIndex].isSelected || false;
+    const wasSelected = supElements[categoryIndex].categories[elementIndex].elements[itemIndex].isSelected || false;
     
     // If it wasn't selected, select it now. If it was selected, leave it deselected
     if (!wasSelected) {
-      newSupElements[categoryIndex].listCategories[elementIndex].elements[itemIndex].isSelected = true;
+      newSupElements[categoryIndex].categories[elementIndex].elements[itemIndex].isSelected = true;
+      setSwapElement(newSupElements[categoryIndex].categories[elementIndex].elements[itemIndex])
     }
     
     setSupElements(newSupElements);

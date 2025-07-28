@@ -1,32 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, ChevronDown, ChevronRight } from 'lucide-react';
+import { generateDummyData3 } from "@/data/elementManager"
 
 export const Favorites= () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  const favoriteElements = [
-    { id: 'E01', name: 'Element 01', hasInitials: true },
-    { id: 'E02', name: 'Element 02', hasInitials: false },
-    { id: 'E03', name: 'Element 03', hasInitials: false },
-    { id: 'E04', name: 'Element 04', hasInitials: false },
-    { id: 'E05', name: 'Element 05', hasInitials: true },
-    { id: 'E06', name: 'Element 06', hasInitials: true }
-  ];
+  const [favoriteElements, setFavoriteElements] = useState([])
 
-  const ElementItem = ({ element }) => (
-    <div className="flex-1 px-1 py-2 bg-white rounded-lg flex flex-col justify-center items-center gap-1 hover:bg-gray-50 hover:scale-105 cursor-pointer transition-all duration-200 ease-in-out">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-        element.hasInitials 
-          ? 'bg-blue-50 text-cyan-700 text-xs font-semibold hover:bg-blue-100 hover:shadow-md' 
-          : 'bg-slate-200 hover:bg-slate-300'
-      }`}>
-        {element.hasInitials && element.id}
+  useEffect(()=>{
+    const temp=generateDummyData3()
+    setFavoriteElements(temp)
+  },[])
+
+  const handleDragStart = (e, element) => {
+    // Set the data to transfer
+    const elementData = element
+    
+    e.dataTransfer.setData('application/json', JSON.stringify(elementData));
+    e.dataTransfer.effectAllowed = 'copy';
+    
+    // Create custom drag image
+    const dragImage = document.createElement('div');
+    dragImage.style.cssText = `
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: absolute;
+      top: -1000px;
+      left: -1000px;
+      background: white;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = element.url;
+    img.alt = element.name;
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+    
+    dragImage.appendChild(img);
+    document.body.appendChild(dragImage);
+    
+    // Set the custom drag image
+    e.dataTransfer.setDragImage(dragImage, 20, 20);
+    
+    // Clean up the temporary element after a short delay
+    setTimeout(() => {
+      if (document.body.contains(dragImage)) {
+        document.body.removeChild(dragImage);
+      }
+    }, 0);
+    
+    // Make the original element semi-transparent
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    // Restore opacity after drag ends
+    e.currentTarget.style.opacity = '1';
+  };
+
+  const ElementItem = ({ element, index }) => {
+    // Show initials for some elements (like 1st, 5th, 6th elements)
+    const showInitials = [0, 4, 5].includes(index);
+    const initials = element.name ? element.name.substring(0, 3).toUpperCase() : 'E' + String(index + 1).padStart(2, '0');
+    
+    return (
+      <div 
+        className="flex-1 px-1 py-2 bg-white rounded-lg flex flex-col justify-center items-center gap-1 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
+        draggable={true}
+        onDragStart={(e) => handleDragStart(e, element)}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="w-10 h-10 relative rounded-full overflow-hidden">
+          {showInitials ? (
+            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+              <div className="text-cyan-700 text-[10px] font-semibold leading-none tracking-tight">
+                {initials}
+              </div>
+            </div>
+          ) : element.url ? (
+            <img 
+              src={element.url}
+              alt={element.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-slate-200 rounded-full"></div>
+          )}
+        </div>
+        <div className="text-center text-gray-800 text-[10px] font-normal leading-none tracking-tight">
+          {element.name}
+        </div>
       </div>
-      <div className="text-center text-gray-800 text-xs font-normal tracking-tight">
-        {element.name}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 flex flex-col overflow-hidden">
@@ -66,7 +132,7 @@ export const Favorites= () => {
                 }`}
                 style={{ transitionDelay: `${index * 50}ms` }}
               >
-                <ElementItem element={element} />
+                <ElementItem element={element} index={index} />
               </div>
             ))}
           </div>
@@ -81,7 +147,7 @@ export const Favorites= () => {
                 }`}
                 style={{ transitionDelay: `${(index + 3) * 50}ms` }}
               >
-                <ElementItem element={element} />
+                <ElementItem element={element} index={index} />
               </div>
             ))}
           </div>
