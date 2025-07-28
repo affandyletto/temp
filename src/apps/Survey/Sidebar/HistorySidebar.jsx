@@ -1,4 +1,4 @@
-import { Plus, Search, MoreVertical, ChevronRight, ArchiveRestore, Pencil, Trash2, X } from 'lucide-react'
+import { Plus, Search, MoreVertical, ChevronRight, ArchiveRestore, Pencil, Trash2, History, X } from 'lucide-react'
 import InputSearch from "@/components/Form/InputSearch";
 import React, { useState, useEffect } from 'react';
 import ButtonSecondary from "@/components/Button/ButtonSecondary";
@@ -196,7 +196,12 @@ export const HistorySidebar=({versionParam})=>{
 	                      name: "Rename",
 	                      icon: Pencil,
 	                      onClick: () => setIsEditAlbumOpen(true),
-	                    },
+	                    },{
+                        id: uuidv4(),
+                        name: "Audit Log",
+                        icon: History,
+                        onClick: () => setIsEditAlbumOpen(true),
+                      },
 	                    {
 	                      id: uuidv4(),
 	                      name: "Restore",

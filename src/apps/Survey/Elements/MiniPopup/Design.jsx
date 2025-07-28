@@ -1,29 +1,87 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronDown, Plus, Minus, X } from 'lucide-react';
 import { SliderControl } from "@/components/Form/SliderControl"
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { useMap } from '@/context/MapContext';
 
-export const Design = () => {
+export const Design = ({onClose}) => {
+  const {
+      selectedElement,
+      updateElementInState   
+    } = useMap();
   const { toggleParameter, getParam } = useUrlParams();
   const [isVisible, setIsVisible] = useState(false);
+  
+  const designInfo = selectedElement?.info?.design;
   const [formData, setFormData] = useState({
-    order: '21',
-    label: 'Input label',
-    elementDegree: 0,
-    category: 'N/A',
-    descriptiveLocation: 'Input description location',
-    elementHeight: '0',
-    mountingSurface: 'Exterior Wall',
-    budgetLaborCost: '0'
+    order: designInfo?.order || '21',
+    label: designInfo?.label || '',
+    elementDegree: designInfo?.elementDegree || 0,
+    category: designInfo?.category || 'N/A',
+    descriptiveLocation: designInfo?.descriptiveLocation || '',
+    elementHeight: designInfo?.elementHeight || '0',
+    mountingSurface: designInfo?.mountingSurface || 'Exterior Wall',
+    budgetLaborCost: designInfo?.budgetLaborCost || '0'
   });
 
   const [showMountingDropdown, setShowMountingDropdown] = useState(false);
+  
+  // Debounce timer ref
+  const debounceTimerRef = useRef(null);
+  const DEBOUNCE_DELAY = 500; // 500ms delay
+
+  // Update formData when selectedElement changes
+  useEffect(() => {
+    const newDesignInfo = selectedElement?.info?.design;
+    setFormData({
+      order: newDesignInfo?.order || '21',
+      label: newDesignInfo?.label || '',
+      elementDegree: newDesignInfo?.elementDegree || 0,
+      category: newDesignInfo?.category || 'N/A',
+      descriptiveLocation: newDesignInfo?.descriptiveLocation || '',
+      elementHeight: newDesignInfo?.elementHeight || '0',
+      mountingSurface: newDesignInfo?.mountingSurface || 'Exterior Wall',
+      budgetLaborCost: newDesignInfo?.budgetLaborCost || '0'
+    });
+    
+    // Clear any pending debounced updates when switching elements
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+  }, [selectedElement]);
 
   // Animation effect - component appears on mount
   useEffect(() => {
     // Small delay to trigger CSS animation
     const timer = setTimeout(() => setIsVisible(true), 10);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Debounced update function
+  const debouncedUpdate = useCallback((updatedData) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (selectedElement?.id) {
+        updateElementInState(selectedElement.id, {
+          info: {
+            ...selectedElement.info,
+            design: updatedData
+          }
+        });
+      }
+    }, DEBOUNCE_DELAY);
+  }, [selectedElement, updateElementInState]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, []);
 
   const categories = [
@@ -44,24 +102,61 @@ export const Design = () => {
   ];
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
+    const updatedFormData = {
+      ...formData,
       [field]: value
-    }));
+    };
+    
+    setFormData(updatedFormData);
+    
+    // Trigger debounced update
+    debouncedUpdate(updatedFormData);
   };
 
   const handleCategorySelect = (category) => {
-    setFormData(prev => ({
-      ...prev,
+    const updatedFormData = {
+      ...formData,
       category: category
-    }));
+    };
+    
+    setFormData(updatedFormData);
+    
+    // Trigger debounced update
+    debouncedUpdate(updatedFormData);
+  };
+
+  const handleMountingSurfaceSelect = (surface) => {
+    const updatedFormData = {
+      ...formData,
+      mountingSurface: surface
+    };
+    
+    setFormData(updatedFormData);
+    setShowMountingDropdown(false);
+    
+    // Trigger debounced update
+    debouncedUpdate(updatedFormData);
   };
 
   const handleClose = () => {
+    // Clear any pending debounced updates before closing
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      // Immediately save current state before closing
+      if (selectedElement?.id) {
+        updateElementInState(selectedElement.id, {
+          info: {
+            ...selectedElement.info,
+            design: formData
+          }
+        });
+      }
+    }
+    
     setIsVisible(false);
     // Delay the actual close to allow exit animation
     setTimeout(() => {
-      toggleParameter("more", "design");
+      onClose();
     }, 200);
   };
 
@@ -100,7 +195,6 @@ export const Design = () => {
               onChange={(e) => handleInputChange('order', e.target.value)}
               className="flex-1 bg-transparent text-gray-800 text-sm font-normal font-['Inter'] leading-snug tracking-tight outline-none"
             />
-            <ChevronDown size={20} className="text-zinc-500" />
           </div>
         </div>
 
@@ -112,6 +206,7 @@ export const Design = () => {
           <div className="min-h-11 p-3 bg-slate-100 rounded-lg flex items-center">
             <input
               type="text"
+              placeholder="Input label"
               value={formData.label}
               onChange={(e) => handleInputChange('label', e.target.value)}
               className="flex-1 bg-transparent text-gray-800 text-sm font-normal font-['Inter'] leading-snug tracking-tight outline-none"
@@ -166,6 +261,7 @@ export const Design = () => {
             <input
               type="text"
               value={formData.descriptiveLocation}
+              placeholder="Input description location"
               onChange={(e) => handleInputChange('descriptiveLocation', e.target.value)}
               className="flex-1 bg-transparent text-gray-800 text-sm font-normal font-['Inter'] leading-snug tracking-tight outline-none"
             />
@@ -205,10 +301,7 @@ export const Design = () => {
                 {mountingSurfaces.map((surface) => (
                   <button
                     key={surface}
-                    onClick={() => {
-                      handleInputChange('mountingSurface', surface);
-                      setShowMountingDropdown(false);
-                    }}
+                    onClick={() => handleMountingSurfaceSelect(surface)}
                     className="w-full p-3 text-left text-sm hover:bg-slate-50 first:rounded-t-lg last:rounded-b-lg transition-colors"
                   >
                     {surface}

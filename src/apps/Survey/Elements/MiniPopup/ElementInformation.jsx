@@ -1,17 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { useMap } from '@/context/MapContext';
 
-export const ElementInformation = () => {
+export const ElementInformation = ({onClose}) => {
+  const {
+      selectedElement,
+      updateElementInState   
+    } = useMap();
   const { toggleParameter, getParam } = useUrlParams();
   const [isVisible, setIsVisible] = useState(false);
+  
+  const elementInfo = selectedElement?.info?.elementInformation;
   const [formData, setFormData] = useState({
-    label: '',
-    serialNumber: '',
-    switchNumber: '',
-    switchPortNumber: '',
-    mdfIdf: ''
+    label: elementInfo?.label || '',
+    serialNumber: elementInfo?.serialNumber || '',
+    switchNumber: elementInfo?.switchNumber || '',
+    switchPortNumber: elementInfo?.switchPortNumber || '',
+    mdfIdf: elementInfo?.mdfIdf || ''
   });
+
+  // Debounce timer ref
+  const debounceTimerRef = useRef(null);
+  const DEBOUNCE_DELAY = 500; // 500ms delay
+
+  // Update formData when selectedElement changes
+  useEffect(() => {
+    const newElementInfo = selectedElement?.info?.elementInformation;
+    setFormData({
+      label: newElementInfo?.label || '',
+      serialNumber: newElementInfo?.serialNumber || '',
+      switchNumber: newElementInfo?.switchNumber || '',
+      switchPortNumber: newElementInfo?.switchPortNumber || '',
+      mdfIdf: newElementInfo?.mdfIdf || ''
+    });
+    
+    // Clear any pending debounced updates when switching elements
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+  }, [selectedElement]);
 
   // Animation effect - component appears on mount
   useEffect(() => {
@@ -20,19 +48,64 @@ export const ElementInformation = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Debounced update function
+  const debouncedUpdate = useCallback((updatedData) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (selectedElement?.id) {
+        updateElementInState(selectedElement.id, {
+          info: {
+            ...selectedElement.info,
+            elementInformation: updatedData
+          }
+        });
+      }
+    }, DEBOUNCE_DELAY);
+  }, [selectedElement, updateElementInState]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
+    const updatedFormData = {
+      ...formData,
       [field]: value
-    }));
+    };
+    
+    setFormData(updatedFormData);
+    
+    // Trigger debounced update
+    debouncedUpdate(updatedFormData);
   };
 
   const handleClose = () => {
+    // Clear any pending debounced updates before closing
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      // Immediately save current state before closing
+      if (selectedElement?.id) {
+        updateElementInState(selectedElement.id, {
+          info: {
+            ...selectedElement.info,
+            elementInformation: formData
+          }
+        });
+      }
+    }
+    
     setIsVisible(false);
     // Delay the actual close to allow exit animation
     setTimeout(() => {
-      toggleParameter("more", "elementInformation");
-      console.log('Component closed');
+      onClose("")
     }, 200);
   };
 

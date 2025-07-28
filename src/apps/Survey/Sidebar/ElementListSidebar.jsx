@@ -8,7 +8,7 @@ export const ElementListSidebar = ({ isCollapsed, onDragStart}) => {
   const [filteredElements, setFilteredElements] = useState([])
   const {
     placedElements,
-    setSelectedElement
+    setSelectedID
   } = useMap();
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export const ElementListSidebar = ({ isCollapsed, onDragStart}) => {
                   className={`pb-2 bg-white border-b border-slate-200 cursor-pointer hover:bg-gray-50 transition-colors select-none ${
                     draggedElement?.markerId === element.markerId ? 'opacity-50' : ''
                   }`}
-                  onClick={() => setSelectedElement(element)}
+                  onClick={() => setSelectedID(element.id)}
                 >
                   <div className="flex items-center gap-2">
                     <div className="flex-1 flex items-center gap-2.5">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Topnav } from "@/apps/Survey/Topnav";
 import { LibrarySidebar } from "@/apps/Survey/Sidebar/LibrarySidebar";
@@ -11,8 +11,10 @@ import { Design } from "@/apps/Survey/Elements/MiniPopup/Design";
 import { InstallationAccess } from "@/apps/Survey/Elements/MiniPopup/InstallationAccess";
 import { ElementInformation } from "@/apps/Survey/Elements/MiniPopup/ElementInformation";
 import { ColorSelection } from "@/apps/Survey/Elements/MiniPopup/ColorSelection";
+import { SurveySettings } from "@/apps/Survey/Elements/MiniPopup/SurveySettings";
 import { LeafletMap } from "./LeafletMap";
 import { useMap } from '@/context/MapContext';
+import { useTab } from '@/context/TabContext';
 
 import "@/apps/Survey/survey.css";
 
@@ -21,8 +23,14 @@ export const Survey = () => {
   const [isCollapsedLeft, setIsCollapsedLeft] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [versionParam, setVersionParam] = useState(null);
-  const [moreParam, setMoreParam] = useState(null);
 
+  // Refs for click outside detection
+  const miniPopupRef = useRef(null);
+
+  const {
+    miniTab,
+    setMiniTab
+  } = useTab();
 
   const {
     selectedElement
@@ -33,10 +41,8 @@ export const Survey = () => {
     const checkUrlParams = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const versionValue = urlParams.get('version');
-      const moreValue = urlParams.get('more');
       
       setVersionParam(versionValue);
-      setMoreParam(moreValue);
       
       // Show version history only if 'version' parameter is present
       setShowVersionHistory(versionValue !== null);
@@ -59,6 +65,23 @@ export const Survey = () => {
     };
   }, []);
 
+  // Click outside handler for mini popups
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (miniPopupRef.current && !miniPopupRef.current.contains(event.target)) {
+        setMiniTab("");
+      }
+    };
+
+    // Only add event listener if there's an active miniTab
+    if (miniTab) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [miniTab, setMiniTab]);
+
   // Handle drag start from sidebar
   const handleElementDragStart = useCallback((element) => {
     console.log('Drag started for element:', element);
@@ -79,7 +102,7 @@ export const Survey = () => {
   return (
     <div className="survey-container h-screen flex flex-col">
       {/* Topnav with higher z-index and proper positioning */}
-      <div className="relative z-[100] bg-white shadow-sm">
+      <div className="relative z-[10] bg-white shadow-sm">
         <Topnav onBack={onBack}/>
       </div>
       
@@ -94,7 +117,7 @@ export const Survey = () => {
           )}
           
           {/* Left sidebar toggle button */}
-          <div className={`absolute ${isCollapsedRight ? 'left-0' : 'left-72'} top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-in-out z-[60]`}>
+          <div className={`absolute ${isCollapsedRight ? 'left-0' : 'left-72'} top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-in-out z-[20]`}>
             <button 
               onClick={toggleCollapsedRight}
               className="w-6 h-24 bg-white rounded-r-3xl border-r border-t border-b border-slate-200 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm"
@@ -124,25 +147,32 @@ export const Survey = () => {
         
         {selectedElement && (
             <>
-              {moreParam === "design" ? (
-                <div className="absolute top-5 right-[300px] z-[100]">
-                  <Design/>
+              {miniTab === "design" ? (
+                <div className="absolute top-5 right-[300px] z-[10]">
+                  <Design onClose={()=>setMiniTab("")}/>
                 </div>
-              ) : moreParam === "installationAccess" ? (
-                <div className="absolute top-5 right-[300px] z-[100]">
-                  <InstallationAccess/>
+              ) : miniTab === "installationAccess" ? (
+                <div className="absolute top-5 right-[300px] z-[10]">
+                  <InstallationAccess onClose={()=>setMiniTab("")}/>
                 </div>
-              ) : moreParam === "elementInformation" ? (
-                <div className="absolute top-5 right-[300px] z-[100]">
-                  <ElementInformation/>
+              ) : miniTab === "elementInformation" ? (
+                <div className="absolute top-5 right-[300px] z-[10]">
+                  <ElementInformation onClose={()=>setMiniTab("")} />
                 </div>
-              ) : (moreParam === "bgColor"||moreParam === "color") ? (
-                <div className="absolute top-5 right-[300px] z-[100]">
-                  <ColorSelection type={moreParam}/>
+              ) : (miniTab === "bgColor"||miniTab === "color") ? (
+                <div className="absolute top-5 right-[300px] z-[10]" ref={miniPopupRef}>
+                  <ColorSelection onClose={()=>setMiniTab("")} type={miniTab}/>
                 </div>
               ): null}
             </>
           )}
+
+        {(miniTab === "surveySettings") && (
+          <div className="absolute top-5 right-[300px] z-[10]">
+            <SurveySettings onClose={()=>setMiniTab("")} />
+          </div>
+        )}
+        
         {/* Right Sidebar */}
         <div className={`${isCollapsedLeft ? 'w-0' : 'w-72'} bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden relative z-50`}>
           {selectedElement && !showVersionHistory ? (

@@ -17,75 +17,77 @@ export const useMap = () => {
 
 // Map Provider component
 export const MapProvider = ({ children }) => {
-
-
-
   const placedElementsRef = useRef([]);
+  const [survey, setSurvey]=useState(null)
   const [placedElements, setPlacedElements] = useState([]);
+  const [selectedID, setSelectedID]=useState(null)
   const [selectedElement, setSelectedElement] = useState(null)
   const [isInitialDrown, setIsInitialDrown] = useState(false)
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
+  const surveyRef = useRef(null);
   const updateTimeoutRef = useRef(null);
   const fovLayersRef = useRef([]); // Store FOV visualization layers
   const imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80";
 
-  useEffect(() => {
-	  placedElementsRef.current = placedElements;
-	}, [placedElements]);
 
-  // Create custom icon function - memoized for better performance
-  // Create custom icon function - memoized for better performance
-const createCustomIcon = useCallback((elementData, isSelected = false) => {
-  const borderColor = isSelected ? 'green' : 'white';
-  
-  const iconHtml = `
-    <img 
-      src="${elementData.url}"
-      alt="${elementData.name}"
-      style="
-      object-fit: cover; 
-      pointer-events: none;
-      background-color:${elementData.color};
-      width: 40px !important;
-      height: 40px !important;
-      border-radius: 50% !important;
-      overflow: hidden !important;
-      border: 2px solid ${borderColor} !important;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-      cursor: move !important;
-      will-change: transform !important;
-      backface-visibility: hidden !important;"
-    />
-  `;
-  
-  return L.divIcon({
-    html: iconHtml,
-    className: 'custom-div-icon circular-icon',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20]
-  });
+  useEffect(() => {
+  		console.info(placedElements)
+	  placedElementsRef.current = placedElements;
+	  if(selectedID){
+		  const selectedEl = placedElements.find(x => x.id === selectedID);
+		  setSelectedElement(selectedEl);
+	  	}
+	}, [placedElements, selectedID]);
+
+ const initialLoad=()=>{
+ 	setSurvey({
+ 		elementSize:30
+ 	})
+ }
+ useEffect(() => {
+  surveyRef.current = survey;
+}, [survey]);
+
+ const updateSurvey = useCallback((newSettings) => {
+  setSurvey(prev => ({
+    ...prev,
+    ...newSettings
+  }));
 }, []);
 
-  // Optimized drag end handler with debouncing
-  const handleMarkerDragEnd = useCallback((e) => {
-    const position = e.target.getLatLng();
-    const markerId = e.target._leaflet_id;
-    
-	selectingElement(markerId)
-    requestAnimationFrame(() => {
-      setPlacedElements(prev => 
-        prev.map(el => 
-          el.markerId === markerId 
-            ? { ...el, position: [position.lat, position.lng] }
-            : el
-        )
-      );
-    });
-  }, []);
+const createCustomIcon = useCallback((elementData, isSelected = false) => {
+ const borderColor = isSelected ? 'green' : 'white';
+ const iconHtml = `
+   <img 
+     src="${elementData.url}"
+     alt="${elementData.name}"
+     style="
+     object-fit: cover; 
+     pointer-events: none;
+     background-color:${elementData.color};
+     width: ${surveyRef.current?.elementSize||'40'}px !important;
+     height: ${surveyRef.current?.elementSize||'40'}px !important;
+     border-radius: 50% !important;
+     overflow: hidden !important;
+     border: 2px solid ${borderColor} !important;
+     box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+     cursor: move !important;
+     will-change: transform !important;
+     backface-visibility: hidden !important;"
+   />
+ `;
+ 
+ return L.divIcon({
+     html: iconHtml,
+     className: 'custom-div-icon circular-icon',
+     iconSize: [surveyRef.current?.elementSize || 40, surveyRef.current?.elementSize || 40],
+     iconAnchor: [(surveyRef.current?.elementSize || 40)/2, (surveyRef.current?.elementSize || 40)/2],
+     popupAnchor: [0, -(surveyRef.current?.elementSize || 40)/2]
+   });
+}, []);
 
-  const createFieldOfView = useCallback((elementData) => {
+const createFieldOfView = useCallback((elementData) => {
     if (!mapInstanceRef.current) return null;
     const { rotate = 75, depth = 100, angle = 0, bgColor = '#3F444D', opacity } = elementData;
     
@@ -135,6 +137,104 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
     return { polygon: fovPolygon };
   }, []);
 
+const redrawFOV = useCallback((markerId, data) => {
+	  // Early returns for validation
+	  const marker = markersRef.current.find(m => m._leaflet_id === markerId);
+	  if (!marker || !mapInstanceRef.current) {
+	    console.warn('Marker or map not found');
+	    return;
+	  }
+
+	  const currentPosition = marker.getLatLng();
+	  const element = placedElementsRef.current.find(el => el.markerId === markerId);
+	  if (!element) {
+	    console.warn(`Element with markerId ${markerId} not found`);
+	    return;
+	  }
+
+	  // Remove existing FOV layer
+	  const existingLayerIndex = fovLayersRef.current.findIndex(
+	    layerGroup => layerGroup.elementId === element.id
+	  );
+	  
+	  if (existingLayerIndex !== -1) {
+	    const existingLayer = fovLayersRef.current[existingLayerIndex];
+	    if (mapInstanceRef.current.hasLayer(existingLayer.polygon)) {
+	      mapInstanceRef.current.removeLayer(existingLayer.polygon);
+	    }
+	    fovLayersRef.current.splice(existingLayerIndex, 1);
+	  }
+
+	  // Create updated element data (for FOV visualization only)
+	  const updatedElement = {
+	    ...element,
+	    ...data,
+	    position: [currentPosition.lat, currentPosition.lng]
+	  };
+
+	  // Create and add new FOV visualization
+	  const newFOV = createFieldOfView(updatedElement);
+	  if (newFOV) {
+	    fovLayersRef.current.push({
+	      ...newFOV,
+	      elementId: element.id
+	    });
+	  }
+
+}, [createFieldOfView]);
+
+ const redrawAllElements = useCallback(() => {
+  if (!mapInstanceRef.current) return;
+  
+  // Update all marker icons with current survey elementSize
+  markersRef.current.forEach(marker => {
+    const markerId = marker._leaflet_id;
+    const elementData = placedElements.find(el => el.markerId === markerId);
+    if (elementData) {
+      // Create new icon with survey elementSize
+      const elementWithSurveySize = {
+        ...elementData,
+        elementSize: survey.elementSize
+      };
+      const isSelected = selectedElement && selectedElement.markerId === markerId;
+      const newIcon = createCustomIcon(elementWithSurveySize, isSelected);
+      marker.setIcon(newIcon);
+    }
+  });
+
+  // Redraw all FOV layers with current survey elementSize
+  placedElements.forEach(element => {
+    if (element.markerId) {
+      redrawFOV(element.markerId, { elementSize: survey.elementSize });
+    }
+  });
+}, [placedElements, selectedElement, survey?.elementSize, createCustomIcon, redrawFOV]);
+
+
+
+ useEffect(()=>{
+ 	initialLoad()
+ },[])
+
+
+
+  // Optimized drag end handler with debouncing
+  const handleMarkerDragEnd = useCallback((e) => {
+    const position = e.target.getLatLng();
+    const markerId = e.target._leaflet_id;
+    
+	selectingElement(markerId)
+    requestAnimationFrame(() => {
+      setPlacedElements(prev => 
+        prev.map(el => 
+          el.markerId === markerId 
+            ? { ...el, position: [position.lat, position.lng] }
+            : el
+        )
+      );
+    });
+  }, []);
+
 
   const initialDrawingFields = useCallback(() => {
     if (!mapInstanceRef.current||isInitialDrown) return;
@@ -155,75 +255,27 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
     });
 
     setIsInitialDrown(true)
-  }, [placedElements, createFieldOfView]);
+  }, [isInitialDrown]);
 
-  useEffect(() => {
-  	if(placedElements&&placedElements.length>0){
-      // initialDrawingFields();
-  	}
-  }, [placedElements, initialDrawingFields]);
 
   
-  const redrawFOV = useCallback((markerId, data) => {	
-	  const marker = markersRef.current.find(m => m._leaflet_id === markerId);
-	  if (!marker) {
-	    console.warn(`Marker with id ${markerId} not found`);
-	    return;
-	  }
-	  
-	  if (!mapInstanceRef.current) {
-	    console.warn('Map not initialized');
-	    return;
-	  }
+  
 
-	  const currentPosition = marker.getLatLng();
-	  
-	  // Get element from current state using a state updater function
-	  setPlacedElements(currentElements => {
-	    const element = currentElements.find(el => el.markerId === markerId);
-	    if (!element) {
-	      console.warn(`Element with markerId ${markerId} not found`);
-	      return currentElements; // Return unchanged if not found
-	    }
-	    
-	    // Find and remove existing FOV layer
-	    const existingLayerIndex = fovLayersRef.current.findIndex(layerGroup => 
-	      layerGroup.elementId === element.id
-	    );
-	    
-	    if (existingLayerIndex !== -1) {
-	      const existingLayer = fovLayersRef.current[existingLayerIndex];
-	      if (mapInstanceRef.current.hasLayer(existingLayer.polygon)) {
-	        mapInstanceRef.current.removeLayer(existingLayer.polygon);
-	      }
-	      fovLayersRef.current.splice(existingLayerIndex, 1);
-	    }
-	    
-	    // Create updated element data with current position
-	    const updatedElement = {
-	      ...element,
-	      ...data,
-	      position: [currentPosition.lat, currentPosition.lng]
-	    };
-	    
-	    // Create new FOV visualization
-	    const newFOV = createFieldOfView(updatedElement);
-	    if (newFOV) {
-	      fovLayersRef.current.push({
-	        ...newFOV,
-	        elementId: element.id
-	      });
-	    }
-	    
-	    return currentElements; // Return unchanged elements array
-	  });
-	}, [createFieldOfView]); // Remove placedElements from dependencies!
+  const updateElementInState = useCallback((id, data) => {
+	  setPlacedElements(prev => 
+	    prev.map(el => 
+	      el.id === id 
+	        ? { ...el, ...data }
+	        : el
+	    )
+	  );
+	}, []);
 
   const selectingElement=(markerId)=>{
   	// Use the ref to get current state
 	  const currentElements = placedElementsRef.current;
 	  const selectedEl = currentElements.find(x => x.markerId === markerId);
-	  setSelectedElement(selectedEl);
+	  setSelectedID(selectedEl.id);
   }
 
   // Optimized drag handler for smoother movement
@@ -341,13 +393,13 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
         markerId: newMarker._leaflet_id,
         id:uuidv4()
       };
-      setSelectedElement(newPlacedElement)
+      setSelectedID(newPlacedElement.id)
       setPlacedElements(prev => {
         const qq = [...prev, newPlacedElement];
         return qq;
       });
       
-      console.log('Element placed:', newPlacedElement);
+
       
     } catch (error) {
       console.error('Error handling element drop:', error);
@@ -382,28 +434,47 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
   }, []);
 
   // Remove element by ID
-  const removeElement = useCallback((elementId) => {
-    const elementToRemove = placedElements.find(el => el.id === elementId);
-    if (!elementToRemove) return;
+  // Fixed deleteElement function
+	const deleteElement = useCallback(() => {
+	  if (!selectedElement) return;
 
-    // Remove marker from map
-    const markerIndex = markersRef.current.findIndex(marker => 
-      marker._leaflet_id === elementToRemove.markerId
-    );
-    
-    if (markerIndex !== -1) {
-      const marker = markersRef.current[markerIndex];
-      marker.off('drag', handleMarkerDrag);
-      marker.off('dragend', handleMarkerDragEnd);
-      if (mapInstanceRef.current && mapInstanceRef.current.hasLayer(marker)) {
-        mapInstanceRef.current.removeLayer(marker);
-      }
-      markersRef.current.splice(markerIndex, 1);
-    }
+	  const elementToRemove = placedElements.find(el => el.id === selectedElement?.id);
+	  if (!elementToRemove) return;
 
-    // Remove from state
-    setPlacedElements(prev => prev.filter(el => el.id !== elementId));
-  }, [placedElements, handleMarkerDrag, handleMarkerDragEnd]);
+	  // Remove marker from map
+	  const markerIndex = markersRef.current.findIndex(marker => 
+	    marker._leaflet_id === elementToRemove.markerId
+	  );
+	  
+	  if (markerIndex !== -1) {
+	    const marker = markersRef.current[markerIndex];
+	    marker.off('drag', handleMarkerDrag);
+	    marker.off('dragend', handleMarkerDragEnd);
+	    marker.off('click', handleClick); // Also remove click handler
+	    if (mapInstanceRef.current && mapInstanceRef.current.hasLayer(marker)) {
+	      mapInstanceRef.current.removeLayer(marker);
+	    }
+	    markersRef.current.splice(markerIndex, 1);
+	  }
+
+	  // MISSING: Remove FOV layer associated with this element
+	  const fovLayerIndex = fovLayersRef.current.findIndex(layerGroup => 
+	    layerGroup.elementId === elementToRemove.id
+	  );
+	  
+	  if (fovLayerIndex !== -1) {
+	    const fovLayer = fovLayersRef.current[fovLayerIndex];
+	    if (mapInstanceRef.current && mapInstanceRef.current.hasLayer(fovLayer.polygon)) {
+	      mapInstanceRef.current.removeLayer(fovLayer.polygon);
+	    }
+	    fovLayersRef.current.splice(fovLayerIndex, 1);
+	  }
+
+	  // Remove from state
+	  setPlacedElements(prev => prev.filter(el => el.id !== selectedElement?.id));
+	  setSelectedElement(null);
+	  setSelectedID(null)
+	}, [selectedElement, handleMarkerDrag, handleMarkerDragEnd, handleClick]); // Added handleClick to dependencies
 
   // Clear all elements
   const clearAllElements = useCallback(() => {
@@ -484,7 +555,7 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
 	 }
 	 
 	 setPlacedElements(prev => [...prev, duplicatedElement]);
-	 setSelectedElement(duplicatedElement);
+	 setSelectedID(duplicatedElement.id);
 	}, [selectedElement, createOptimizedMarker, createFieldOfView]);
 
   const uploadPhoto = (markerId, photo) => {
@@ -493,14 +564,7 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
 	    elementId: selectedElement?.id,
 	    elementName: selectedElement?.name,
 	    picture: URL.createObjectURL(photo)
-	  }
-	  
-	  // Use functional update to get the current state
-	  setSelectedElement(prev => ({
-	    ...prev, 
-	    photos: [...(prev.photos || []), newPic]
-	  }));
-	  
+	  }	  
 	  setPlacedElements(prev => 
 	    prev.map(el => 
 	      el.markerId === markerId 
@@ -519,18 +583,22 @@ const createCustomIcon = useCallback((elementData, isSelected = false) => {
     setSelectedElement,
     duplicateElement,
     uploadPhoto,
+    updateElementInState,
     // Map instance
     mapInstanceRef,
-    
+    setSelectedID,
     // Core functions
     initializeMap,
     handleElementDrop,
     addMarkerStyles,
     cleanup,
     redrawFOV,
+    survey,
+	  updateSurvey,
+	  redrawAllElements,
     
     // Additional utilities
-    removeElement,
+    deleteElement,
     clearAllElements,
     
     // Data

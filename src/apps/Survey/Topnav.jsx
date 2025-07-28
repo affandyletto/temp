@@ -1,4 +1,5 @@
 import { MoreHorizontal, Eye, History, FileText, Settings, Download, Layers, ArrowLeft, Info } from "lucide-react";
+import { useTab } from '@/context/TabContext';
 
 const ActionButton = ({ icon: Icon, label, onClick }) => {
   return (
@@ -33,6 +34,20 @@ export const Topnav = ({ onBack }) => {
     window.dispatchEvent(new Event('urlchange'));
   };
 
+  const {
+    miniTab,
+    setMiniTab
+  } = useTab();
+
+  const toggleMiniTab=(data)=>{
+    console.info(data)
+    if(miniTab===data){
+      setMiniTab("")
+    }else{
+      setMiniTab(data)
+    }
+  }
+
   return (
     <>
       <div className="w-full px-5 py-3 bg-white border-b border-gray-300 flex justify-between items-center">
@@ -53,8 +68,7 @@ export const Topnav = ({ onBack }) => {
         <div className="flex items-center gap-3">
           <ActionButton icon={Eye} label="Visibility Filter" />
           <ActionButton icon={Layers} label="Version History" onClick={handleHistoryClick}/>
-          <ActionButton icon={History} label="Audit Log" />
-          <ActionButton icon={Settings} label="Survey Setting" />
+          <ActionButton icon={Settings} label="Survey Setting" onClick={()=>toggleMiniTab("surveySettings")}/>
           <ActionButton icon={Download} label="Export" />
         </div>
       </div>

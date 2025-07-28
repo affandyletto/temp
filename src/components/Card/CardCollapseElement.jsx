@@ -22,6 +22,7 @@ const CardCollapseElement = ({
   items,
   total = 0,
   children,
+  isSwap=false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [element, setElement] = useState([]);
@@ -80,41 +81,44 @@ const CardCollapseElement = ({
               </span>
             </div>
           </div>
-          <DropdownMenu
-            menu={[
-              {
-                id: uuidv4(),
-                name: "Accessories",
-                icon: CircleDollarSign,
-                onClick: () => setIsAccessories(true),
-              },
-              {
-                id: uuidv4(),
-                name: "Mass Upload",
-                icon: Upload,
-                onClick: () => setIsMassUpload(true),
-              },
-              {
-                id: uuidv4(),
-                name: "Add Element",
-                icon: Plus,
-                onClick: () => setIsAddOpen(true),
-              },
-              {
-                id: uuidv4(),
-                name: "Edit",
-                icon: Pencil,
-                onClick: () => setIsEditOpen(true),
-              },
-              {
-                id: uuidv4(),
-                name: "Delete",
-                icon: Trash2,
-                isRed: true,
-                onClick: () => handleDelete(element.id),
-              },
-            ]}
-          />
+          {!isSwap&&
+            <DropdownMenu
+              menu={[
+                {
+                  id: uuidv4(),
+                  name: "Accessories",
+                  icon: CircleDollarSign,
+                  onClick: () => setIsAccessories(true),
+                },
+                {
+                  id: uuidv4(),
+                  name: "Mass Upload",
+                  icon: Upload,
+                  onClick: () => setIsMassUpload(true),
+                },
+                {
+                  id: uuidv4(),
+                  name: "Add Element",
+                  icon: Plus,
+                  onClick: () => setIsAddOpen(true),
+                },
+                {
+                  id: uuidv4(),
+                  name: "Edit",
+                  icon: Pencil,
+                  onClick: () => setIsEditOpen(true),
+                },
+                {
+                  id: uuidv4(),
+                  name: "Delete",
+                  icon: Trash2,
+                  isRed: true,
+                  onClick: () => handleDelete(element.id),
+                },
+              ]}
+            />
+          }
+          
         </div>
 
         <div

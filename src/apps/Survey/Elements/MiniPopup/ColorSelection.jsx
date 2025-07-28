@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useTab } from '@/context/TabContext';
 import { useUrlParams } from "@/hooks/useUrlParams";
 
-export const ColorSelection = ({ type }) => {
+export const ColorSelection = ({ type, onClose }) => {
     const { toggleParameter } = useUrlParams();
     const {
         selectColor,
@@ -23,9 +23,7 @@ export const ColorSelection = ({ type }) => {
                     zIndex: 10
                 }}
                 size={20}
-                onClick={() => {
-                    toggleParameter("more",type)
-                }}
+                onClick={onClose}
             />
             {type === "bgColor" ? 
                 <Sketch

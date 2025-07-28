@@ -33,10 +33,10 @@ export const ElementDetailSidebar = () => {
 
   const {
     selectedElement,
+    setSelectedID,
     setSelectedElement
   } = useMap();
 
-  
   const handleSwap=()=>{
 
   }
@@ -60,7 +60,7 @@ export const ElementDetailSidebar = () => {
 
         {tab==="main"&&
           <button
-            onClick={() => setSelectedElement?.(null)}
+            onClick={() => {setSelectedID?.(null); setSelectedElement(null);}}
             className="p-1 hover:bg-slate-100 rounded"
           >
             <X className="w-5 h-5 text-zinc-500" />
@@ -77,7 +77,10 @@ export const ElementDetailSidebar = () => {
           <div className="space-y-1">
             <label className="text-sm text-gray-800">Element Label</label>
             <div className="p-3 bg-slate-100 rounded-lg">
-              <span className="text-sm text-zinc-500">Input label</span>
+              <input 
+                className="text-sm text-zinc-500 bg-transparent border-none outline-none w-full" 
+                placeholder="Input label"
+              />
             </div>
           </div>
           

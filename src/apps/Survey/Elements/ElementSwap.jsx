@@ -12,6 +12,7 @@ import {
   mocksSuperCategories,
   mocksUniversalElements,
 } from "@/data/elementManager";
+import { generateDummyData } from "@/data/elementManager"
 
 export const ElementSwap = ({toggleButton}) => {
   const [elements, setElements] = useState([])
@@ -21,7 +22,9 @@ export const ElementSwap = ({toggleButton}) => {
   const dropdownRef = useRef(null);
 
   useEffect(()=>{
-    setElements(mocksUniversalElements)
+    var datta=generateDummyData()
+    console.info(datta)
+    setElements(datta)
     setSupElements(mocksSuperCategories)
   },[])
   
@@ -40,21 +43,21 @@ export const ElementSwap = ({toggleButton}) => {
     
     // First, deselect all items across all elements
     newElements.forEach(el => {
-      el.listItems.forEach(itm => {
+      el.elements.forEach(itm => {
         itm.isSelected = false;
       });
     });
     
     // Find the target element and item
     const elementIndex = newElements.findIndex(x => x.id === element.id);
-    const itemIndex = newElements[elementIndex].listItems.findIndex(x => x.id === item.id);
+    const itemIndex = newElements[elementIndex].elements.findIndex(x => x.id === item.id);
     
     // Check if this item was already selected (before we cleared all selections)
-    const wasSelected = elements[elementIndex].listItems[itemIndex].isSelected || false;
+    const wasSelected = elements[elementIndex].elements[itemIndex].isSelected || false;
     
     // If it wasn't selected, select it now. If it was selected, leave it deselected
     if (!wasSelected) {
-      newElements[elementIndex].listItems[itemIndex].isSelected = true;
+      newElements[elementIndex].elements[itemIndex].isSelected = true;
     }
     
     setElements(newElements);
@@ -91,14 +94,14 @@ export const ElementSwap = ({toggleButton}) => {
     // Find the target category, element, and item
     const categoryIndex = newSupElements.findIndex(x => x.id === category.id);
     const elementIndex = newSupElements[categoryIndex].listCategories.findIndex(x => x.id === element.id);
-    const itemIndex = newSupElements[categoryIndex].listCategories[elementIndex].listItems.findIndex(x => x.id === item.id);
+    const itemIndex = newSupElements[categoryIndex].listCategories[elementIndex].elements.findIndex(x => x.id === item.id);
     
     // Check if this item was already selected (before we cleared all selections)
-    const wasSelected = supElements[categoryIndex].listCategories[elementIndex].listItems[itemIndex].isSelected || false;
+    const wasSelected = supElements[categoryIndex].listCategories[elementIndex].elements[itemIndex].isSelected || false;
     
     // If it wasn't selected, select it now. If it was selected, leave it deselected
     if (!wasSelected) {
-      newSupElements[categoryIndex].listCategories[elementIndex].listItems[itemIndex].isSelected = true;
+      newSupElements[categoryIndex].listCategories[elementIndex].elements[itemIndex].isSelected = true;
     }
     
     setSupElements(newSupElements);
@@ -129,9 +132,9 @@ export const ElementSwap = ({toggleButton}) => {
             </div>
           </div>
           {activeTab === 0 ? (
-            <GridSwapElement isLoading={isLoading} items={paginatedUniversal} toggleElement={toggleElement}/>
+            <GridSwapElement isSwap={true} isLoading={isLoading} items={paginatedUniversal} toggleElement={toggleElement}/>
           ) : (
-            <GridSwapLibrary items={paginatedMyLibary} toggleElementLibrary={toggleElementLibrary}/>
+            <GridSwapLibrary isSwap={true} items={paginatedMyLibary} toggleElementLibrary={toggleElementLibrary}/>
           )}
           
         </div>

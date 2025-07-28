@@ -21,6 +21,7 @@ import { SliderControl } from "@/components/Form/SliderControl"
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { useMap } from '@/context/MapContext';
 import { useTab } from '@/context/TabContext';
+import ModalConfirm from "@/components/Modal/ModalConfirm";
 
 
 export const ElementInfo=({data, setTab})=>{
@@ -32,25 +33,37 @@ export const ElementInfo=({data, setTab})=>{
     const [opacity, setOpacity] = useState(50);
     const [fieldColor, setFieldColor] = useState('#D9D9D9');
     const [elementColor, setElementColor] = useState('#3F444D');
+    const [isDeleteElement, setIsDeleteElement] = useState(false)
     const fileInputRef = useRef(null);
     const isInitializing = useRef(false);
+    const updateTimeoutRef = useRef(null);
 
     const {
       selectedElement,
-      setSelectedElement,
       placedElements,
-      setPlacedElements,
       redrawFOV,
       duplicateElement,   
-      uploadPhoto   
+      uploadPhoto,
+      deleteElement,
+      updateElementInState   
     } = useMap();
 
     const {
       selectColor,
       setSelectColor,
       selectBGColor,
-      setSelectBGColor
+      setSelectBGColor,
+      setMiniTab,
+      miniTab
     }= useTab()
+
+  const toggleMiniTab=(data)=>{
+    if(data===miniTab){
+      setMiniTab("")
+    }else{
+      setMiniTab(data)
+    }
+  }
 
   useEffect(()=>{
     setFieldColor(selectBGColor)
@@ -58,25 +71,46 @@ export const ElementInfo=({data, setTab})=>{
   },[selectColor, selectBGColor])
 
   useEffect(() => {
-      if (selectedElement && !isInitializing.current) {
-        redrawFOV(selectedElement?.markerId, {angle:angle, opacity:opacity, rotate:fov, depth:depth})
-        setPlacedElements(prevElements => 
-            prevElements.map(element => 
-                element.markerId === selectedElement.markerId 
-                    ? {
-                        ...element,
-                        rotate: fov,
-                        depth: depth,
-                        angle: angle,
-                        opacity: opacity,
-                        color:elementColor,
-                        bgColor:fieldColor
-                    }
-                    : element
-            )
-        );
+    if (selectedElement && !isInitializing.current) {
+      redrawFOV(selectedElement?.markerId, {
+        angle: angle, 
+        opacity: opacity, 
+        rotate: fov, 
+        depth: depth, 
+        bgColor: fieldColor, 
+        color: elementColor
+      });
+    }
+}, [selectedElement, angle, opacity, fov, depth, fieldColor, elementColor]);
+
+  useEffect(() => {
+    if (selectedElement && !isInitializing.current) {
+      // Clear existing timeout
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
       }
-  }, [angle, opacity, fov, depth, fieldColor, elementColor]);
+      
+      // Set new timeout to update state after user stops changing values
+      updateTimeoutRef.current = setTimeout(() => {
+        updateElementInState(selectedElement.id, {
+          angle: angle, 
+          opacity: opacity, 
+          rotate: fov, 
+          depth: depth, 
+          bgColor: fieldColor, 
+          color: elementColor 
+        })
+      }, 300); // Update state 300ms after user stops changing values
+    }
+}, [angle, opacity, fov, depth, fieldColor, elementColor]);
+
+  useEffect(() => {
+  return () => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+  };
+}, []);
 
     // Check if design parameter is active on component mount
   useEffect(() => {
@@ -254,7 +288,7 @@ export const ElementInfo=({data, setTab})=>{
               <label className="text-sm text-gray-800">Field Color</label>
               <div className="p-3 bg-slate-100 rounded-lg flex items-center gap-2"                  
                 onClick={()=>{
-                    toggleParameter('more', 'bgColor');
+                    toggleMiniTab('bgColor');
                   }}
                 >
                 <div
@@ -278,7 +312,7 @@ export const ElementInfo=({data, setTab})=>{
                   className="w-5 h-5 rounded border"
                   style={{ backgroundColor: elementColor }}
                   onClick={()=>{
-                    toggleParameter('more', 'color');
+                    toggleMiniTab('color');
                   }}
                 />
                 <input
@@ -295,14 +329,14 @@ export const ElementInfo=({data, setTab})=>{
           <ButtonGroup>
             <Button 
               icon={Edit} 
-              onClick={()=>toggleParameter('more', 'design')}
+              onClick={()=>toggleMiniTab('design')}
               className={`flex-1`}
             >
               Design
             </Button>
             <Button 
               icon={Palette} 
-               onClick={()=>toggleParameter("more", "installationAccess")}
+               onClick={()=>toggleMiniTab("installationAccess")}
               className="flex-1"
             >
               Installation
@@ -312,7 +346,7 @@ export const ElementInfo=({data, setTab})=>{
           <ButtonGroup>
             <Button 
               icon={CheckSquare} 
-              onClick={() => toggleParameter("more", "elementInformation")}
+              onClick={() => toggleMiniTab("elementInformation")}
               className="flex-1"
             >
               Element
@@ -330,11 +364,19 @@ export const ElementInfo=({data, setTab})=>{
           <Button 
             icon={Trash2} 
             variant="danger"
-            onClick={() => console.log('Delete clicked')}
+            onClick={() => setIsDeleteElement(true)}
             className="w-full"
           >
             Delete
           </Button>
+
+      <ModalConfirm
+        isOpen={isDeleteElement}
+        onClose={() => setIsDeleteElement(false)}
+        onConfirm={deleteElement}
+        title={`Do you want to remove this element?`}
+        message="This action will remove the selected element"
+      />
     </>
   )
 }

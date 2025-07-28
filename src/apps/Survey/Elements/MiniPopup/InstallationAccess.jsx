@@ -1,21 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronDown, Calendar, X } from 'lucide-react';
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { useMap } from '@/context/MapContext';
 
-export const InstallationAccess = () => {
+export const InstallationAccess = ({onClose}) => {
+  const {
+      selectedElement,
+      updateElementInState   
+    } = useMap();
   const { toggleParameter, getParam } = useUrlParams();
   const [isVisible, setIsVisible] = useState(false);
+  
+  const installationAccess = selectedElement?.info?.installationAccess;
   const [formData, setFormData] = useState({
-    assigned: 'Prime Vendor / Contractor',
-    installedOn: '',
-    installedBy: '',
-    technicianAssigned: '',
-    estimatedInstallationTime: '',
-    technicianTypeRequired: '',
-    specificInstallationNotes: ''
+    assigned: installationAccess?.assigned || 'Prime Vendor / Contractor',
+    installedOn: installationAccess?.installedOn || '',
+    installedBy: installationAccess?.installedBy || '',
+    technicianAssigned: installationAccess?.technicianAssigned || '',
+    estimatedInstallationTime: installationAccess?.estimatedInstallationTime || '',
+    technicianTypeRequired: installationAccess?.technicianTypeRequired || '',
+    specificInstallationNotes: installationAccess?.specificInstallationNotes || ''
   });
 
-  const [accessRequirements, setAccessRequirements] = useState('');
+  const [accessRequirements, setAccessRequirements] = useState(installationAccess?.accessRequirements || '');
+  
+  // Update formData when selectedElement changes
+  useEffect(() => {
+    const newInstallationAccess = selectedElement?.info?.installationAccess;
+    setFormData({
+      assigned: newInstallationAccess?.assigned || 'Prime Vendor / Contractor',
+      installedOn: newInstallationAccess?.installedOn || '',
+      installedBy: newInstallationAccess?.installedBy || '',
+      technicianAssigned: newInstallationAccess?.technicianAssigned || '',
+      estimatedInstallationTime: newInstallationAccess?.estimatedInstallationTime || '',
+      technicianTypeRequired: newInstallationAccess?.technicianTypeRequired || '',
+      specificInstallationNotes: newInstallationAccess?.specificInstallationNotes || ''
+    });
+    setAccessRequirements(newInstallationAccess?.accessRequirements || '');
+    
+    // Clear any pending debounced updates when switching elements
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+  }, [selectedElement]);
+  
+  // Debounce timer ref
+  const debounceTimerRef = useRef(null);
+  const DEBOUNCE_DELAY = 500; // 500ms delay
 
   // Animation effect - component appears on mount
   useEffect(() => {
@@ -24,22 +55,80 @@ export const InstallationAccess = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Debounced update function
+  const debouncedUpdate = useCallback((updatedData) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (selectedElement?.id) {
+        updateElementInState(selectedElement.id, {
+          info: {
+            ...selectedElement.info,
+            installationAccess: updatedData
+          }
+        });
+      }
+    }, DEBOUNCE_DELAY);
+  }, [selectedElement, updateElementInState]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
+    const updatedFormData = {
+      ...formData,
       [field]: value
-    }));
+    };
+    
+    setFormData(updatedFormData);
+    
+    // Trigger debounced update
+    debouncedUpdate(updatedFormData);
   };
 
   const handleAccessRequirementChange = (requirement) => {
     setAccessRequirements(requirement);
+    
+    // Create updated data including access requirements
+    const updatedData = {
+      ...formData,
+      accessRequirements: requirement
+    };
+    
+    // Trigger debounced update
+    debouncedUpdate(updatedData);
   };
 
   const handleClose = () => {
+    // Clear any pending debounced updates before closing
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      // Immediately save current state before closing
+      if (selectedElement?.id) {
+        updateElementInState(selectedElement.id, {
+          info: {
+            ...selectedElement.info,
+            installationAccess: {
+              ...formData,
+              accessRequirements
+            }
+          }
+        });
+      }
+    }
+    
     setIsVisible(false);
     // Delay the actual close to allow exit animation
     setTimeout(() => {
-      toggleParameter("more", "installationAccess");
+      onClose("")
     }, 200);
   };
 
