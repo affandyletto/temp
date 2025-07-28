@@ -40,6 +40,7 @@ const GridSwapLibrary = ({ items=[], toggleElementLibrary }) => {
           title={category.name}
           total={category.totalCategories}
           items={category}
+          isSwap={true}
         >
           {category.categories.length > 0 ? (
             <div className="space-y-4 p-5">
@@ -49,6 +50,7 @@ const GridSwapLibrary = ({ items=[], toggleElementLibrary }) => {
                   title={element.name}
                   total={element.totalItems}
                   items={element}
+          isSwap={true}
                 >
                   <div className="px-3 py-4">
                     {element.elements.length > 0 ? (

@@ -13,6 +13,7 @@ const CardCollapseSuper = ({
   items,
   total = 0,
   children,
+  isSwap=false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [element, setElement] = useState(null);
@@ -69,29 +70,32 @@ const CardCollapseSuper = ({
               </span>
             </div>
           </div>
-          <DropdownMenu
-            menu={[
-              {
-                id: uuidv4(),
-                name: "Add Category",
-                icon: Plus,
-                onClick: () => setIsAddOpen(true),
-              },
-              {
-                id: uuidv4(),
-                name: "Edit",
-                icon: Pencil,
-                onClick: () => setIsEditOpen(true),
-              },
-              {
-                id: uuidv4(),
-                name: "Delete",
-                icon: Trash2,
-                isRed: true,
-                onClick: () => handleDelete(element.id),
-              },
-            ]}
-          />
+          {!isSwap&&
+            <DropdownMenu
+              menu={[
+                {
+                  id: uuidv4(),
+                  name: "Add Category",
+                  icon: Plus,
+                  onClick: () => setIsAddOpen(true),
+                },
+                {
+                  id: uuidv4(),
+                  name: "Edit",
+                  icon: Pencil,
+                  onClick: () => setIsEditOpen(true),
+                },
+                {
+                  id: uuidv4(),
+                  name: "Delete",
+                  icon: Trash2,
+                  isRed: true,
+                  onClick: () => handleDelete(element.id),
+                },
+              ]}
+            />
+          }
+          
         </div>
 
         <div

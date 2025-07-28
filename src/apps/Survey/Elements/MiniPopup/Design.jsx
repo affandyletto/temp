@@ -15,7 +15,6 @@ export const Design = ({onClose}) => {
   const designInfo = selectedElement?.info?.design;
   const [formData, setFormData] = useState({
     order: designInfo?.order || '21',
-    label: designInfo?.label || '',
     elementDegree: designInfo?.elementDegree || 0,
     category: designInfo?.category || 'N/A',
     descriptiveLocation: designInfo?.descriptiveLocation || '',
@@ -35,7 +34,6 @@ export const Design = ({onClose}) => {
     const newDesignInfo = selectedElement?.info?.design;
     setFormData({
       order: newDesignInfo?.order || '21',
-      label: newDesignInfo?.label || '',
       elementDegree: newDesignInfo?.elementDegree || 0,
       category: newDesignInfo?.category || 'N/A',
       descriptiveLocation: newDesignInfo?.descriptiveLocation || '',
@@ -193,22 +191,6 @@ export const Design = ({onClose}) => {
               type="text"
               value={formData.order}
               onChange={(e) => handleInputChange('order', e.target.value)}
-              className="flex-1 bg-transparent text-gray-800 text-sm font-normal font-['Inter'] leading-snug tracking-tight outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Label Field */}
-        <div className="flex flex-col gap-1">
-          <label className="text-gray-800 text-sm font-normal font-['Inter'] leading-snug tracking-tight">
-            Label
-          </label>
-          <div className="min-h-11 p-3 bg-slate-100 rounded-lg flex items-center">
-            <input
-              type="text"
-              placeholder="Input label"
-              value={formData.label}
-              onChange={(e) => handleInputChange('label', e.target.value)}
               className="flex-1 bg-transparent text-gray-800 text-sm font-normal font-['Inter'] leading-snug tracking-tight outline-none"
             />
           </div>
