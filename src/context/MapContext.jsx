@@ -393,11 +393,15 @@ useEffect(() => {
       
       // Add to our tracking arrays
       markersRef.current.push(newMarker);
+      const existingWithSameName = placedElementsRef.current.filter(el => el.name === elementData.name);
+      const order = existingWithSameName.length > 0 ? existingWithSameName.length + 1 : 1;
+
       const newPlacedElement = {
         ...elementData,
         position: [latLng.lat, latLng.lng],
         markerId: newMarker._leaflet_id,
-        id:uuidv4()
+        id: uuidv4(),
+        order: order
       };
       setSelectedID(newPlacedElement.id)
       setPlacedElements(prev => {
@@ -480,22 +484,28 @@ useEffect(() => {
 	  setPlacedElements(prev => prev.filter(el => el.id !== selectedElement?.id));
 	  setSelectedElement(null);
 	  setSelectedID(null)
-	}, [selectedElement, handleMarkerDrag, handleMarkerDragEnd, handleClick]); // Added handleClick to dependencies
 
-  // Clear all elements
-  const clearAllElements = useCallback(() => {
-    // Remove all markers from map
-    markersRef.current.forEach(marker => {
-      marker.off('drag', handleMarkerDrag);
-      marker.off('dragend', handleMarkerDragEnd);
-      if (mapInstanceRef.current && mapInstanceRef.current.hasLayer(marker)) {
-        mapInstanceRef.current.removeLayer(marker);
+    setPlacedElements(prev => {
+      const filtered = prev.filter(el => el.id !== selectedElement?.id);
+      
+      // Reorder elements with same name as deleted element
+      const deletedElementName = selectedElement?.name;
+      if (deletedElementName) {
+        return filtered.map(el => {
+          if (el.name === deletedElementName) {
+            const sameNameElements = filtered
+              .filter(item => item.name === deletedElementName)
+              .sort((a, b) => (a.order || 1) - (b.order || 1));
+            const newOrder = sameNameElements.findIndex(item => item.id === el.id) + 1;
+            return { ...el, order: newOrder };
+          }
+          return el;
+        });
       }
+      
+      return filtered;
     });
-    
-    markersRef.current = [];
-    setPlacedElements([]);
-  }, [handleMarkerDrag, handleMarkerDragEnd]);
+	}, [selectedElement, handleMarkerDrag, handleMarkerDragEnd, handleClick]);
 
   // Cleanup function
   const cleanup = useCallback(() => {
@@ -539,12 +549,16 @@ useEffect(() => {
 	 const currentElements = placedElementsRef.current;
 	 const selectedEl = currentElements.find(x => x.markerId === selectedElement.markerId);
 
-	 const duplicatedElement = {
-	   ...selectedEl,
-	   id: uuidv4(),
-	   position: [selectedEl.position[0], selectedEl.position[1] + 40]
-	 };
-	 
+	 const existingWithSameName = currentElements.filter(el => el.name === selectedEl.name);
+    const order = existingWithSameName.length + 1;
+
+    const duplicatedElement = {
+      ...selectedEl,
+      id: uuidv4(),
+      position: [selectedEl.position[0], selectedEl.position[1] + 40],
+      order: order
+    };
+
 	 const newMarker = createOptimizedMarker(duplicatedElement.position, duplicatedElement);
 	 if (!newMarker) return;
 	 
@@ -606,9 +620,7 @@ useEffect(() => {
 	  redrawAllElements,
     
     // Additional utilities
-    deleteElement,
-    clearAllElements,
-    
+    deleteElement,    
     // Data
     imageUrl
   };

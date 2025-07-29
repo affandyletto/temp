@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, ChevronDown, ChevronRight } from 'lucide-react';
 import { generateDummyData3 } from "@/data/elementManager"
+import { ElementItem } from "@/components/ElementItem"
 
 export const Favorites= () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -10,90 +11,7 @@ export const Favorites= () => {
     const temp=generateDummyData3()
     setFavoriteElements(temp)
   },[])
-
-  const handleDragStart = (e, element) => {
-    // Set the data to transfer
-    const elementData = element
-    
-    e.dataTransfer.setData('application/json', JSON.stringify(elementData));
-    e.dataTransfer.effectAllowed = 'copy';
-    
-    // Create custom drag image
-    const dragImage = document.createElement('div');
-    dragImage.style.cssText = `
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      overflow: hidden;
-      position: absolute;
-      top: -1000px;
-      left: -1000px;
-      background: white;
-    `;
-    
-    const img = document.createElement('img');
-    img.src = element.url;
-    img.alt = element.name;
-    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-    
-    dragImage.appendChild(img);
-    document.body.appendChild(dragImage);
-    
-    // Set the custom drag image
-    e.dataTransfer.setDragImage(dragImage, 20, 20);
-    
-    // Clean up the temporary element after a short delay
-    setTimeout(() => {
-      if (document.body.contains(dragImage)) {
-        document.body.removeChild(dragImage);
-      }
-    }, 0);
-    
-    // Make the original element semi-transparent
-    e.currentTarget.style.opacity = '0.5';
-  };
-
-  const handleDragEnd = (e) => {
-    // Restore opacity after drag ends
-    e.currentTarget.style.opacity = '1';
-  };
-
-  const ElementItem = ({ element, index }) => {
-    // Show initials for some elements (like 1st, 5th, 6th elements)
-    const showInitials = [0, 4, 5].includes(index);
-    const initials = element.name ? element.name.substring(0, 3).toUpperCase() : 'E' + String(index + 1).padStart(2, '0');
-    
-    return (
-      <div 
-        className="flex-1 px-1 py-2 bg-white rounded-lg flex flex-col justify-center items-center gap-1 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
-        draggable={true}
-        onDragStart={(e) => handleDragStart(e, element)}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="w-10 h-10 relative rounded-full overflow-hidden">
-          {showInitials ? (
-            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-              <div className="text-cyan-700 text-[10px] font-semibold leading-none tracking-tight">
-                {initials}
-              </div>
-            </div>
-          ) : element.url ? (
-            <img 
-              src={element.url}
-              alt={element.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 bg-slate-200 rounded-full"></div>
-          )}
-        </div>
-        <div className="text-center text-gray-800 text-[10px] font-normal leading-none tracking-tight">
-          {element.name}
-        </div>
-      </div>
-    );
-  };
-
+  
   return (
     <div className="bg-white rounded-xl border border-slate-200 flex flex-col overflow-hidden">
       {/* Header */}

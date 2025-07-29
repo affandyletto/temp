@@ -14,7 +14,7 @@ export const Design = ({onClose}) => {
   
   const designInfo = selectedElement?.info?.design;
   const [formData, setFormData] = useState({
-    order: designInfo?.order || '21',
+    order: selectedElement?.order || '21',
     elementDegree: designInfo?.elementDegree || 0,
     category: designInfo?.category || 'N/A',
     descriptiveLocation: designInfo?.descriptiveLocation || '',
@@ -33,7 +33,7 @@ export const Design = ({onClose}) => {
   useEffect(() => {
     const newDesignInfo = selectedElement?.info?.design;
     setFormData({
-      order: newDesignInfo?.order || '21',
+      order: selectedElement?.order || '21',
       elementDegree: newDesignInfo?.elementDegree || 0,
       category: newDesignInfo?.category || 'N/A',
       descriptiveLocation: newDesignInfo?.descriptiveLocation || '',
@@ -64,6 +64,7 @@ export const Design = ({onClose}) => {
     debounceTimerRef.current = setTimeout(() => {
       if (selectedElement?.id) {
         updateElementInState(selectedElement.id, {
+          order:updatedData.order,
           info: {
             ...selectedElement.info,
             design: updatedData
