@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useRef, useCallback, useEff
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { v4 as uuidv4 } from "uuid";
+import { useProject } from '@/context/ProjectContext';
 
 // Create the context
 const MapContext = createContext();
@@ -17,8 +18,9 @@ export const useMap = () => {
 
 // Map Provider component
 export const MapProvider = ({ children }) => {
+  const {survey, setSurvey, surveyRef, updateSurvey} = useProject()
+
   const placedElementsRef = useRef([]);
-  const [survey, setSurvey]=useState(null)
   const [placedElements, setPlacedElements] = useState([]);
   const [selectedID, setSelectedID]=useState(null)
   const [selectedElement, setSelectedElement] = useState(null)
@@ -26,36 +28,18 @@ export const MapProvider = ({ children }) => {
   const [swapElement, setSwapElement] = useState(null)
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
-  const surveyRef = useRef(null);
   const updateTimeoutRef = useRef(null);
   const fovLayersRef = useRef([]); // Store FOV visualization layers
   const imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80";
 
 
   useEffect(() => {
-  		console.info(placedElements)
 	  placedElementsRef.current = placedElements;
 	  if(selectedID){
 		  const selectedEl = placedElements.find(x => x.id === selectedID);
 		  setSelectedElement(selectedEl);
 	  	}
 	}, [placedElements, selectedID]);
-
- const initialLoad=()=>{
- 	setSurvey({
- 		elementSize:30
- 	})
- }
- useEffect(() => {
-  surveyRef.current = survey;
-}, [survey]);
-
- const updateSurvey = useCallback((newSettings) => {
-  setSurvey(prev => ({
-    ...prev,
-    ...newSettings
-  }));
-}, []);
 
 const createCustomIcon = useCallback((elementData, isSelected = false) => {
  const borderColor = isSelected ? 'green' : 'white';
@@ -217,13 +201,6 @@ useEffect(() => {
     redrawAllElements();
   }
 }, [survey?.elementSize, redrawAllElements]);
-
- useEffect(()=>{
- 	initialLoad()
- },[])
-
-
-
   // Optimized drag end handler with debouncing
   const handleMarkerDragEnd = useCallback((e) => {
     const position = e.target.getLatLng();
