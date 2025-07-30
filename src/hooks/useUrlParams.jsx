@@ -22,7 +22,6 @@ export const useUrlParams = () => {
     // Listen for URL changes
     const handleUrlChange = () => {
       console.info("URL CHANGE");
-      // Add a small delay to ensure the URL has been updated
       setTimeout(() => {
         checkUrlParams();
       }, 0);
@@ -35,12 +34,11 @@ export const useUrlParams = () => {
     };
   }, []);
 
-  const toggleParameter = (param, value) => {
+  const toggleParameter = (param, value, shouldToggling=true) => {
     const url = new URL(window.location);
     const urlParams = url.searchParams;
     
-    if (urlParams.has(param) && urlParams.get(param) === value) {
-      // Remove the parameter
+    if (urlParams.has(param) && urlParams.get(param) === value && shouldToggling) {      
       urlParams.delete(param);
     } else {
       // Add the parameter

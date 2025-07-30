@@ -270,11 +270,6 @@ export const ColorSelection = ({ type = 'bgColor', onClose }) => {
 
       {/* Controls */}
       <div className="flex gap-2">
-        {/* Eyedropper Tool */}
-        <div className="p-3 bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-900 flex justify-center items-center">
-          <Pipette size={20} className="text-gray-800" />
-        </div>
-
         {/* Sliders */}
         <div className="flex-1 flex flex-col gap-3">
           {/* Hue Slider */}

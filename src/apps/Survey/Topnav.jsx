@@ -1,5 +1,6 @@
 import { MoreHorizontal, Eye, History, FileText, Settings, Download, Layers, ArrowLeft, Info } from "lucide-react";
 import { useTab } from '@/context/TabContext';
+import { useProject } from '@/context/ProjectContext';
 
 const ActionButton = ({ icon: Icon, label, onClick }) => {
   return (
@@ -16,23 +17,9 @@ const ActionButton = ({ icon: Icon, label, onClick }) => {
 };
 
 export const Topnav = ({ onBack }) => {
-  const handleHistoryClick = () => {
-    const url = new URL(window.location);
-    
-    // Check if the version parameter exists
-    if (url.searchParams.has('version')) {
-      // Remove the parameter if it exists
-      url.searchParams.delete('version');
-    } else {
-      // Add the parameter if it doesn't exist
-      url.searchParams.set('version', '01');
-    }
-    
-    // Update the URL without page reload
-    window.history.pushState({}, '', url);
-    
-    window.dispatchEvent(new Event('urlchange'));
-  };
+  const {
+    handleHistoryClick
+  } = useProject();
 
   const {
     miniTab,

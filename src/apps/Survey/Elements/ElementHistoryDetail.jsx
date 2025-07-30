@@ -3,9 +3,18 @@ import { ElementHistoryInformation } from "@/apps/Survey/Elements/ElementHistory
 import SurveyComment from "@/components/Section/SurveyComment"
 import ToggleTabs from "@/components/Toggle/ToggleTabs";
 import React, { useState } from 'react';
+import { useMap } from '@/context/MapContext';
+import { 
+  X
+} from 'lucide-react';
 
 export const ElementHistoryDetail = () => {
 	const [activeTab, setActiveTab] = useState(0)
+	const {
+	    selectedElement,
+	    setSelectedID,
+	    setSelectedElement
+	  } = useMap();
 	
 	const renderTabContent = () => {
 		switch (activeTab) {
@@ -30,7 +39,12 @@ export const ElementHistoryDetail = () => {
 		          <h2 className="text-base font-bold text-gray-800">Element-02</h2>
 		          <p className="text-xs text-zinc-500">ID: 63115</p>
 		        </div>
-
+		        <button
+		            onClick={() => {setSelectedID?.(null); setSelectedElement(null);}}
+		            className="p-1 hover:bg-slate-100 rounded"
+		          >
+		            <X className="w-5 h-5 text-zinc-500" />
+		          </button>
 		      </div>
 
 		      {/* Scrollable Content */}

@@ -5,115 +5,71 @@ import ButtonSecondary from "@/components/Button/ButtonSecondary";
 import DropdownMenu from "@/components/Dropdown/DropdownMenu";
 import { v4 as uuidv4 } from "uuid";
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { useProject } from '@/context/ProjectContext';
+import { useMap } from '@/context/MapContext';
+import BasicFormModal from '@/components/Modal/BasicFormModal'
+import ModalConfirm from '@/components/Modal/ModalConfirm'
+import { useNavigate } from "react-router-dom";
 
 export const HistorySidebar=({versionParam})=>{
+  const navigate = useNavigate();
+  const {
+    surveys, 
+    selectedSurvey, 
+    setSurveys,
+    renameVersion,
+    restoreVersion,
+    deleteVersion
+} = useProject()
+
+const {
+  addVersion,
+} = useMap()
+
   const { toggleParameter, getParam } = useUrlParams();
-  const versions = [
-    {
-      id: 1,
-      name: "Version 01",
-      author: "Miftahul Faizin",
-      date: "October 24, 2024, 10:30 AM",
-      isCurrent: true
-    },
-    {
-      id: 2,
-      name: "Version 02", 
-      author: "Miftahul Faizin",
-      date: "October 23, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 3,
-      name: "Version 03",
-      author: "Miftahul Faizin", 
-      date: "October 22, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 4,
-      name: "Version 04",
-      author: "Miftahul Faizin",
-      date: "October 21, 2024, 10:30 AM", 
-      isCurrent: false
-    },
-    {
-      id: 5,
-      name: "Version 05",
-      author: "Miftahul Faizin",
-      date: "October 20, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 6,
-      name: "Version 06",
-      author: "Miftahul Faizin",
-      date: "October 19, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 7,
-      name: "Version 07",
-      author: "Miftahul Faizin", 
-      date: "October 18, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 8,
-      name: "Version 08",
-      author: "Miftahul Faizin",
-      date: "October 17, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 9,
-      name: "Version 07",
-      author: "Miftahul Faizin", 
-      date: "October 18, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 10,
-      name: "Version 08",
-      author: "Miftahul Faizin",
-      date: "October 17, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 11,
-      name: "Version 07",
-      author: "Miftahul Faizin", 
-      date: "October 18, 2024, 10:30 AM",
-      isCurrent: false
-    },
-    {
-      id: 12,
-      name: "Version 08",
-      author: "Miftahul Faizin",
-      date: "October 17, 2024, 10:30 AM",
-      isCurrent: false
-    }
-  ]
-
-  const [search, setSearch]=useState("")
+  const [versions, setVersions] = useState([])
   const [selectedVersion, setSelectedVersion] = useState(null)
+  const [search, setSearch]=useState("")
+  const [modals, setModals]=useState({
+    add:false,
+    rename:false
+  })
 
-  useEffect(()=>{ 
-    if(versionParam){
-      var ver=versions.find(x=>x.id.toString()===versionParam.toString())
-      if(ver?.id){
-        setSelectedVersion(ver)
-      }else{
-        setSelectedVersion(versions[0])
-      }
-    }
-  },[versionParam])
+  useEffect(()=>{
+    setVersions(surveys.filter(x=>x.name===selectedSurvey?.name))
+  },[surveys])
 
   const changeVersion=(version)=>{
-    toggleParameter("version", version.id);
+    var qq=getParam('version')
+    if(qq){
+      navigate(`/survey/${version?.id}?version=${version?.versionName}`)
+    }else{
+      navigate(`/survey/${version?.id}`)
+    }
+  }
+
+  const handleAddVersion=async(name)=>{
+    const newsurv=await addVersion(name)
+    changeVersion(newsurv)
+    setModals({...modals, add:false})
+  }
+
+  const handleRename=(name)=>{
+    renameVersion(selectedVersion.id, name)
+    setModals({...modals, rename:false})
+  }
+
+  const handleRestore=()=>{
+    restoreVersion(selectedVersion?.id)
+    navigate(`/survey/${selectedVersion?.id}?version=${selectedVersion?.versionName}`)
+  }
+
+  const handleDelete=()=>{
+    deleteVersion(selectedVersion?.id)
   }
 
   return (
+    <>
     <div className="w-full h-screen bg-white border-r border-slate-200 flex flex-col relative">
       {/* Header */}
       <div className="p-4 border-b border-slate-100">
@@ -128,7 +84,7 @@ export const HistorySidebar=({versionParam})=>{
         </div>
         
         {/* Create New Version Button */}
-        <button className="w-full px-6 py-3 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+        <button onClick={()=>setModals({...modals, add:true})} className="w-full px-6 py-3 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
           <Plus className="w-5 h-5 text-gray-800" />
           <span className="text-sm font-semibold text-gray-800">Create New Version</span>
         </button>
@@ -144,7 +100,7 @@ export const HistorySidebar=({versionParam})=>{
       </div>
 
       {/* Version List */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto px-4">
         <div className="space-y-0">
           {versions.map((version, index) => (
             <div key={version.id} className="flex gap-2 relative cursor-pointer" onClick={()=>changeVersion(version)}>
@@ -157,7 +113,7 @@ export const HistorySidebar=({versionParam})=>{
                 
                 {/* Circle positioned in middle of card */}
                 <div className={`w-3 h-3 rounded-full border relative z-10 mt-10 ${
-                  version.id===selectedVersion?.id
+                  version.versionName===selectedSurvey?.versionName
                     ? 'bg-cyan-700 border-slate-200' 
                     : 'bg-slate-200 border-slate-300'
                 }`}>
@@ -174,8 +130,8 @@ export const HistorySidebar=({versionParam})=>{
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-semibold text-gray-800">{version.name}</h3>
-                      {version.isCurrent && (
+                      <h3 className="text-sm font-semibold text-gray-800">{version.versionName}</h3>
+                      {version.mainVersion && (
                         <span className="px-2 py-0.5 bg-blue-50 text-cyan-700 text-xs rounded-full">
                           Current Version
                         </span>
@@ -185,9 +141,9 @@ export const HistorySidebar=({versionParam})=>{
                     <p className="text-xs text-zinc-500">{version.date}</p>
                   </div>
                   
-                  {!version.isCurrent && (
+                  {!version.mainVersion && (
                    <DropdownMenu
-	                  onOpen={() => {}}
+	                  onOpen={() => {console.info(version); setSelectedVersion(version)}}
 	                  onClose={() => {}}
 	                  border={false}
 	                  menu={[	                    
@@ -195,7 +151,7 @@ export const HistorySidebar=({versionParam})=>{
 	                      id: uuidv4(),
 	                      name: "Rename",
 	                      icon: Pencil,
-	                      onClick: () => setIsEditAlbumOpen(true),
+	                       onClick:()=>setModals({...modals, rename:true}),
 	                    },{
                         id: uuidv4(),
                         name: "Audit Log",
@@ -206,14 +162,14 @@ export const HistorySidebar=({versionParam})=>{
 	                      id: uuidv4(),
 	                      name: "Restore",
 	                      icon: ArchiveRestore,
-	                      onClick: () => setIsGenerate(true),
+	                      onClick:()=>setModals({...modals, restore:true}),
 	                    },
 	                    {
 	                      id: uuidv4(),
 	                      name: "Delete",
 	                      icon: Trash2,
 	                      isRed: true,
-	                      onClick: () => setIsDeleteOpen(true),
+	                      onClick:()=>setModals({...modals, delete:true}),
 	                    },
 	                  ]}
 	                />
@@ -226,5 +182,39 @@ export const HistorySidebar=({versionParam})=>{
         </div>
       </div>
     </div>
+    <BasicFormModal
+      header="Create New Version"
+      label = "Version Name"
+      placeholder = "Input version name"
+      isOpen={modals.add}
+      onClose={() => setModals({...modals, add:false})}
+      onSubmit={handleAddVersion}
+    />
+    <BasicFormModal
+      header="Rename Version"
+      label = "Version Name"
+      placeholder = "Input version name"
+      initialValue={selectedVersion?.versionName}
+      isOpen={modals.rename}
+      onClose={() => setModals({...modals, rename:false})}
+      onSubmit={handleRename}
+    />
+
+    <ModalConfirm
+        isOpen={modals.restore}
+        onClose={() => setModals({...modals, restore:false})}
+        onConfirm={handleRestore}
+        title={`Restore Previous Version?`}
+        message="This will replace the current version with the one you selected."
+      />
+
+    <ModalConfirm
+        isOpen={modals.delete}
+        onClose={() => setModals({...modals, delete:false})}
+        onConfirm={handleDelete}
+        title={`Do you want to delete this Version?`}
+        message="This version will be permanently deleted. You will not be able to recover it."
+      />
+    </>
   )
 }

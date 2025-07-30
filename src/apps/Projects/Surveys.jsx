@@ -3,7 +3,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { floorPlanItems } from "@/data/floorplan";
+import { mockSurveys } from "@/data/surveys";
 import Toggle from "@/components/Toggle/Toggle";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import CardFloorPlan from "@/components/Card/CardFloorPlan";
@@ -24,10 +24,10 @@ const Surveys = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const [floorPlans, setFloorPlans] = useState(floorPlanItems);
+  const [floorPlans, setFloorPlans] = useState(mockSurveys);
 
-  const handleClick = (data) => {
-    navigate(`/survey/${data.id}`)
+  const handleClick = (id) => {
+    navigate(`/survey/${id}`)
   }
 
   // Handle Add

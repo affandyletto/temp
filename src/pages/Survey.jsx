@@ -13,8 +13,10 @@ import { ElementInformation } from "@/apps/Survey/Elements/MiniPopup/ElementInfo
 import { ColorSelection } from "@/apps/Survey/Elements/MiniPopup/ColorSelection";
 import { SurveySettings } from "@/apps/Survey/Elements/MiniPopup/SurveySettings";
 import { LeafletMap } from "./LeafletMap";
+import { useParams } from 'react-router-dom';
 import { useMap } from '@/context/MapContext';
 import { useTab } from '@/context/TabContext';
+import { useProject } from '@/context/ProjectContext';
 
 import "@/apps/Survey/survey.css";
 
@@ -23,6 +25,7 @@ export const Survey = () => {
   const [isCollapsedLeft, setIsCollapsedLeft] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [versionParam, setVersionParam] = useState(null);
+  const { id } = useParams();
 
   // Refs for click outside detection
   const miniPopupRef = useRef(null);
@@ -33,15 +36,25 @@ export const Survey = () => {
   } = useTab();
 
   const {
-    selectedElement
+    selectedElement,
   } = useMap();
+
+  const {
+    loadSurvey
+  } = useProject();
+
+  useEffect(()=>{
+    if(id){
+      console.info(id)
+      loadSurvey(id)
+    }
+  },[id])
 
   // Check URL parameters on component mount and when URL changes
   useEffect(() => {
     const checkUrlParams = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const versionValue = urlParams.get('version');
-      
       setVersionParam(versionValue);
       
       // Show version history only if 'version' parameter is present
@@ -111,7 +124,7 @@ export const Survey = () => {
         {/* Left Sidebar */}
         <div className={`${isCollapsedRight ? 'w-0' : 'w-72'} bg-white border-r border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
           {showVersionHistory ? (
-            <HistorySidebar isCollapsed={isCollapsedRight}/>
+            <HistorySidebar isCollapsed={isCollapsedRight} versionParam={versionParam}/>
           ) : (
             <LibrarySidebar onDragStart={handleElementDragStart} />
           )}
@@ -174,12 +187,12 @@ export const Survey = () => {
         )}
         
         {/* Right Sidebar */}
-        <div className={`${isCollapsedLeft ? 'w-0' : 'w-72'} bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden relative z-50`}>
+        <div className={`${isCollapsedLeft ? 'w-0' : 'w-72'} bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden relative z-10`}>
           {selectedElement && !showVersionHistory ? (
             <ElementDetailSidebar isCollapsed={isCollapsedLeft}/>
-          ) : showVersionHistory ? (
+          ) : showVersionHistory && selectedElement ? 
             <ElementHistoryDetail/>  
-          ) : (
+           : (
             <ElementListSidebar 
               isCollapsed={isCollapsedLeft}
               onDragStart={handleElementDragStart}
