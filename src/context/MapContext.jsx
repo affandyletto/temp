@@ -19,9 +19,10 @@ export const useMap = () => {
 // Map Provider component
 export const MapProvider = ({ children }) => {
   const {versionMode, setVersionMode,selectedSurvey, setSelectedSurvey, setSurveys, surveys, surveyRef, updateSurvey} = useProject()
-
+  const [hiddenElements, setHiddenElements] = useState(new Set());
   const placedElementsRef = useRef([]);
   const [placedElements, setPlacedElements] = useState([]);
+  const [filteredElements, setFilteredElements] = useState([]);
   const [selectedID, setSelectedID]=useState(null)
   const [selectedElement, setSelectedElement] = useState(null)
   const [isInitialDrown, setIsInitialDrown] = useState(false)
@@ -168,7 +169,7 @@ const redrawFOV = useCallback((markerId, data) => {
 
 }, [createFieldOfView]);
 
- const redrawAllElements = useCallback(() => {
+const redrawAllElements = useCallback(() => {
   if (!mapInstanceRef.current) return;
   
   // Update all marker icons with current survey elementSize
@@ -176,24 +177,55 @@ const redrawFOV = useCallback((markerId, data) => {
     const markerId = marker._leaflet_id;
     const elementData = placedElements.find(el => el.markerId === markerId);
     if (elementData) {
-      // Create new icon with survey elementSize
-      const elementWithSurveySize = {
-        ...elementData,
-        elementSize: selectedSurvey.elementSize
-      };
-      const isSelected = selectedElement && selectedElement.markerId === markerId;
-      const newIcon = createCustomIcon(elementWithSurveySize, isSelected);
-      marker.setIcon(newIcon);
+      const isVisible = filteredElements.some(el => el.id === elementData.id);
+      
+      if (isVisible) {
+        // Show marker
+        if (!mapInstanceRef.current.hasLayer(marker)) {
+          marker.addTo(mapInstanceRef.current);
+        }
+        
+        // Create new icon with survey elementSize
+        const elementWithSurveySize = {
+          ...elementData,
+          elementSize: selectedSurvey.elementSize
+        };
+        const isSelected = selectedElement && selectedElement.markerId === markerId;
+        const newIcon = createCustomIcon(elementWithSurveySize, isSelected);
+        marker.setIcon(newIcon);
+      } else {
+        // Hide marker
+        if (mapInstanceRef.current.hasLayer(marker)) {
+          mapInstanceRef.current.removeLayer(marker);
+        }
+      }
     }
   });
 
-  // Redraw all FOV layers with current survey elementSize
-  placedElements.forEach(element => {
-    if (element.markerId) {
-      redrawFOV(element.markerId, { elementSize: selectedSurvey.elementSize });
+  // Redraw FOV layers for visible elements only
+  fovLayersRef.current.forEach(fovLayer => {
+    const elementData = placedElements.find(el => el.id === fovLayer.elementId);
+    if (elementData) {
+      const isVisible = filteredElements.some(el => el.id === elementData.id);
+      
+      if (isVisible) {
+        // Show FOV
+        if (!mapInstanceRef.current.hasLayer(fovLayer.polygon)) {
+          fovLayer.polygon.addTo(mapInstanceRef.current);
+        }
+      } else {
+        // Hide FOV
+        if (mapInstanceRef.current.hasLayer(fovLayer.polygon)) {
+          mapInstanceRef.current.removeLayer(fovLayer.polygon);
+        }
+      }
     }
   });
-}, [placedElements, selectedElement, selectedSurvey?.elementSize, createCustomIcon, redrawFOV]);
+}, [placedElements, filteredElements, selectedElement, selectedSurvey?.elementSize, createCustomIcon]);
+
+useEffect(() => {
+  redrawAllElements();
+}, [filteredElements, redrawAllElements]);
 
 
 useEffect(() => {
@@ -336,7 +368,7 @@ useEffect(()=>{
       maxZoom: 4,
       center: [0, 0],
       zoom: 0,
-      zoomControl: true,
+      zoomControl: false,
       scrollWheelZoom: true,
       doubleClickZoom: true,
       touchZoom: true,
@@ -434,95 +466,149 @@ useEffect(()=>{
   }, []);
 
   const clearAndRecreateMapElements = useCallback((newPlacedElements = []) => {
-    if (!mapInstanceRef.current) {
-      console.warn('Map instance not available');
-      return;
-    }
+  if (!mapInstanceRef.current) {
+    console.warn('Map instance not available');
+    return;
+  }
 
-    try {
-      // Step 1: Clear all existing markers
-      markersRef.current.forEach(marker => {
-        // Remove event listeners to prevent memory leaks
-        marker.off('drag', handleMarkerDrag);
-        marker.off('dragend', handleMarkerDragEnd);
-        marker.off('click', handleClick);
-        
-        // Remove marker from map if it exists
-        if (mapInstanceRef.current.hasLayer(marker)) {
-          mapInstanceRef.current.removeLayer(marker);
-        }
-      });
+  try {
+    // Step 1: Clear all existing markers
+    markersRef.current.forEach(marker => {
+      // Remove event listeners to prevent memory leaks
+      marker.off('drag', handleMarkerDrag);
+      marker.off('dragend', handleMarkerDragEnd);
+      marker.off('click', handleClick);
       
-      // Clear markers array
-      markersRef.current = [];
+      // Remove marker from map if it exists
+      if (mapInstanceRef.current.hasLayer(marker)) {
+        mapInstanceRef.current.removeLayer(marker);
+      }
+    });
+    
+    // Clear markers array
+    markersRef.current = [];
 
-      // Step 2: Clear all existing FOV layers
-      fovLayersRef.current.forEach(layerGroup => {
-        if (layerGroup.polygon && mapInstanceRef.current.hasLayer(layerGroup.polygon)) {
-          mapInstanceRef.current.removeLayer(layerGroup.polygon);
-        }
-      });
-      
-      // Clear FOV layers array
-      fovLayersRef.current = [];
+    // Step 2: Clear all existing FOV layers
+    fovLayersRef.current.forEach(layerGroup => {
+      if (layerGroup.polygon && mapInstanceRef.current.hasLayer(layerGroup.polygon)) {
+        mapInstanceRef.current.removeLayer(layerGroup.polygon);
+      }
+    });
+    
+    // Clear FOV layers array
+    fovLayersRef.current = [];
 
-      // Step 3: Recreate markers and FOV from newPlacedElements
-      newPlacedElements.forEach(elementData => {
-        if (!elementData.position || !Array.isArray(elementData.position) || elementData.position.length < 2) {
-          console.warn('Invalid position data for element:', elementData.name);
-          return;
-        }
-
-        // Create new marker
-        const newMarker = createOptimizedMarker(elementData.position, elementData);
-        if (newMarker) {
-          // Add to markers tracking array
-          markersRef.current.push(newMarker);
-          
-          // Update the element's markerId to match the new marker
-          elementData.markerId = newMarker._leaflet_id;
-          
-          // Create FOV for this element if it has FOV properties
-          if (elementData.rotate !== undefined || elementData.depth !== undefined || elementData.angle !== undefined) {
-            const newFOV = createFieldOfView(elementData);
-            if (newFOV) {
-              fovLayersRef.current.push({
-                ...newFOV,
-                elementId: elementData.id
-              });
-            }
-          }
-        }
-      });
-
-      // Step 4: Update the placed elements state
-      setPlacedElements(newPlacedElements);
-      
-      // Step 5: Clear selection if the selected element no longer exists
-      if (selectedElement) {
-        const stillExists = newPlacedElements.find(el => el.id === selectedElement.id);
-        if (!stillExists) {
-          setSelectedElement(null);
-          setSelectedID(null);
-        }
+    // Step 3: Recreate markers and FOV from newPlacedElements
+    newPlacedElements.forEach(elementData => {
+      if (!elementData.position || !Array.isArray(elementData.position) || elementData.position.length < 2) {
+        console.warn('Invalid position data for element:', elementData.name);
+        return;
       }
 
-      console.log(`Successfully recreated ${newPlacedElements.length} elements on map`);
+      // Create new marker (but don't add to map yet - visibility will be handled by redrawAllElements)
+      const newMarker = L.marker(elementData.position, { 
+        icon: createCustomIcon(elementData),
+        draggable: !versionMode,
+        autoPan: false,
+        keyboard: false,
+        riseOnHover: false,
+        riseOffset: 0
+      });
+
+      // Add optimized event listeners
+      newMarker.on('drag', handleMarkerDrag);
+      newMarker.on('dragend', handleMarkerDragEnd);
+      newMarker.on('click', handleClick);
       
-    } catch (error) {
-      console.error('Error in clearAndRecreateMapElements:', error);
+      // Add to markers tracking array
+      markersRef.current.push(newMarker);
+      
+      // Update the element's markerId to match the new marker
+      elementData.markerId = newMarker._leaflet_id;
+      
+      // Create FOV for this element if it has FOV properties (but don't add to map yet)
+      if (elementData.rotate !== undefined || elementData.depth !== undefined || elementData.angle !== undefined) {
+        const { rotate = 75, depth = 100, angle = 0, bgColor = '#3F444D', opacity } = elementData;
+        
+        // Convert angle from degrees to radians
+        const angleRad = (rotate * Math.PI) / 180;
+        const rotateRad = (angle * Math.PI) / 180;
+        
+        // Calculate the field of view cone points
+        const centerLat = elementData.position[0];
+        const centerLng = elementData.position[1];
+        
+        // Create an array of points for the FOV polygon
+        const points = [];
+        
+        // Start with the center point (element position)
+        points.push([centerLat, centerLng]);
+        
+        // Calculate the arc points for the field of view
+        const numPoints = 30; // Number of points to create smooth arc
+        const startAngle = rotateRad - angleRad / 2;
+        const endAngle = rotateRad + angleRad / 2;
+        
+        for (let i = 0; i <= numPoints; i++) {
+          const currentAngle = startAngle + (endAngle - startAngle) * (i / numPoints);
+          
+          // Calculate point at the edge of the field of view
+          const pointLat = centerLat + (depth * Math.cos(currentAngle));
+          const pointLng = centerLng + (depth * Math.sin(currentAngle));
+          
+          points.push([pointLat, pointLng]);
+        }
+        
+        // Close the polygon by returning to center
+        points.push([centerLat, centerLng]);
+        
+        // Create the polygon with styling (but don't add to map yet)
+        const fovPolygon = L.polygon(points, {
+          color: elementData.bgColor || '#3F444D',
+          fillColor: elementData.bgColor || '#3F444D',
+          fillOpacity: opacity/100,
+          weight: 1,
+          opacity: 1,
+          className: 'field-of-view-polygon'
+        });
+        
+        fovLayersRef.current.push({
+          polygon: fovPolygon,
+          elementId: elementData.id
+        });
+      }
+    });
+
+    // Step 4: Update the placed elements state
+    setPlacedElements(newPlacedElements);
+    
+    // Step 5: Clear selection if the selected element no longer exists
+    if (selectedElement) {
+      const stillExists = newPlacedElements.find(el => el.id === selectedElement.id);
+      if (!stillExists) {
+        setSelectedElement(null);
+        setSelectedID(null);
+      }
     }
-  }, [
-    createOptimizedMarker, 
-    createFieldOfView, 
-    handleMarkerDrag, 
-    handleMarkerDragEnd, 
-    handleClick,
-    selectedElement,
-    setPlacedElements,
-    setSelectedElement,
-    setSelectedID
-  ]);
+
+    console.log(`Successfully recreated ${newPlacedElements.length} elements on map`);
+    
+  } catch (error) {
+    console.error('Error in clearAndRecreateMapElements:', error);
+  }
+}, [
+  createOptimizedMarker, 
+  createFieldOfView, 
+  handleMarkerDrag, 
+  handleMarkerDragEnd, 
+  handleClick,
+  selectedElement,
+  setPlacedElements,
+  setSelectedElement,
+  setSelectedID,
+  versionMode,
+  createCustomIcon
+]);
 
   // Remove element by ID
   // Fixed deleteElement function
@@ -683,8 +769,62 @@ useEffect(()=>{
     )
   },[placedElements])
 
+  useEffect(() => {
+    const filtered = placedElements.filter(element => !hiddenElements.has(element.name));
+    setFilteredElements(filtered);
+  }, [placedElements, hiddenElements]);
+
+  const updateHiddenElements = useCallback((hiddenSet) => {
+  setHiddenElements(hiddenSet);
+}, []);
+
+  const restoreVersion = (name, version) => {
+    // Generate unique versionName
+    let uniqueVersionName = name;
+    let counter = 1;
+    
+    while (surveys.some(s => s.versionName === uniqueVersionName)) {
+      uniqueVersionName = `${name} (${counter})`;
+      counter++;
+    }
+    
+    var newsurv = { 
+      ...version, 
+      versionName: uniqueVersionName, 
+      id: uuidv4(), 
+      mainVersion: true 
+    }
+    
+    setSurveys([
+      newsurv,
+      ...surveys.map(s => 
+        s.name === version.name 
+          ? { ...s, mainVersion: false }
+          : s
+      )
+    ])
+    
+    setSelectedSurvey(newsurv)
+    return newsurv
+  }
+
   const addVersion = (name) => {
-    var newsurv={ ...selectedSurvey, versionName: name, id: uuidv4(), mainVersion: true }
+    // Generate unique versionName
+    let uniqueVersionName = name;
+    let counter = 1;
+    
+    while (surveys.some(s => s.versionName === uniqueVersionName)) {
+      uniqueVersionName = `${name} (${counter})`;
+      counter++;
+    }
+    
+    var newsurv = { 
+      ...selectedSurvey, 
+      versionName: uniqueVersionName, 
+      id: uuidv4(), 
+      mainVersion: true 
+    }
+    
     setSurveys([
       newsurv,
       ...surveys.map(s => 
@@ -693,6 +833,7 @@ useEffect(()=>{
           : s
       )
     ])
+    
     setSelectedSurvey(newsurv)
     return newsurv
   }
@@ -720,10 +861,15 @@ useEffect(()=>{
     redrawFOV,
     selectedSurvey,
 	  updateSurvey,
+    restoreVersion,
 	  redrawAllElements,
     deleteElement,    
     addVersion,
-    imageUrl
+    imageUrl,
+    hiddenElements,
+  setHiddenElements,
+  updateHiddenElements,
+  filteredElements
   };
 
   return (

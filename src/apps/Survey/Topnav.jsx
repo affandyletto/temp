@@ -1,6 +1,8 @@
-import { MoreHorizontal, Eye, History, FileText, Settings, Download, Layers, ArrowLeft, Info } from "lucide-react";
+import { MoreHorizontal, Eye, History, FileText, Settings, Download, Layers, ArrowLeft, Info, Edit } from "lucide-react";
 import { useTab } from '@/context/TabContext';
 import { useProject } from '@/context/ProjectContext';
+import DropdownMenu from "@/components/Dropdown/DropdownMenu";
+import { v4 as uuidv4 } from "uuid";
 
 const ActionButton = ({ icon: Icon, label, onClick }) => {
   return (
@@ -37,7 +39,7 @@ export const Topnav = ({ onBack }) => {
 
   return (
     <>
-      <div className="w-full px-5 py-3 bg-white border-b border-gray-300 flex justify-between items-center">
+      <div className="w-[294px] px-5 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         {/* Left Section - Project Info */}
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white rounded-lg border border-slate-200 flex items-center justify-center cursor-pointer" onClick={onBack}>
@@ -46,18 +48,41 @@ export const Topnav = ({ onBack }) => {
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1">
               <span className="text-gray-800 text-base font-bold font-roboto">Floorplan-01</span>
-              <Info className="w-5 h-5 text-zinc-500 ml-1" />
             </div>
             <span className="text-zinc-500 text-xs font-roboto">Last update 25 minutes ago</span>
           </div>
         </div>
-        {/* Right Section - Action Buttons */}
         <div className="flex items-center gap-3">
+          <DropdownMenu
+            onOpen={() => console.info('id')}
+            onClose={() => console.info(null)}
+            menu={[
+              {
+                id: uuidv4(),
+                name: "Rename",
+                icon: Edit,
+                onClick: () => console.info('id'),
+              },{
+                id: uuidv4(),
+                name: "Version History",
+                icon: Layers,
+                onClick: ()=>handleHistoryClick(),
+              },{
+                id: uuidv4(),
+                name: "Settings",
+                icon: Settings,
+                onClick: ()=>toggleMiniTab("surveySettings"),
+              },
+            ]}
+          />
+        </div>
+        {/* Right Section - Action Buttons */}
+        {/*<div className="flex items-center gap-3">
           <ActionButton icon={Eye} label="Visibility Filter" />
           <ActionButton icon={Layers} label="Version History" onClick={handleHistoryClick}/>
           <ActionButton icon={Settings} label="Survey Setting" onClick={()=>toggleMiniTab("surveySettings")}/>
           <ActionButton icon={Download} label="Export" />
-        </div>
+        </div>*/}
       </div>
     </>
   );

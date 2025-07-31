@@ -182,9 +182,6 @@ export const MessageItem = ({ message, index, playingVoice, audioPlayers, playPr
           <div className="flex-1 py-0.5 flex flex-col gap-2">
             <div className="flex justify-between items-center gap-3">
               <div className="relative group">
-                <button className="hover:bg-gray-100 p-1 rounded transition-all duration-200 hover:scale-110">
-                  <MoreHorizontal className="w-4 h-4 text-gray-500" />
-                </button>
                 <div className="absolute left-0 top-8 invisible group-hover:visible opacity-0 group-hover:100 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
                   <button 
                     onClick={() => deleteMessage(message.id)}

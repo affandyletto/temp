@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Camera } from 'lucide-react';
+import { useMap } from '@/context/MapContext';
 
 export const ElementHistoryInformation = () => {
   const [isOneSafeEnabled, setIsOneSafeEnabled] = useState(false);
-  
+  const {
+      selectedElement,
+    } = useMap();
+    
   return (
     <div className="max-w-md mx-auto p-1 bg-white">
       <div className="space-y-4">
@@ -12,11 +16,11 @@ export const ElementHistoryInformation = () => {
           <h3 className="text-gray-800 text-sm font-semibold">Survey Info</h3>
           <div className="space-y-1">
             {[
-              { label: 'Location', value: '-' },
-              { label: 'Element Height', value: '-' },
-              { label: 'Mounting Surface', value: '-' },
-              { label: 'Status', value: '-' },
-              { label: 'Date Installed', value: '-' }
+              { label: 'Location', value: selectedElement?.info?.design?.descriptiveLocation||"-" },
+              { label: 'Element Height', value: selectedElement?.info?.design?.elementHeight||'-' },
+              { label: 'Mounting Surface', value: selectedElement?.info?.design?.mountingSurface||'-' },
+              { label: 'Status', value: selectedElement?.info?.design?.category||'-' },
+              { label: 'Date Installed', value: selectedElement?.info?.installationAccess?.installedOn||'-' }
             ].map((item, index) => (
               <div key={index} className="space-y-0.5">
                 <div className="text-zinc-500 text-xs leading-none">{item.label}</div>
@@ -34,11 +38,11 @@ export const ElementHistoryInformation = () => {
           <h3 className="text-gray-800 text-sm font-semibold">Element Information</h3>
           <div className="space-y-1">
             {[
-              { label: 'Label', value: '-' },
-              { label: 'Serial', value: '-' },
-              { label: 'Switch', value: '-' },
-              { label: 'Switch Port', value: '-' },
-              { label: 'MDF/IDF', value: '-' }
+              { label: 'Label', value: selectedElement?.info?.elementInformation?.label||'-' },
+              { label: 'Serial', value: selectedElement?.info?.elementInformation?.serialNumber||'-' },
+              { label: 'Switch', value: selectedElement?.info?.elementInformation?.switchNumber||'-' },
+              { label: 'Switch Port', value: selectedElement?.info?.elementInformation?.switchPortNumber||'-' },
+              { label: 'MDF/IDF', value: selectedElement?.info?.elementInformation?.mdfIdf||'-' }
             ].map((item, index) => (
               <div key={index} className="space-y-0.5">
                 <div className="text-zinc-500 text-xs leading-none">{item.label}</div>

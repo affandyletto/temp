@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { dropdownProgress } from "@/data/dropdown";
 import { mockSurveys } from "@/data/surveys"
 import { useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from "uuid";
 
 const ProjectContext = createContext();
 
@@ -40,44 +41,29 @@ export function ProjectProvider({ children }) {
 		}
 	}, [selectedSurvey]);
 
-	const restoreVersion = useCallback((id) => {
+	const renameVersion = useCallback((id, newVersionName) => {
 		setSurveys(prevSurveys => {
-			const targetSurvey = prevSurveys.find(s => s.id === id);
-			if (!targetSurvey) return prevSurveys;
+			// Generate unique versionName
+			let uniqueVersionName = newVersionName;
+			let counter = 1;
 			
-			// Update the surveys with mainVersion flags
-			const updatedSurveys = prevSurveys.map(s => {
-				if (s.id === id) {
-					return { ...s, mainVersion: true };
-				} else if (s.name === targetSurvey.name && s.id !== id) {
-					return { ...s, mainVersion: false };
-				}
-				return s;
-			});
-			
-			// Move the target survey to the first position
-			const targetIndex = updatedSurveys.findIndex(s => s.id === id);
-			if (targetIndex > 0) {
-				const [targetSurveyUpdated] = updatedSurveys.splice(targetIndex, 1);
-				return [targetSurveyUpdated, ...updatedSurveys];
+			// Check for duplicates excluding the survey being renamed
+			while (prevSurveys.some(s => s.id !== id && s.versionName === uniqueVersionName)) {
+				uniqueVersionName = `${newVersionName} (${counter})`;
+				counter++;
 			}
 			
-			return updatedSurveys;
-		});
-	}, []);
-
-	const renameVersion = useCallback((id, newVersionName) => {
-		setSurveys(prevSurveys => 
-			prevSurveys.map(s => 
+			return prevSurveys.map(s => 
 				s.id === id 
-					? { ...s, versionName: newVersionName }
+					? { ...s, versionName: uniqueVersionName }
 					: s
-			)
-		);
+			);
+		});
 	}, []);
 
 	const loadSurvey = (id) => {
 		const foundSurvey = surveys.find(s => s.id === id);
+		console.info(surveys)
 		if (foundSurvey) {
 			setSelectedSurvey(foundSurvey);
 		}
@@ -120,7 +106,6 @@ export function ProjectProvider({ children }) {
 		surveyRef, 
 		handleHistoryClick,
 		deleteVersion,
-		restoreVersion,
 		renameVersion
 	};
   

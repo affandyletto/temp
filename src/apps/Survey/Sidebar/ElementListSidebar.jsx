@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Camera, ChevronRight } from 'lucide-react';
 import { useMap } from '@/context/MapContext';
+import InputSearch from "@/components/Form/InputSearch";
 
 export const ElementListSidebar = ({ isCollapsed, onDragStart}) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,12 +54,10 @@ export const ElementListSidebar = ({ isCollapsed, onDragStart}) => {
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
               <Search className="w-5 h-5 text-zinc-500" />
             </div>
-            <input
-              type="text"
-              placeholder="Search element"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-slate-200 text-sm font-normal font-inter leading-snug tracking-tight text-gray-800 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            <InputSearch
+              placeholder={"Search element"}
+              search={searchTerm}
+              setSearch={setSearchTerm}
             />
           </div>
         </div>

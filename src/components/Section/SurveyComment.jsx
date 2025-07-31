@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { MoreHorizontal, Mic, Send, Play, Pause, X, Square, Trash2, ArrowUp } from "lucide-react";
 import * as Tone from 'tone';
+import { useMap } from '@/context/MapContext';
 import { CommentHeader, MessageItem, Messages, RealTimeWaveform, RecordingIndicator, RealTimeWaveform2, InputArea } from "./CommentComponents"
 
 
 // Main CommentSection Component
 const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) => {
+  const {
+    selectedElement,
+    updateElementInState
+  } = useMap();
   const [newComment, setNewComment] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -18,7 +23,7 @@ const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) =
   const [silenceTimeout, setSilenceTimeout] = useState(null);
   const transcription = (finalTranscript).trim();
   const [recognition, setRecognition] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(selectedElement?.comments||[]);
   const [playingVoice, setPlayingVoice] = useState(null);
   const [playProgress, setPlayProgress] = useState({});
   const [audioPlayers, setAudioPlayers] = useState({});
@@ -204,6 +209,10 @@ const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) =
       }
     }
   };
+
+  useEffect(()=>{
+    updateElementInState(selectedElement?.id, {comments:messages})
+  },[messages])
 
   const handleSendVoiceMessage = () => {
     console.info(finalTranscript)

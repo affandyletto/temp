@@ -144,7 +144,7 @@ export const ElementInfo=({data, setTab})=>{
   
   const menuItems = [
       { icon: Image, label: 'Photos', count: selectedElement?.photos?.length||0, action:photosClick },
-      { icon: MessageSquare, label: 'Comment', count: 3, action:commentClick },
+      { icon: MessageSquare, label: 'Comment', count: selectedElement?.comments?.length||0, action:commentClick },
       { icon: CheckSquare, label: 'Task', count: 0, action:taskClick },
       { icon: Route, label: 'Path', count: 10, action:pathClick }
     ];

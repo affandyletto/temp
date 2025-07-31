@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Pipette } from 'lucide-react';
 
 import { useMap } from '@/context/MapContext';
@@ -95,6 +95,7 @@ export const ColorSelection = ({ type = 'bgColor', onClose }) => {
   const colorAreaRef = useRef(null);
   const hueBarRef = useRef(null);
   const opacityBarRef = useRef(null);
+  const debounceTimeoutRef = useRef(null);
   
   const [isDragging, setIsDragging] = useState({
     colorArea: false,
@@ -113,19 +114,34 @@ export const ColorSelection = ({ type = 'bgColor', onClose }) => {
     setColor(newHex);
   }, [hsv]);
 
-  // Update element state when color or opacity changes
-  const updateElementColor = (newColor, newOpacity) => {
-    if (type === 'bgColor') {
-      updateElementInState(selectedElement?.id, {
-        bgColor: newColor,
-        opacity: newOpacity
-      });
-    } else {
-      updateElementInState(selectedElement?.id, {
-        color: newColor
-      });
+  // Debounced update function
+  const debouncedUpdateElementColor = useCallback((newColor, newOpacity) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
     }
-  };
+    
+    debounceTimeoutRef.current = setTimeout(() => {
+      if (type === 'bgColor') {
+        updateElementInState(selectedElement?.id, {
+          bgColor: newColor,
+          opacity: newOpacity
+        });
+      } else {
+        updateElementInState(selectedElement?.id, {
+          color: newColor
+        });
+      }
+    }, 100);
+  }, [type, selectedElement?.id, updateElementInState]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleColorAreaClick = (e) => {
     if (!colorAreaRef.current) return;
@@ -141,7 +157,7 @@ export const ColorSelection = ({ type = 'bgColor', onClose }) => {
     setHsv(newHsv);
     
     const newColor = hsvToHex(newHsv.h, newHsv.s, newHsv.v);
-    updateElementColor(newColor, opacity);
+    debouncedUpdateElementColor(newColor, opacity);
   };
 
   const handleHueBarClick = (e) => {
@@ -155,7 +171,7 @@ export const ColorSelection = ({ type = 'bgColor', onClose }) => {
     setHsv(newHsv);
     
     const newColor = hsvToHex(newHsv.h, newHsv.s, newHsv.v);
-    updateElementColor(newColor, opacity);
+    debouncedUpdateElementColor(newColor, opacity);
   };
 
   const handleOpacityBarClick = (e) => {
@@ -167,7 +183,7 @@ export const ColorSelection = ({ type = 'bgColor', onClose }) => {
     
     const finalOpacity = Math.max(0, Math.min(100, newOpacity));
     setOpacity(finalOpacity);
-    updateElementColor(color, finalOpacity);
+    debouncedUpdateElementColor(color, finalOpacity);
   };
 
   const handleMouseDown = (area) => {
@@ -205,20 +221,20 @@ export const ColorSelection = ({ type = 'bgColor', onClose }) => {
     if (/^#[0-9A-Fa-f]{6}$/.test(newHex)) {
       setColor(newHex);
       setHsv(hexToHsv(newHex));
-      updateElementColor(newHex, opacity);
+      debouncedUpdateElementColor(newHex, opacity);
     }
   };
 
   const handleOpacityChange = (e) => {
     const newOpacity = Math.max(0, Math.min(100, parseInt(e.target.value) || 0));
     setOpacity(newOpacity);
-    updateElementColor(color, newOpacity);
+    debouncedUpdateElementColor(color, newOpacity);
   };
 
   const handlePresetClick = (presetColor) => {
     setColor(presetColor);
     setHsv(hexToHsv(presetColor));
-    updateElementColor(presetColor, opacity);
+    debouncedUpdateElementColor(presetColor, opacity);
   };
 
   const colorAreaStyle = {

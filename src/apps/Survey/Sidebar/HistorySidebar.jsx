@@ -9,6 +9,8 @@ import { useProject } from '@/context/ProjectContext';
 import { useMap } from '@/context/MapContext';
 import BasicFormModal from '@/components/Modal/BasicFormModal'
 import ModalConfirm from '@/components/Modal/ModalConfirm'
+import ModalHistory from '@/components/Modal/ModalHistory'
+
 import { useNavigate } from "react-router-dom";
 
 export const HistorySidebar=({versionParam})=>{
@@ -18,12 +20,13 @@ export const HistorySidebar=({versionParam})=>{
     selectedSurvey, 
     setSurveys,
     renameVersion,
-    restoreVersion,
-    deleteVersion
+    deleteVersion,
+    handleHistoryClick
 } = useProject()
 
 const {
   addVersion,
+  restoreVersion,
 } = useMap()
 
   const { toggleParameter, getParam } = useUrlParams();
@@ -36,7 +39,8 @@ const {
   })
 
   useEffect(()=>{
-    setVersions(surveys.filter(x=>x.name===selectedSurvey?.name))
+    var surveyys=surveys.filter(x=>x.name===selectedSurvey?.name)
+    setVersions(surveyys)
   },[surveys])
 
   const changeVersion=(version)=>{
@@ -51,6 +55,8 @@ const {
   const handleAddVersion=async(name)=>{
     const newsurv=await addVersion(name)
     changeVersion(newsurv)
+    var newVers=versions.find(x=>x.id===newsurv.id)
+    setSelectedVersion(newVers)
     setModals({...modals, add:false})
   }
 
@@ -59,9 +65,10 @@ const {
     setModals({...modals, rename:false})
   }
 
-  const handleRestore=()=>{
-    restoreVersion(selectedVersion?.id)
+  const handleRestore=(name)=>{
+    restoreVersion(name, selectedVersion)
     navigate(`/survey/${selectedVersion?.id}?version=${selectedVersion?.versionName}`)
+    setModals({...modals, restore:false})
   }
 
   const handleDelete=()=>{
@@ -76,7 +83,7 @@ const {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-gray-800">Version History</h2>
           <button
-            onClick={()=>toggleParameter("version", versionParam)}
+            onClick={handleHistoryClick}
             className="p-1 hover:bg-slate-100 rounded"
           >
             <X className="w-5 h-5 text-zinc-500" />
@@ -141,39 +148,39 @@ const {
                     <p className="text-xs text-zinc-500">{version.date}</p>
                   </div>
                   
-                  {!version.mainVersion && (
-                   <DropdownMenu
-	                  onOpen={() => {console.info(version); setSelectedVersion(version)}}
-	                  onClose={() => {}}
-	                  border={false}
-	                  menu={[	                    
-	                    {
-	                      id: uuidv4(),
-	                      name: "Rename",
-	                      icon: Pencil,
-	                       onClick:()=>setModals({...modals, rename:true}),
-	                    },{
+                  <DropdownMenu
+                    onOpen={() => {setSelectedVersion(version)}}
+                    onClose={() => {}}
+                    border={false}
+                    menu={[                     
+                      {
+                        id: uuidv4(),
+                        name: "Rename",
+                        icon: Pencil,
+                        onClick:()=>setModals({...modals, rename:true}),
+                      },{
                         id: uuidv4(),
                         name: "Audit Log",
                         icon: History,
-                        onClick: () => setIsEditAlbumOpen(true),
+                        onClick: () => setModals({...modals, history:true}),
                       },
-	                    {
-	                      id: uuidv4(),
-	                      name: "Restore",
-	                      icon: ArchiveRestore,
-	                      onClick:()=>setModals({...modals, restore:true}),
-	                    },
-	                    {
-	                      id: uuidv4(),
-	                      name: "Delete",
-	                      icon: Trash2,
-	                      isRed: true,
-	                      onClick:()=>setModals({...modals, delete:true}),
-	                    },
-	                  ]}
-	                />
-                  )}
+                      ...(!version.mainVersion ? [
+                        {
+                          id: uuidv4(),
+                          name: "Restore",
+                          icon: ArchiveRestore,
+                          onClick:()=>setModals({...modals, restore:true}),
+                        },
+                        {
+                          id: uuidv4(),
+                          name: "Delete",
+                          icon: Trash2,
+                          isRed: true,
+                          onClick:()=>setModals({...modals, delete:true}),
+                        }
+                      ] : [])
+                    ]}
+                  />
                   
                 </div>
               </div>
@@ -200,13 +207,21 @@ const {
       onSubmit={handleRename}
     />
 
-    <ModalConfirm
-        isOpen={modals.restore}
-        onClose={() => setModals({...modals, restore:false})}
-        onConfirm={handleRestore}
-        title={`Restore Previous Version?`}
-        message="This will replace the current version with the one you selected."
-      />
+    <BasicFormModal
+      header="Restore Version"
+      label = "Version Name"
+      placeholder = "Input version name"
+      initialValue={selectedVersion?.versionName}
+      isOpen={modals.restore}
+      onClose={() => setModals({...modals, restore:false})}
+      onSubmit={handleRestore}
+    />
+
+    <ModalHistory
+        isOpen={modals.history}
+        onClose={() => setModals({...modals, history:false})}
+        onSubmit={handleRestore}
+    />
 
     <ModalConfirm
         isOpen={modals.delete}

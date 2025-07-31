@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { Topnav } from "@/apps/Survey/Topnav";
 import { LibrarySidebar } from "@/apps/Survey/Sidebar/LibrarySidebar";
 import { HistorySidebar } from "@/apps/Survey/Sidebar/HistorySidebar";
@@ -12,12 +12,13 @@ import { InstallationAccess } from "@/apps/Survey/Elements/MiniPopup/Installatio
 import { ElementInformation } from "@/apps/Survey/Elements/MiniPopup/ElementInformation";
 import { ColorSelection } from "@/apps/Survey/Elements/MiniPopup/ColorSelection";
 import { SurveySettings } from "@/apps/Survey/Elements/MiniPopup/SurveySettings";
+import { VisibilityFilter } from "@/apps/Survey/Elements/MiniPopup/VisibilityFilter"
 import { LeafletMap } from "./LeafletMap";
 import { useParams } from 'react-router-dom';
 import { useMap } from '@/context/MapContext';
 import { useTab } from '@/context/TabContext';
 import { useProject } from '@/context/ProjectContext';
-
+import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import "@/apps/Survey/survey.css";
 
 export const Survey = () => {
@@ -113,16 +114,18 @@ export const Survey = () => {
   }, []);
 
   return (
-    <div className="survey-container h-screen flex flex-col">
-      {/* Topnav with higher z-index and proper positioning */}
-      <div className="relative z-[10] bg-white shadow-sm">
+    <div className="survey-container h-screen flex flex-col relative">
+      {/* Topnav with absolute positioning */}
+      <div className="absolute top-0 left-0 right-0 z-[10] bg-white shadow-sm">
         <Topnav onBack={onBack}/>
       </div>
       
-      {/* Main content area that takes remaining height */}
-      <div className="flex flex-1 relative overflow-hidden">
+      {/* Main content area that takes full height */}
+      <div className="flex h-full relative overflow-hidden">
         {/* Left Sidebar */}
-        <div className={`${isCollapsedRight ? 'w-0' : 'w-72'} bg-white border-r border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
+        <div className={`${isCollapsedRight ? 'w-0' : 'w-72'} bg-white border-r border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden mt-[70px]`}>
+          
+          
           {showVersionHistory ? (
             <HistorySidebar isCollapsed={isCollapsedRight} versionParam={versionParam}/>
           ) : (
@@ -180,11 +183,15 @@ export const Survey = () => {
             </>
           )}
 
-        {(miniTab === "surveySettings") && (
-          <div className="absolute top-5 right-[300px] z-[10]">
+        {(miniTab === "surveySettings") ? (
+          <div className="absolute top-5 left-[300px] z-[10]">
             <SurveySettings onClose={()=>setMiniTab("")} />
           </div>
-        )}
+        ):(miniTab === "filter") ? (
+          <div className="absolute top-5 right-[300px] z-[10]">
+            <VisibilityFilter onClose={()=>setMiniTab("")}/>
+          </div>
+        ): null}
         
         {/* Right Sidebar */}
         <div className={`${isCollapsedLeft ? 'w-0' : 'w-72'} bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ease-in-out overflow-hidden relative z-10`}>
@@ -201,6 +208,17 @@ export const Survey = () => {
           
         </div>
       </div>
+      {!isCollapsedRight&&
+        <div className={`absolute bottom-5 ${isCollapsedRight?'left-[20px]':'left-[300px]'} right-0 z-[10] bg-white shadow-sm w-6`}>
+          <ButtonPrimary
+            icon={SlidersHorizontal}
+            label={"Filters"}
+            onClick={() => miniTab==="filter"?setMiniTab(""):setMiniTab("filter")}
+          />
+        </div>
+      }
+      
+      
     </div>
   );
 };
