@@ -723,7 +723,9 @@ useEffect(()=>{
       ...selectedEl,
       id: uuidv4(),
       position: [selectedEl.position[0], selectedEl.position[1] + 40],
-      order: order
+      order: order,
+      comments:[],
+      photos:[],
     };
 
 	 const newMarker = createOptimizedMarker(duplicatedElement.position, duplicatedElement);
