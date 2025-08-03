@@ -6,6 +6,7 @@ import { SidebarProvider } from "./context/SidebarContext";
 import { DropdownProvider } from "./context/DropdownContext";
 import { MapProvider } from "./context/MapContext";
 import { ProjectProvider } from "./context/ProjectContext";
+import { LineProvider } from "./context/LineContext";
 import { TabProvider, OneSnapTabProvider } from "./context/TabContext";
 import { ToastProvider } from "./context/ToastContext";
 import { DndProvider } from 'react-dnd';
@@ -22,7 +23,9 @@ root.render(
             <TabProvider>
               <OneSnapTabProvider>
                 <MapProvider>
-                  <App />
+                  <LineProvider>
+                    <App />
+                  </LineProvider>
                 </MapProvider>
               </OneSnapTabProvider>
             </TabProvider>

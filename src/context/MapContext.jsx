@@ -26,6 +26,7 @@ export const MapProvider = ({ children }) => {
   const [selectedID, setSelectedID]=useState(null)
   const [selectedElement, setSelectedElement] = useState(null)
   const [isInitialDrown, setIsInitialDrown] = useState(false)
+  const [triggerElementClick, setTriggerElementClick] = useState(false)
   const [swapElement, setSwapElement] = useState(null)
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
@@ -308,7 +309,7 @@ useEffect(()=>{
 	  redrawFOV(markerId)
 	}, []);
 
-  	const handleClick = useCallback((e) => {
+  const handleClick = useCallback((e) => {
 	  const markerId = e.target._leaflet_id;
 	  selectingElement(markerId)
 	}, []); // No dependencies needed since we use ref
