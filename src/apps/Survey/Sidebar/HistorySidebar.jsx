@@ -121,7 +121,7 @@ const {
                 {/* Circle positioned in middle of card */}
                 <div className={`w-3 h-3 rounded-full border relative z-10 mt-10 ${
                   version.versionName===selectedSurvey?.versionName
-                    ? 'bg-cyan-700 border-slate-200' 
+                    ? 'bg-primary-200 border-slate-200' 
                     : 'bg-slate-200 border-slate-300'
                 }`}>
                 </div>
@@ -139,7 +139,7 @@ const {
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-sm font-semibold text-gray-800">{version.versionName}</h3>
                       {version.mainVersion && (
-                        <span className="px-2 py-0.5 bg-blue-50 text-cyan-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-blue-50 text-primary-200 text-xs rounded-full">
                           Current Version
                         </span>
                       )}

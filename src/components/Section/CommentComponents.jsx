@@ -688,21 +688,21 @@ const RecordedAudioPreview = ({ recordedAudio, transcription, clearRecordedAudio
   );
 };
 // Input Area Component
-export const InputArea = ({ isRecording, recordedAudio, newComment, setNewComment, handleSendComment, startRecording, stopRecording, handleKeyPress, isSurvey }) => {
+export const InputArea = ({ isRecording, recordedAudio, newComment, setNewComment, handleSendComment, startRecording, stopRecording, handleKeyPress, isSurvey, isMobile }) => {
   // Determine if we should show the mic icon or send icon
   const showSendIcon = newComment.trim() || recordedAudio;
   
   return (
     <div className={`${!isSurvey&&'px-4'} py-5 border-t border-slate-100 transition-all duration-300 delay-200 transform translate-y-0 opacity-100
     }`}>
-      <div className={`pl-5 pr-2 ${!isSurvey?'py-2':'py-1'} rounded-full border flex items-center transition-all duration-200 hover:shadow-md focus-within:shadow-lg`} style={{ borderColor: '#367abb' }}>
+      <div className={`pl-5 pr-2 ${!isSurvey?'py-2':isMobile?'py-3':'py-1'} rounded-full border flex items-center transition-all duration-200 hover:shadow-md focus-within:shadow-lg`} style={{ borderColor: '#367abb' }}>
         <div className="flex-1 flex items-center">
           <input
             type="text"
             value={recordedAudio ? "Voice message recorded" : newComment}
             onChange={(e) => !recordedAudio && setNewComment(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={isRecording ? "Recording in progress..." : recordedAudio ? "Voice message ready to send" : "Enter your comment"}
+            placeholder={isRecording ? "Recording in progress..." : recordedAudio ? "Voice message ready to send" : "Write comment..."}
             className={`flex-1 text-zinc-700 text-sm font-normal font-['Inter'] leading-snug tracking-tight bg-transparent outline-none placeholder-zinc-500 transition-all duration-200 ${
               (isRecording || recordedAudio) ? 'cursor-not-allowed opacity-60' : ''
             }`}

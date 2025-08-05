@@ -29,8 +29,8 @@ const CleanCard=()=> {
         <div className="flex items-center gap-3">
           <h3 className="text-gray-800 text-base font-semibold">25M316-Test</h3>
           <div className="px-3 py-1 bg-blue-50 rounded-full flex items-center gap-1">
-            <GitBranch className="w-3 h-3 text-cyan-700" />
-            <span className="text-cyan-700 text-xs font-semibold">Version A</span>
+            <GitBranch className="w-3 h-3 text-primary-200" />
+            <span className="text-primary-200 text-xs font-semibold">Version A</span>
           </div>
         </div>
         
@@ -93,7 +93,7 @@ export const FloorplanBuilder = () => {
          <div className="flex items-center gap-1">
            <h2 className="text-xl font-semibold">Floor Plan Builder</h2>
            <div data-option="Default" data-show-action-arrow_up-outline="true" data-show-icon="true" data-truncate="false" data-type="Secondary" data-variant="Opsi 1" className="px-2 py-0.5 bg-blue-50 rounded-[999px] inline-flex justify-center items-center gap-2.5">
-             <div className="justify-start text-cyan-700 text-[10px] font-normal font-['Inter'] leading-none tracking-tight">{reports?.length} Photos</div>
+             <div className="justify-start text-primary-200 text-[10px] font-normal font-['Inter'] leading-none tracking-tight">{reports?.length} Photos</div>
            </div>
          </div>
        </div>

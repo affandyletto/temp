@@ -189,7 +189,7 @@ const redrawAllElements = useCallback(() => {
         // Create new icon with survey elementSize
         const elementWithSurveySize = {
           ...elementData,
-          elementSize: selectedSurvey.elementSize
+          elementSize: surveyRef.current?.elementSize
         };
         const isSelected = selectedElement && selectedElement.markerId === markerId;
         const newIcon = createCustomIcon(elementWithSurveySize, isSelected);
@@ -202,7 +202,6 @@ const redrawAllElements = useCallback(() => {
       }
     }
   });
-
   // Redraw FOV layers for visible elements only
   fovLayersRef.current.forEach(fovLayer => {
     const elementData = placedElements.find(el => el.id === fovLayer.elementId);

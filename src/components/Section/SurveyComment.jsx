@@ -6,7 +6,7 @@ import { CommentHeader, MessageItem, Messages, RealTimeWaveform, RecordingIndica
 
 
 // Main CommentSection Component
-const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) => {
+const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false, isMobile=false }) => {
   const {
     selectedElement,
     updateElementInState
@@ -685,6 +685,7 @@ const SurveyComment = ({ isOpen = true, onClose = () => {}, isHistory=false }) =
         {!recordedAudio && !isRecording && !isHistory && (
           <InputArea 
             isSurvey={true}
+            isMobile={isMobile}
             isRecording={isRecording}
             recordedAudio={recordedAudio}
             newComment={newComment}

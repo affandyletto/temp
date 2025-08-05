@@ -23,10 +23,16 @@ export function ProjectProvider({ children }) {
 	const updateSurvey = useCallback((newSettings) => {
 	  if (!selectedSurvey || !selectedSurvey.id) return;
 	  
+	  // Create the updated survey object
+	  const updatedSurvey = { ...selectedSurvey, ...newSettings };
+	  
+	  // Update ref immediately before state
+	  surveyRef.current = updatedSurvey;
+	  
 	  setSurveys(prevSurveys => 
 	    prevSurveys.map(s => 
 	      s.id === selectedSurvey.id 
-	        ? { ...s, ...newSettings }
+	        ? updatedSurvey
 	        : s
 	    )
 	  );

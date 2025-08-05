@@ -21,7 +21,7 @@ export const DropdownFavorite = ({ favoriteElements, onRemoveFavorite }) => {
               <div key={item.id} className="p-3 bg-white rounded-xl flex items-center gap-3">
                 <div className="flex-1 flex items-center gap-2">
                   <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                    <div className="text-cyan-700 text-xs font-semibold">{item.code || 'E01'}</div>
+                    <div className="text-primary-200 text-xs font-semibold">{item.code || 'E01'}</div>
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-semibold text-gray-800">{item.name}</div>

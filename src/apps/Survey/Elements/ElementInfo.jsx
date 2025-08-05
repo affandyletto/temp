@@ -179,7 +179,7 @@ export const ElementInfo=({data, setTab})=>{
                 </div>
                 <div className="flex-1 flex items-center gap-2">
                   <span className="text-sm text-gray-800">{item.label}</span>
-                  <span className="px-1.5 py-0.5 bg-blue-50 text-cyan-700 text-[10px] rounded-full">
+                  <span className="px-1.5 py-0.5 bg-blue-50 text-primary-200 text-[10px] rounded-full">
                     {item.count}
                   </span>
                 </div>
