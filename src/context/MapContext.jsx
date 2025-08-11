@@ -3,6 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { v4 as uuidv4 } from "uuid";
 import { useProject } from '@/context/ProjectContext';
+import { addIconPicture, updateIconApi } from "@/api/Survey"
 
 // Create the context
 const MapContext = createContext();
@@ -26,6 +27,7 @@ export const MapProvider = ({ children }) => {
   const [selectedID, setSelectedID]=useState(null)
   const [selectedElement, setSelectedElement] = useState(null)
   const [isInitialDrown, setIsInitialDrown] = useState(false)
+  const [isInitialDrop, setIsInitialDrop] =useState(false)
   const [triggerElementClick, setTriggerElementClick] = useState(false)
   const [swapElement, setSwapElement] = useState(null)
   const mapInstanceRef = useRef(null);
@@ -44,17 +46,18 @@ export const MapProvider = ({ children }) => {
 	}, [placedElements, selectedID]);
 
  const createCustomIcon = useCallback((elementData, isSelected = false) => {
- const borderColor = isSelected ? 'green' : 'white';
+
+ const borderColor = isSelected ? 'green' : elementData.color;
  const iconHtml = `
    <img 
-     src="${elementData.url}"
+     src="${elementData.thumbnail}"
      alt="${elementData.name}"
      style="
      object-fit: cover; 
      pointer-events: none;
      background-color:${elementData.color};
-     width: ${surveyRef.current?.elementSize||'40'}px !important;
-     height: ${surveyRef.current?.elementSize||'40'}px !important;
+     width: ${surveyRef.current?.iconSize||'40'}px !important;
+     height: ${surveyRef.current?.iconSize||'40'}px !important;
      border-radius: 50% !important;
      overflow: hidden !important;
      border: 2px solid ${borderColor} !important;
@@ -68,12 +71,12 @@ export const MapProvider = ({ children }) => {
  return L.divIcon({
      html: iconHtml,
      className: 'custom-static-icon',
-     iconSize: [surveyRef.current?.elementSize || 40, surveyRef.current?.elementSize || 40],
-     iconAnchor: [(surveyRef.current?.elementSize || 40)/2, (surveyRef.current?.elementSize || 40)/2],
-     popupAnchor: [0, -(surveyRef.current?.elementSize || 40)/2]
+     iconSize: [surveyRef.current?.iconSize || 40, surveyRef.current?.iconSize || 40],
+     iconAnchor: [(surveyRef.current?.iconSize || 40)/2, (surveyRef.current?.iconSize || 40)/2],
+     popupAnchor: [0, -(surveyRef.current?.iconSize || 40)/2]
    });
 }, []);
-
+ 
 const createFieldOfView = useCallback((elementData) => {
     if (!mapInstanceRef.current) return null;
     const { rotate = 75, depth = 100, angle = 0, bgColor = '#3F444D', opacity } = elementData;
@@ -173,7 +176,7 @@ const redrawFOV = useCallback((markerId, data) => {
 const redrawAllElements = useCallback(() => {
   if (!mapInstanceRef.current) return;
   
-  // Update all marker icons with current survey elementSize
+  // Update all marker icons with current survey iconSize
   markersRef.current.forEach(marker => {
     const markerId = marker._leaflet_id;
     const elementData = placedElements.find(el => el.markerId === markerId);
@@ -186,10 +189,10 @@ const redrawAllElements = useCallback(() => {
           marker.addTo(mapInstanceRef.current);
         }
         
-        // Create new icon with survey elementSize
+        // Create new icon with survey iconSize
         const elementWithSurveySize = {
           ...elementData,
-          elementSize: surveyRef.current?.elementSize
+          iconSize: surveyRef.current?.iconSize
         };
         const isSelected = selectedElement && selectedElement.markerId === markerId;
         const newIcon = createCustomIcon(elementWithSurveySize, isSelected);
@@ -221,7 +224,7 @@ const redrawAllElements = useCallback(() => {
       }
     }
   });
-}, [placedElements, filteredElements, selectedElement, selectedSurvey?.elementSize, createCustomIcon]);
+}, [placedElements, filteredElements, selectedElement, selectedSurvey?.iconSize, createCustomIcon]);
 
 useEffect(() => {
   redrawAllElements();
@@ -229,34 +232,42 @@ useEffect(() => {
 
 
 useEffect(() => {
-  if (selectedSurvey?.elementSize) {
+  if (selectedSurvey?.iconSize) {
     redrawAllElements();
   }
-}, [selectedSurvey?.elementSize, redrawAllElements]);
+}, [selectedSurvey?.iconSize, redrawAllElements]);
 
-useEffect(()=>{
-  if(selectedSurvey?.id){
-    setPlacedElements(selectedSurvey?.placedElements||[])
-    clearAndRecreateMapElements(selectedSurvey?.placedElements)
-  }
-},[selectedSurvey?.id])
+  useEffect(()=>{
+    if(selectedSurvey?.id&&!isInitialDrop){
+      selectedSurvey?.icon?.forEach(x=>{
+        handleElementDrop(x, x.position)
+      })
+      setIsInitialDrop(true)
+    }
+  },[selectedSurvey?.id])
 
   // Optimized drag end handler with debouncing
   const handleMarkerDragEnd = useCallback((e) => {
     const position = e.target.getLatLng();
     const markerId = e.target._leaflet_id;
-    
-	selectingElement(markerId)
-    requestAnimationFrame(() => {
-      setPlacedElements(prev => 
-        prev.map(el => 
-          el.markerId === markerId 
-            ? { ...el, position: [position.lat, position.lng] }
-            : el
-        )
-      );
-    });
-  }, []);
+    const selEl = placedElementsRef.current.find(x => x.markerId === markerId);
+
+    updateIconApi(selEl?.id, {
+      xposition:position.lat,
+      yposition:position.lng
+    })
+
+  	selectingElement(markerId)
+      requestAnimationFrame(() => {
+        setPlacedElements(prev => 
+          prev.map(el => 
+            el.markerId === markerId 
+              ? { ...el, position: [position.lat, position.lng] }
+              : el
+          )
+        );
+      });
+    }, []);
 
 
   const initialDrawingFields = useCallback(() => {
@@ -279,10 +290,6 @@ useEffect(()=>{
 
     setIsInitialDrown(true)
   }, [isInitialDrown]);
-
-
-  
-  
 
   const updateElementInState = useCallback((id, data) => {
 	  setPlacedElements(prev => 
@@ -333,7 +340,7 @@ useEffect(()=>{
 
 useEffect(()=>{
   if(selectedSurvey){
-    clearAndRecreateMapElements(selectedSurvey.placedElements)
+    clearAndRecreateMapElements(selectedSurvey.icon)
   }  
 },[versionMode])
 
@@ -386,9 +393,9 @@ useEffect(()=>{
     const imageWidth = 2070;
     const imageHeight = 1380;
     const bounds = [[-imageHeight/2, -imageWidth/2], [imageHeight/2, imageWidth/2]];
-
+    console.info()
     // Background layer
-    const backgroundImageUrl = '/images/sample-floor-plan.webp';
+    const backgroundImageUrl = selectedSurvey?.picture;
     const backgroundBounds = [[-imageHeight/2, -imageWidth/2], [imageHeight/2, imageWidth/2]];
     L.imageOverlay(backgroundImageUrl, backgroundBounds, { opacity: 0.8 }).addTo(map);
 
@@ -402,40 +409,28 @@ useEffect(()=>{
     mapInstanceRef.current = map;
 
     return map;
-  }, [imageUrl]);
+  }, [imageUrl, selectedSurvey?.picture]);
 
   // Handle element drop on map
   const handleElementDrop = useCallback((elementData, latLng) => {
     if (!mapInstanceRef.current) return;
+    // Create a new marker at the drop location with optimized settings
+    const newMarker = createOptimizedMarker(latLng, elementData);
+    if (!newMarker) return;
+    
+    // Add to our tracking arrays
+    markersRef.current.push(newMarker);
+    const existingWithSameName = placedElementsRef.current.filter(el => el.name === elementData.name);
+    const order = existingWithSameName.length > 0 ? existingWithSameName.length + 1 : 1;
 
-    try {
-      // Create a new marker at the drop location with optimized settings
-      const newMarker = createOptimizedMarker([latLng.lat, latLng.lng], elementData);
-      if (!newMarker) return;
-      
-      // Add to our tracking arrays
-      markersRef.current.push(newMarker);
-      const existingWithSameName = placedElementsRef.current.filter(el => el.name === elementData.name);
-      const order = existingWithSameName.length > 0 ? existingWithSameName.length + 1 : 1;
-
-      const newPlacedElement = {
-        ...elementData,
-        position: [latLng.lat, latLng.lng],
-        markerId: newMarker._leaflet_id,
-        id: uuidv4(),
-        order: order
-      };
-      setSelectedID(newPlacedElement.id)
-      setPlacedElements(prev => {
-        const qq = [...prev, newPlacedElement];
-        return qq;
-      });
-      
-
-      
-    } catch (error) {
-      console.error('Error handling element drop:', error);
-    }
+    const newPlacedElement = {
+      ...elementData,
+      position: [latLng.lat, latLng.lng],
+      markerId: newMarker._leaflet_id,
+      order: order
+    };
+    setSelectedID(newPlacedElement.id)
+    setPlacedElements(prev => [...prev, newPlacedElement]);
   }, [createOptimizedMarker]);
 
   // Add custom styles for markers
@@ -748,12 +743,21 @@ useEffect(()=>{
 	}, [selectedElement, createOptimizedMarker, createFieldOfView]);
 
   const uploadPhoto = (id, photo) => {
+    var newPhoto=new File([photo], photo.name+".jpeg", {type: photo.type, lastModified: photo.lastModified}) 
 	  var newPic = {
-	    name: selectedElement?.name,
+	    title: selectedElement?.name,
 	    elementId: selectedElement?.id,
 	    elementName: selectedElement?.name,
-	    picture: URL.createObjectURL(photo)
-	  }	  
+	    picture: URL.createObjectURL(newPhoto),
+      stage:selectedSurvey?.stage||"design"
+	  }
+    console.info(photo)
+    var picToSend={
+      ...newPic,
+      picture: newPhoto
+    }
+
+    addIconPicture(selectedElement?.id, picToSend)
 	  setPlacedElements(prev => 
 	    prev.map(el => 
 	      el.id === id 
@@ -777,8 +781,8 @@ useEffect(()=>{
   }, [placedElements, hiddenElements]);
 
   const updateHiddenElements = useCallback((hiddenSet) => {
-  setHiddenElements(hiddenSet);
-}, []);
+    setHiddenElements(hiddenSet);
+  }, []);
 
   const restoreVersion = (name, version) => {
     // Generate unique versionName
@@ -838,6 +842,10 @@ useEffect(()=>{
     
     setSelectedSurvey(newsurv)
     return newsurv
+  }
+
+  const loadSurvey=()=>{
+
   }
 
   // Context value

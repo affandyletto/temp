@@ -9,28 +9,39 @@ import SelectRowsPerPage from "@/components/SelectRowsPerPage";
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import ModalSubmitProject from "@/components/Modal/ModalSubmitProject";
 import Toggle from "@/components/Toggle/Toggle";
+import { useProject } from "@/context/ProjectContext"
+import { useUser } from '@/context/UserContext';
 
 const ProjectList = () => {
-  // Loading
   const [isLoading, setIsLoading] = useState(true);
+  const { projects, getUserProjects } = useProject()
+  const { selectedOrganization } = useUser();
+
+  const initialLoad=async()=>{
+    setIsLoading(true)
+    await getUserProjects()
+    setIsLoading(false)
+  }
+
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    if(selectedOrganization?.id){
+      initialLoad()
+    }
+  }, [selectedOrganization?.id]);
 
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [isEnabled, setIsEnabled] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(true);
 
   const filtered = useMemo(() => {
-    return mockProjects.filter(
+    return projects.filter(
       (c) =>
         c.name.toLowerCase().includes(search.toLowerCase()) &&
-        c.isArchive === isEnabled
+        c.isArchived !== isEnabled
     );
-  }, [search, isEnabled]);
+  }, [search, isEnabled, projects]);
 
   const totalPages = Math.ceil(filtered.length / rowsPerPage);
   const paginated = useMemo(() => {

@@ -13,10 +13,15 @@ import CardCollapse from "@/components/Card/CardCollapse";
 import ProgressBarSeatUsage from "@/components/ProgressBar/ProgressBarSeatUsage";
 import ModalSubmitUser from "@/components/Modal/ModalSubmitUser";
 import SkeletonDefault from "@/components/Skeleton/SkeletonDefault";
+import { useUser } from '@/context/UserContext';
+import { useToast } from "@/context/ToastContext";
+import { createUser } from "@/api/Users"
 
 const UserList = () => {
-  // Loading
   const [isLoading, setIsLoading] = useState(true);
+  const { user, selectedOrganization } = useUser();
+  const { showToast } = useToast();
+
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
@@ -53,10 +58,25 @@ const UserList = () => {
   // Handle Add
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const handleAddClient = () => {
-    setIsAddOpen(false);
+  const handleAddUser = (userData) => {
+    var dataToSend={...userData, companyID:selectedOrganization.id}
+    console.log("New user data:", userData);
+    createUser(dataToSend, showToast)
+    setIsAddOpen(false)
+    // Here you would typically:
+    // 1. Make an API call to save the user
+    // 2. Add the user to your state/list
+    // 3. Show a success message
+    
+    // Example of adding to local state (if you're managing users in state):
+    // setUsers(prevUsers => [...prevUsers, { id: Date.now(), ...userData }]);
+    
+    // For now, just log the data and close modal
+    //setIsAddOpen(false);
+    
+    // Optional: Show success message
+    // toast.success("User added successfully!");
   };
-
   // Handle Change Type
   const handleChangeType = (item) => {
     setFilterType(item);
@@ -149,7 +169,7 @@ const UserList = () => {
       <ModalSubmitUser
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
-        onSubmit={handleAddClient}
+        onSubmit={handleAddUser}
       />
     </>
   );

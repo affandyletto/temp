@@ -200,8 +200,8 @@ export const ElementPhotos = ({isHistory}) => {
   } = useMap();
   
   useEffect(()=>{
-    if(selectedElement?.photos){
-      setPhotos(selectedElement?.photos)
+    if(selectedElement?.iconPicture){
+      setPhotos(selectedElement?.iconPicture)
     }
   },[selectedElement])
   
@@ -292,7 +292,7 @@ export const ElementPhotos = ({isHistory}) => {
                 {/* Title and ID */}
                 <div>
                   <h3 className="text-sm font-semibold text-gray-800">{photo?.name}</h3>
-                  <p className="text-xs text-zinc-500">Element ID: {photo?.elementId} | {photo?.elementName}</p>
+                  <p className="text-xs text-zinc-500">Element ID: {photo?.elementID} | {photo?.elementName}</p>
                 </div>
                 <hr className="border-slate-200" />
                 {/* Metadata */}

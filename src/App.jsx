@@ -22,10 +22,33 @@ import ProjectPhotos from "./pages/ProjectPhotos";
 import OneSnapPage from "./pages/OneSnapPage"
 import { OneSnapDetail } from "./pages/OneSnapDetail"
 import { Survey } from "./pages/Survey"
+import { Login } from "@/apps/Mobile/Login";
+import { ForgotPassword } from "@/apps/Mobile/ForgotPassword";
+import { SetNewPassword } from "@/apps/Mobile/SetNewPassword";
+import { useUser } from "./context/UserContext";
+
 
 function App() {
   const { isCollapsed } = useSidebar();
-  
+  const { loading, isLoggedIn } = useUser();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgotPassword" element={<ForgotPassword />} />
+          <Route path="/setNewPassword" element={<SetNewPassword />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    );
+  }
+
   return (
     <Router>
       <Routes>
@@ -38,6 +61,21 @@ function App() {
             </div>
           } 
         />
+
+        <Route 
+            path="/login" 
+            element={<Login />} 
+          />
+
+          <Route 
+            path="/forgotPassword" 
+            element={<ForgotPassword />} 
+          />
+
+          <Route 
+            path="/setNewPassword" 
+            element={<SetNewPassword />} 
+          />
         
         {/* All other routes with sidebar layout */}
         <Route

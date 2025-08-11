@@ -1,10 +1,11 @@
-// src/index.js
+// src/main.jsx
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import Mobile from "./Mobile";
 import { SidebarProvider } from "./context/SidebarContext";
 import { DropdownProvider } from "./context/DropdownContext";
+import { UserProvider } from "./context/UserContext";
 import { MapProvider } from "./context/MapContext";
 import { ProjectProvider } from "./context/ProjectContext";
 import { LineProvider } from "./context/LineContext";
@@ -26,21 +27,23 @@ const isMobile = () => {
 const DesktopApp = () => (
   <DndProvider backend={MultiBackend} options={HTML5toTouch}>
     <ToastProvider>
-      <ProjectProvider>
-        <SidebarProvider>
-          <DropdownProvider>
-            <TabProvider>
-              <OneSnapTabProvider>
-                <MapProvider>
-                  <LineProvider>
-                    <App />
-                  </LineProvider>
-                </MapProvider>
-              </OneSnapTabProvider>
-            </TabProvider>
-          </DropdownProvider>
-        </SidebarProvider>
-      </ProjectProvider>
+      <UserProvider>
+        <ProjectProvider>
+          <SidebarProvider>
+            <DropdownProvider>
+              <TabProvider>
+                <OneSnapTabProvider>
+                  <MapProvider>
+                    <LineProvider>
+                      <App />
+                    </LineProvider>
+                  </MapProvider>
+                </OneSnapTabProvider>
+              </TabProvider>
+            </DropdownProvider>
+          </SidebarProvider>
+        </ProjectProvider>
+      </UserProvider>
     </ToastProvider>
   </DndProvider>
 );
@@ -48,17 +51,19 @@ const DesktopApp = () => (
 // Mobile App with mobile-specific contexts
 const MobileApp = () => (
   <ToastProvider>
-    <ProjectProvider>
-      <MapProvider>
-        <MobileProvider>
-          <MobileSurveyProvider>
-            <MobileOnesnapProvider>
-              <Mobile />
-            </MobileOnesnapProvider>
-          </MobileSurveyProvider>
-        </MobileProvider>
-      </MapProvider>
-    </ProjectProvider>
+    <UserProvider>
+      <ProjectProvider>
+        <MapProvider>
+          <MobileProvider>
+            <MobileSurveyProvider>
+              <MobileOnesnapProvider>
+                <Mobile />
+              </MobileOnesnapProvider>
+            </MobileSurveyProvider>
+          </MobileProvider>
+        </MapProvider>
+      </ProjectProvider>
+    </UserProvider>
   </ToastProvider>
 );
 

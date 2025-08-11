@@ -15,7 +15,8 @@ const CardFloorPlan = ({
   id,
   name,
   lastUpdated,
-  thumbnail,
+  isArchived,
+  picture,
   isArchive,
   isLoading,
   onRename,
@@ -59,7 +60,7 @@ const CardFloorPlan = ({
             Last updated {lastUpdated}
           </span>
         </div>
-        {isArchive ? (
+        {isArchived ? (
           <DropdownMenu
             onOpen={() => setActiveRowId(id)}
             onClose={() => setActiveRowId(null)}
@@ -143,7 +144,7 @@ const CardFloorPlan = ({
       </div>
       <div className="flex items-center justify-center pt-4">
         <img
-          src={thumbnail}
+          src={picture}
           alt="Thumbnail"
           className="w-full h-[200px] object-cover"
         />

@@ -1,5 +1,4 @@
 // src/components/Modal/Modal.js
-
 import { useEffect, useRef, useState } from "react";
 
 const Modal = ({
@@ -41,9 +40,11 @@ const Modal = ({
         onClose();
       }
     };
+
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
@@ -60,9 +61,8 @@ const Modal = ({
       <div
         ref={ref}
         className={`
-          max-h-[90vh] bg-white border border-neutral-400 rounded-lg shadow-lg ${
-            isScroll && "overflow-y-auto"
-          }
+          max-h-[90vh] bg-white border border-neutral-400 rounded-lg shadow-lg
+          overflow-hidden flex flex-col
           transform transition-all duration-300 ease-out
           ${
             animateOut

@@ -5,13 +5,16 @@ import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { ChevronRight, ChevronsUpDown, LogOut, Search } from "lucide-react";
 import { useSidebar } from "@/context/SidebarContext";
-import { menuDropdownUsers, menuItems, organizations } from "@/data/sidebar";
+import { menuDropdownUsers, menuItems } from "@/data/sidebar";
 import { Tooltip } from "react-tooltip";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import { useUser } from '@/context/UserContext';
+import { logout } from '@/api/auth'
 
 export default function Sidebar() {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const { isCollapsed, setIsCollapsed } = useSidebar();
+  const { user, selectedOrganization, organizations, selectOrganization } = useUser();
 
   useEffect(() => {
     setIsCollapsed(isMobile);
@@ -24,6 +27,10 @@ export default function Sidebar() {
   const [isSearchCompany, setIsSearchCompany] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchResult, setSearchResult] = useState(organizations);
+
+  // Animation states
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 
   const dropdownRef = useRef(null);
 
@@ -41,11 +48,48 @@ export default function Sidebar() {
     }
   };
 
+  // Handle main dropdown toggle with animation
+  const handleMainDropdownToggle = () => {
+    if (isOpen) {
+      setShowDropdown(false);
+      setTimeout(() => {
+        setOpen(false);
+        setIsSearchCompany(false);
+        setShowSearchDropdown(false);
+      }, 200); // Wait for fade out animation
+    } else {
+      setOpen(true);
+      setTimeout(() => {
+        setShowDropdown(true);
+      }, 50); // Small delay for smooth appearance
+    }
+  };
+
+  // Handle search company dropdown toggle with animation
+  const handleSearchCompanyToggle = () => {
+    if (isSearchCompany) {
+      setShowSearchDropdown(false);
+      setTimeout(() => {
+        setIsSearchCompany(false);
+      }, 200); // Wait for fade out animation
+    } else {
+      setIsSearchCompany(true);
+      setTimeout(() => {
+        setShowSearchDropdown(true);
+      }, 50); // Small delay for smooth appearance
+    }
+  };
+
   // Klik luar dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
+        setShowDropdown(false);
+        setShowSearchDropdown(false);
+        setTimeout(() => {
+          setOpen(false);
+          setIsSearchCompany(false);
+        }, 200);
       }
     };
 
@@ -54,12 +98,12 @@ export default function Sidebar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
+  
   return (
     <aside
       className={`
         h-screen fixed top-0 left-0 bg-neutral-200 border-r-2 border-neutral-300 p-5 flex flex-col justify-between
-        transition-all duration-300
+        transition-all duration-300 z-[10]
         ${isCollapsed ? "w-24" : "w-72"}
       `}
     >
@@ -118,10 +162,7 @@ export default function Sidebar() {
         <button
           type="button"
           className="w-full flex items-center justify-between hover:bg-neutral-300 rounded-md p-2"
-          onClick={() => {
-            setOpen((prev) => !prev);
-            setIsSearchCompany(false);
-          }}
+          onClick={handleMainDropdownToggle}
         >
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center bg-blue-400 w-10 h-10 rounded-full overflow-hidden">
@@ -133,19 +174,24 @@ export default function Sidebar() {
             </div>
             {!isCollapsed && (
               <div className="text-left">
-                <p className="text-sm font-semibold leading-none">User01</p>
-                <span className="text-xs text-secondary">user@example.com</span>
+                <p className="text-sm font-semibold leading-none">{user?.first_name}</p>
+                <span className="text-xs text-secondary">{user?.email}</span>
               </div>
             )}
           </div>
           {!isCollapsed && <ChevronsUpDown className="size-5" />}
         </button>
-        {/* Dropdown Account */}
+        
+        {/* Main Dropdown Account */}
         {isOpen && (
           <div
             className={`absolute ${
               isCollapsed ? "left-16" : "left-64"
-            } bottom-0 w-72 rounded-xl bg-white border border-neutral-400 shadow-md`}
+            } bottom-0 w-72 rounded-xl bg-white border border-neutral-400 shadow-md transition-all duration-200 ${
+              showDropdown 
+                ? "opacity-100 scale-100 translate-y-0" 
+                : "opacity-0 scale-95 translate-y-2"
+            }`}
           >
             <div className="flex items-center gap-2 p-4 border-b border-b-neutral-400">
               <div className="flex items-center justify-center bg-blue-400 w-10 h-10 rounded-full overflow-hidden">
@@ -156,65 +202,78 @@ export default function Sidebar() {
                 />
               </div>
               <div className="text-left">
-                <p className="text-sm font-semibold leading-none">User01</p>
-                <span className="text-xs text-secondary">user@example.com</span>
+                <p className="text-sm font-semibold leading-none">{user?.first_name}</p>
+                <span className="text-xs text-secondary">{user?.email}</span>
               </div>
             </div>
             <div className="relative">
               <button
                 type="button"
                 className="w-full flex items-center justify-between hover:bg-neutral-300 border-b border-b-neutral-400 p-4"
-                onClick={() => setIsSearchCompany(!isSearchCompany)}
+                onClick={handleSearchCompanyToggle}
               >
                 <div className="text-left">
                   <p className="text-sm font-semibold leading-none">
                     Current Organization
                   </p>
                   <span className="text-xs text-secondary">
-                    Example Company
+                    {selectedOrganization?.name}
                   </span>
                 </div>
                 <ChevronRight className="size-5" />
               </button>
-              {/* Dropdown Search Company */}
+              
+              {/* Search Company Dropdown */}
               {isSearchCompany && (
-                <div className="absolute bottom-0 left-72 ml-2 w-72 h-60 overflow-y-scroll rounded-xl bg-white border border-neutral-400 shadow-md p-2">
-                  <div className="flex items-center gap-2 border border-neutral-400 rounded-lg p-3">
-                    <Search className="size-5" />
-                    <input
-                      name="search"
-                      value={searchText}
-                      onChange={handleSearch}
-                      className="w-full text-sm placeholder:text-secondary focus:outline-none focus:ring-0 focus:border-transparent active:outline-none active:ring-0 active:border-transparent"
-                      placeholder="Search"
-                    />
+                <div 
+                  className={`absolute bottom-0 left-72 ml-2 w-72 z-[10] rounded-xl bg-white border border-neutral-400 shadow-md transition-all duration-200 ${
+                    showSearchDropdown 
+                      ? "opacity-100 scale-100 translate-x-0" 
+                      : "opacity-0 scale-95 -translate-x-2"
+                  }`}
+                >
+                  {/* Fixed Search Input */}
+                  <div className="sticky top-0 bg-white rounded-t-xl p-2 border-b border-neutral-200">
+                    <div className="flex items-center gap-2 border border-neutral-400 rounded-lg p-3">
+                      <Search className="size-5" />
+                      <input
+                        name="search"
+                        value={searchText}
+                        onChange={handleSearch}
+                        className="w-full text-sm placeholder:text-secondary focus:outline-none focus:ring-0 focus:border-transparent active:outline-none active:ring-0 active:border-transparent"
+                        placeholder="Search"
+                      />
+                    </div>
                   </div>
 
-                  {searchResult.length > 0 ? (
-                    <div className="space-y-1 mt-2">
-                      {searchResult.map(({ url, name }) => (
-                        <Link
-                          key={url}
-                          to={url}
-                          className="flex items-center hover:bg-neutral-300 rounded-md p-2"
-                        >
-                          <span className="text-sm">{name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-40 mt-2 p-3">
-                      <div className="space-y-1 text-center">
-                        <p className="text-sm font-semibold">
-                          Search not found
-                        </p>
-                        <p className="text-xs text-secondary">
-                          Try checking the spelling of the organization name or
-                          using other keywords.
-                        </p>
+                  {/* Scrollable Results */}
+                  <div className="max-h-48 overflow-y-auto p-2">
+                    {searchResult.length > 0 ? (
+                      <div className="space-y-1">
+                        {searchResult.map(organization => (
+                          <div
+                            onClick={()=>selectOrganization(organization)}
+                            key={organization.id}
+                            className="flex items-center hover:bg-neutral-300 rounded-md p-2 cursor-pointer"
+                          >
+                            <span className="text-sm">{organization.name}</span>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex items-center justify-center h-32 p-3">
+                        <div className="space-y-1 text-center">
+                          <p className="text-sm font-semibold">
+                            Search not found
+                          </p>
+                          <p className="text-xs text-secondary">
+                            Try checking the spelling of the organization name or
+                            using other keywords.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -233,13 +292,13 @@ export default function Sidebar() {
               </div>
             </div>
             <div className="p-2">
-              <Link
-                to={"logout"}
-                className="flex items-center gap-2 hover:bg-neutral-300 rounded-md p-2"
+              <div
+                onClick={logout}
+                className="flex items-center gap-2 hover:bg-neutral-300 rounded-md p-2 cursor-pointer"
               >
                 <LogOut className="size-6" />
                 <span className="text-sm">Logout</span>
-              </Link>
+              </div>
             </div>
           </div>
         )}

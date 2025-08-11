@@ -6,7 +6,6 @@ import { HistorySidebar } from "@/apps/Survey/Sidebar/HistorySidebar";
 import { ElementListSidebar } from "@/apps/Survey/Sidebar/ElementListSidebar";
 import { ElementDetailSidebar } from "@/apps/Survey/Sidebar/ElementDetailSidebar";
 import { ElementHistoryDetail } from "@/apps/Survey/Elements/ElementHistoryDetail";
-import { useNavigate } from "react-router-dom";
 import { Design } from "@/apps/Survey/Elements/MiniPopup/Design";
 import { InstallationAccess } from "@/apps/Survey/Elements/MiniPopup/InstallationAccess";
 import { ElementInformation } from "@/apps/Survey/Elements/MiniPopup/ElementInformation";
@@ -14,12 +13,12 @@ import { ColorSelection } from "@/apps/Survey/Elements/MiniPopup/ColorSelection"
 import { SurveySettings } from "@/apps/Survey/Elements/MiniPopup/SurveySettings";
 import { VisibilityFilter } from "@/apps/Survey/Elements/MiniPopup/VisibilityFilter"
 import { LeafletMap } from "./LeafletMap";
-import { useParams } from 'react-router-dom';
 import { useMap } from '@/context/MapContext';
 import { useTab } from '@/context/TabContext';
 import { useProject } from '@/context/ProjectContext';
 import ButtonPrimary from "@/components/Button/ButtonPrimary";
 import "@/apps/Survey/survey.css";
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const Survey = () => {
   const [isCollapsedRight, setIsCollapsedRight] = useState(false);
@@ -27,6 +26,7 @@ export const Survey = () => {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [versionParam, setVersionParam] = useState(null);
   const { id } = useParams();
+const navigate=useNavigate()
 
   // Refs for click outside detection
   const miniPopupRef = useRef(null);
@@ -44,9 +44,12 @@ export const Survey = () => {
     loadSurvey
   } = useProject();
 
+  const initLoad=async()=>{
+    await loadSurvey(id)
+  }
+
   useEffect(()=>{
     if(id){
-      console.info(id)
       loadSurvey(id)
     }
   },[id])
@@ -110,7 +113,7 @@ export const Survey = () => {
   }, []);
   
   const onBack = useCallback(() => {
-    console.log("Navigating back to projects");
+    navigate("/")
   }, []);
 
   return (

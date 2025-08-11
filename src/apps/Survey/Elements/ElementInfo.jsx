@@ -22,7 +22,13 @@ import { useUrlParams } from "@/hooks/useUrlParams";
 import { useMap } from '@/context/MapContext';
 import { useTab } from '@/context/TabContext';
 import ModalConfirm from "@/components/Modal/ModalConfirm";
+import imageCompression from "browser-image-compression";
 
+const options = {
+  maxSizeMB: 0.6,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+}
 
 export const ElementInfo=({data, setTab})=>{
     const { toggleParameter, getParam } = useUrlParams();
@@ -117,10 +123,12 @@ export const ElementInfo=({data, setTab})=>{
     fileInputRef.current?.click();
   };
 
-  const handleFileSelect = (event) => {
+  const handleFileSelect = async(event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      uploadPhoto(selectedElement?.id, file);
+
+      const compressedFile = await imageCompression(file, options); 
+      uploadPhoto(selectedElement?.id, compressedFile);
     }
     // Reset the input value to allow selecting the same file again
     event.target.value = '';
@@ -143,7 +151,7 @@ export const ElementInfo=({data, setTab})=>{
    }
   
   const menuItems = [
-      { icon: Image, label: 'Photos', count: selectedElement?.photos?.length||0, action:photosClick },
+      { icon: Image, label: 'Photos', count: selectedElement?.iconPicture?.length||0, action:photosClick },
       { icon: MessageSquare, label: 'Comment', count: selectedElement?.comments?.length||0, action:commentClick },
       { icon: CheckSquare, label: 'Task', count: 0, action:taskClick },
       { icon: Route, label: 'Path', count: 10, action:pathClick }

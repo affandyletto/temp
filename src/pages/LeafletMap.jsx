@@ -1,9 +1,12 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { useMap } from '@/context/MapContext';
+import { useProject } from '@/context/ProjectContext';
+
 
 
 export const LeafletMap = ({ onElementDragStart }) => {
   const mapRef = useRef(null);
+  const [isInitialized, setIsInitialized] = useState(false)
   const {
     placedElements,
     mapInstanceRef,
@@ -13,6 +16,10 @@ export const LeafletMap = ({ onElementDragStart }) => {
     cleanup, 
     imageUrl
   } = useMap();
+
+  const {
+    selectedSurvey
+  } = useProject()
 
   // Setup drop zone functionality
   const setupDropZone = useCallback((mapContainer, map) => {
@@ -62,17 +69,16 @@ export const LeafletMap = ({ onElementDragStart }) => {
 
   // Initialize map and setup event listeners
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !selectedSurvey?.picture || isInitialized) return;
 
     const map = initializeMap(mapRef.current);
     if (!map) return;
-
     // Add custom styles
     addMarkerStyles();
-
+    console.info("INITIALIZING")
     // Setup drop zone
     const cleanupDropZone = setupDropZone(mapRef.current, map);
-
+    setIsInitialized(true)
     // Cleanup function
     return () => {
       cleanupDropZone();
@@ -90,7 +96,7 @@ export const LeafletMap = ({ onElementDragStart }) => {
 	    backgroundPosition: 'center',
 	    backgroundRepeat: 'no-repeat',
 	    position: 'relative',
-	    zIndex: 1
+	    zIndex: 1,
       }}
     />
   );

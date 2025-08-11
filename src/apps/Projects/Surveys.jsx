@@ -13,18 +13,32 @@ import ModalConfirm from "@/components/Modal/ModalConfirm";
 import ModalAddFloorPlan from "@/components/Modal/ModalAddFloorPlan";
 import SkeletonCard from "@/components/Skeleton/SkeletonCard";
 import { useNavigate } from "react-router-dom";
+import { useProject } from "@/context/ProjectContext"
+import { useParams } from 'react-router-dom';
+import { useUser } from '@/context/UserContext';
 
 const Surveys = () => {
-  // Loading
+  const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
+  const { surveys, getProjectSurveys } = useProject()
   const navigate = useNavigate();
+  const { selectedOrganization } = useUser();
+
+  const initialLoad=async()=>{
+    setIsLoading(true)
+    const res = await getProjectSurveys(id)
+    console.info(res)
+    setFloorPlans(res)
+    setIsLoading(false)
+  }
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    if(selectedOrganization?.id){
+      initialLoad()
+    }
+  }, [selectedOrganization?.id]);
 
-  const [floorPlans, setFloorPlans] = useState(mockSurveys);
+  const [floorPlans, setFloorPlans] = useState([]);
 
   const handleClick = (id) => {
     navigate(`/survey/${id}`)
@@ -150,7 +164,7 @@ const Surveys = () => {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             {floorPlans
-              .filter((item) => item.isArchive === isEnabled)
+              .filter((item) => item?.isArchived === isEnabled)
               .map((item) => (
                 <CardFloorPlan
                   key={item.id}

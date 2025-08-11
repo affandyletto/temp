@@ -4,17 +4,23 @@ import { dropdownProgress } from "@/data/dropdown";
 import { mockSurveys } from "@/data/surveys"
 import { useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from "uuid";
+import { getProjects, getSurveys } from '@/api/Projects'
+import { getSurveyDetail } from '@/api/Survey'
+import { useToast } from "@/context/ToastContext";
+import { useUser } from '@/context/UserContext';
 
 const ProjectContext = createContext();
 
 export function ProjectProvider({ children }) {
 	const { id } = useParams();
-	const [surveys, setSurveys] = useState(mockSurveys)
+  const { selectedOrganization } = useUser();
+	const [surveys, setSurveys] = useState([])
 	const [selectedSurvey, setSelectedSurvey] = useState(null)
-  	const [versionMode, setVersionMode] = useState(false)
+  const [versionMode, setVersionMode] = useState(false)
 	const [projects, setProjects] = useState([])
-	const [project, setProject] = useState(null)
-  	const surveyRef = useRef(null);
+	const [selectedProject, setSelectedProject] = useState(null)
+  const surveyRef = useRef(null);
+  const { showToast } = useToast();
 
 	useEffect(() => {
 	  surveyRef.current = selectedSurvey;
@@ -67,12 +73,12 @@ export function ProjectProvider({ children }) {
 		});
 	}, []);
 
-	const loadSurvey = (id) => {
-		const foundSurvey = surveys.find(s => s.id === id);
-		console.info(surveys)
-		if (foundSurvey) {
-			setSelectedSurvey(foundSurvey);
-		}
+	const loadSurvey = async(id) => {
+		const res = await getSurveyDetail(showToast, id)
+		console.info(res)
+		setSelectedSurvey(res);
+		setSurveys([res])
+		
 	}
 
 	useEffect(() => {
@@ -98,21 +104,36 @@ export function ProjectProvider({ children }) {
 	    window.dispatchEvent(new Event('urlchange'));
 	  };
 
-  	const value = {
+	const getUserProjects=async()=>{
+		const res = await getProjects(showToast, {company_id:selectedOrganization?.id})
+		setProjects(res.results)
+	}
+
+	const getProjectSurveys=async(project_id)=>{
+		const res = await getSurveys(showToast, {project_id:project_id})
+		setSurveys(res)
+		return res
+	}
+	
+  const value = {
 		versionMode, 
 		setVersionMode, 
 		surveys, 
 		setSurveys, 
 		selectedSurvey, 
 		setSelectedSurvey, 
-		project, 
-		setProject, 
+		selectedProject, 
+		setSelectedProject, 
 		updateSurvey, 
 		loadSurvey, 
 		surveyRef, 
 		handleHistoryClick,
 		deleteVersion,
-		renameVersion
+		renameVersion,
+		getUserProjects,
+		projects,
+		setProjects,
+		getProjectSurveys
 	};
   
   return (

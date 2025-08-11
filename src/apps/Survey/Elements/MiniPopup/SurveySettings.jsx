@@ -9,9 +9,9 @@ export const SurveySettings = ({onClose}) => {
     selectedSurvey,
     updateSurvey
   } = useMap();
-  
+
   // Just use the survey value directly - no local state!
-  const elementSize = selectedSurvey?.elementSize || 30;  // Changed from 'survey' to 'selectedSurvey'
+  const elementSize = selectedSurvey?.iconSize || 30;  // Changed from 'survey' to 'selectedSurvey'
   
   // Animation effect - component appears on mount
   useEffect(() => {
@@ -23,7 +23,7 @@ export const SurveySettings = ({onClose}) => {
   const handleSizeChange = (increment) => {
     const newSize = Math.max(1, elementSize + increment);
     // Force immediate re-render by calling redrawAllElements after state update
-    updateSurvey({ elementSize: newSize });
+    updateSurvey({ iconSize: newSize });
     // Use setTimeout to ensure the survey is updated first
     setTimeout(() => {
       if (window.mapContext?.redrawAllElements) {
@@ -37,7 +37,7 @@ export const SurveySettings = ({onClose}) => {
     const numValue = parseInt(value);
     if (!isNaN(numValue)) {
       const newSize = Math.max(1, numValue);
-      updateSurvey({ elementSize: newSize });
+      updateSurvey({ iconSize: newSize });
     }
   };
   
